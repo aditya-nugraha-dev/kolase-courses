@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KOLASE — Homepage</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="assets/kolase-logo.png">
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
+  <nav class="nav" data-nav>
+    <a href="home.html">Home</a><a href="catalog.html">Katalog</a>
+    <a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a>
+    <a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html">Masuk</a>
+  </nav>
+  <button class="burger" data-burger>☰</button>
+</div></header>
+
+<main class="wrap">
+  <div class="hero"><div class="hero-grid">
+    <div class="hero-card" style="grid-column:1/-1">
+      <h1>Belajar Bahasa Inggris 4 Sesi, Terjadwal & Terukur.</h1>
+      <p>1 paket = 4 sesi (1x/minggu). ID permanen <span class="id-mono">STU-XXXXXX</span>, kuota ledger otomatis, sinkron Google Sheets + Calendar.</p>
+      <div class="badges"><span class="badge">Kids & Beginner</span><span class="badge">Google Meet</span><span class="badge">Chat Guru</span><span class="badge">QRIS / VA / E-Wallet</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn btn-brand" href="catalog.html">Lihat Katalog</a>
+        <a class="btn btn-ghost" data-guest-only href="login.html">Daftar Gratis</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>4</b><span class="small">sesi/paket</span></div>
+        <div class="stat"><b>50rb+</b><span class="small">mulai</span></div>
+        <div class="stat"><b>1</b><span class="small">ID permanen</span></div>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="section"><h2>Kelas Populer</h2>
+    <div class="swipe-row" data-catalog></div>
+    <p class="small">Geser ke samping di HP • Grid 3 kolom di desktop.</p>
+  </div>
+
+  <div class="section"><h2>Poster KOLASE</h2>
+    <p class="small">Ketuk gambar untuk buka ukuran penuh. 6 poster belajar + 6 poster Visi &amp; Misi (01–06).</p>
+    <div class="swipe-row">
+      <a href="assets/poster/metode-scaffolding.jpeg"><img src="assets/poster/metode-scaffolding.jpeg" alt="Cara kami mengajar" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/bahasa-dipakai.jpeg"><img src="assets/poster/bahasa-dipakai.jpeg" alt="Bahasa dipakai, bukan cuma dipelajari" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/kids-bermain.jpeg"><img src="assets/poster/kids-bermain.jpeg" alt="Little Speakers" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/berani-mencoba.jpeg"><img src="assets/poster/berani-mencoba.jpeg" alt="Berani mencoba" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/cerita-awal.jpeg"><img src="assets/poster/cerita-awal.jpeg" alt="Cerita sederhana bisa jadi awal" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/ruang-menjawab.jpeg"><img src="assets/poster/ruang-menjawab.jpeg" alt="Ruang menjawab dan bertanya" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/visi-misi-cover.jpeg"><img src="assets/poster/visi-misi-cover.jpeg" alt="01/06 KOLASE in Vision and Mission" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/visi-generasi-unggul.jpeg"><img src="assets/poster/visi-generasi-unggul.jpeg" alt="02/06 Visi generasi unggul" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/misi-akses-karakter.jpeg"><img src="assets/poster/misi-akses-karakter.jpeg" alt="03/06 Akses dan karakter" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/misi-inovasi-seimbang.jpeg"><img src="assets/poster/misi-inovasi-seimbang.jpeg" alt="04/06 Inovasi dan keseimbangan" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/misi-global-masa-depan.jpeg"><img src="assets/poster/misi-global-masa-depan.jpeg" alt="05/06 Global dan masa depan" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+      <a href="assets/poster/misi-cta-bertumbuh.jpeg"><img src="assets/poster/misi-cta-bertumbuh.jpeg" alt="06/06 Mari bertumbuh bersama" loading="lazy" width="1080" height="1350" style="aspect-ratio:4/5;object-fit:cover"></a>
+    </div>
+  </div>
+
+  <div class="section"><h2>Ulasan Siswa</h2>
+    <p class="small">Ditulis siswa yang menyelesaikan 1 paket (semua sesi). Selesaikan paketmu untuk ikut mengulas — nilai Kelas, Guru, Pembelajaran & Materi.</p>
+    <div class="grid cols-3" id="reviewGrid"></div>
+  </div>
+
+  <div class="section" data-guest-only><div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+    <div style="flex:1"><b>Siap mulai?</b><div class="small">Daftar 1 menit, ID permanen langsung jadi.</div></div>
+    <a class="btn btn-brand" href="login.html">Daftar Sekarang</a>
+  </div></div>
+</main>
+
+<nav class="mobile-tabs">
+  <a href="home.html" class="active">Home</a><a href="catalog.html">Katalog</a>
+  <a href="dashboard.html">Kelas</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a>
+</nav>
+<footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a></div></footer>
+<script src="js/store.js"></script><script src="js/app.js"></script>
+<script>
+// Ulasan dinamis: dari localStorage (termasuk ulasan 1 paket yang baru dikirim).
+// Mendukung format baru (4 aspek bintang) + format lama (rating tunggal trial).
+(function(){
+  const stars = (n) => "★".repeat(Math.round(Number(n) || 0)) + "☆".repeat(5 - Math.round(Number(n) || 0));
+  const aspectRows = (r) => {
+    const aspects = [["Kelas", r.rating_kelas], ["Guru", r.rating_guru], ["Pembelajaran", r.rating_pembelajaran], ["Materi", r.rating_materi]];
+    if (aspects.every(([, v]) => v == null)) return "";
+    return `<div class="small" style="margin-top:6px">` + aspects.map(([label, v]) =>
+      `<div>${label}: <span style="color:var(--gold)">${stars(v)}</span> ${Number(v) || "-"}</div>`
+    ).join("") + `</div>`;
+  };
+  try {
+    const db = KolaseStore.loadDB();
+    document.getElementById("reviewGrid").innerHTML = (db.REVIEWS || []).slice(0, 6).map(r => {
+      const overall = r.rating_overall != null ? r.rating_overall : r.rating;
+      return `<div class="card"><div style="color:var(--gold)">${stars(overall)} <b>${overall}</b></div>${aspectRows(r)}<p>"${r.teks}"</p><div class="small">— ${r.nama}</div></div>`;
+    }).join("") || `<div class="card small">Belum ada ulasan.</div>`;
+  } catch(e){}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KOLASE — Teacher Portal</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="assets/kolase-logo.png">
+</head>
+<body data-guard="teacher">
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
+  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="teacher-portal.html">Teacher</a><a href="staff-portal.html">Staff</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
+  <button class="burger" data-burger>☰</button>
+</div></header>
+<main class="wrap">
+  <div class="section"><h2>Teacher Portal</h2><div class="small" id="who"></div></div>
+  <div class="section"><div class="kpi">
+    <div class="card"><div class="small">Perlu Presensi</div><b id="kTodo" style="font-size:26px;color:var(--gold)">-</b></div>
+    <div class="card"><div class="small">Sudah Dicatat</div><b id="kDone" style="font-size:26px">-</b></div>
+    <div class="card"><div class="small">Siswa Aktif</div><b id="kStud" style="font-size:26px">-</b></div>
+  </div></div>
+  <div class="section"><h2>Kelas & Materi (kunci VERIFIED)</h2>
+    <p class="small">Link Meet & materi per kelas hanya aktif bila kelas punya ≥1 enrollment VERIFIED (status ACTIVE).</p>
+    <div id="classList" class="grid cols-2"></div>
+  </div>
+  <div class="section"><h2>Presensi Sesi (PRESENT/LATE → −1 otomatis)</h2>
+    <p class="small">Prototype menampilkan semua sesi; production difilter per kelas yang diajar guru ini.</p>
+    <div id="sessList" class="cal-list"></div>
+  </div>
+  <div class="section"><h2>Presensi Trial 7 Sesi (boleh dikoreksi bila ABSENT)</h2>
+    <div id="trialList" class="cal-list"></div>
+  </div>
+  <div class="section"><h2>Rekap Enrollment</h2>
+    <div class="table-wrap"><table><thead><tr><th>ENR</th><th>Student</th><th>Kelas</th><th>Bayar</th><th>Status</th><th>Sisa</th></tr></thead><tbody id="rekap"></tbody></table></div>
+  </div>
+  <div class="section"><a class="btn btn-brand" href="teacher-chat.html">Balas Chat Siswa →</a></div>
+</main>
+<nav class="mobile-tabs"><a href="teacher-portal.html" class="active">Kelas</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html">Profil</a></nav>
+<script src="js/store.js"></script><script src="js/app.js"></script>
+<script>
+const db = KolaseStore.loadDB();
+document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "";
+const todo = db.SESSIONS.filter(s=>!s.hadir), done = db.SESSIONS.filter(s=>s.hadir);
+document.getElementById("kTodo").textContent = todo.length;
+document.getElementById("kDone").textContent = done.length;
+document.getElementById("kStud").textContent = new Set(db.CLASS_MEMBERSHIP.filter(m=>m.status==="ACTIVE").map(m=>m.student_id)).size;
+document.getElementById("sessList").innerHTML = db.SESSIONS.length ? db.SESSIONS.slice().reverse().map(s=>
+ `<div class="cal-item"><div class="date-box"><b>${s.seq}</b><span class="small">${s.tanggal.slice(5)}</span></div>
+  <div style="flex:1"><b class="small">${s.session_id}</b><div class="small">${s.enrollment_id} • ${s.tanggal}</div></div>
+  ${s.hadir?`<span class="pill p-present">${s.hadir}</span>`:`<select data-sess="${s.session_id}"><option>PRESENT</option><option>LATE</option><option>ABSENT</option><option>CANCELLED</option></select> <button class="btn btn-brand btn-sm" data-save="${s.session_id}">Simpan</button>`}
+ </div>`).join("") : `<div class="card small">Belum ada sesi. Sesi dibuat otomatis saat pembayaran VERIFIED.</div>`;
+document.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>{
+  const sid=b.getAttribute("data-save");
+  const v=document.querySelector(`[data-sess="${sid}"]`).value;
+  const sisa=KolaseStore.recordAttendance(sid,v);
+  alert(`Tersimpan ${v}. Sisa kuota: ${sisa}`); location.reload();
+});
+// Kelas & materi: link aktif hanya bila ada enrollment VERIFIED (ACTIVE) di kelas itu.
+fetch("data/classes.json").then(r=>r.json()).then(classes=>{
+  const link = (label, url, demo) => url
+    ? `<a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${label}</a>`
+    : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${demo}');return false">${label}</a>`;
+  document.getElementById("classList").innerHTML = classes.map(c=>{
+    const n = db.CLASS_MEMBERSHIP.filter(m=>m.class_id===c.id && m.status==="ACTIVE").length;
+    const open = n > 0;
+    return `<div class="card"><div class="meta"><span class="id-mono">${c.id}</span><span class="pill ${c.class_status==="OPEN"?"p-verified":"p-pending"}">${c.class_status||"OPEN"}</span><span>${n} VERIFIED</span></div>
+    <b>${c.nama}</b><div class="small">${c.jadwal} • ${c.guru}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${open ? link("GMeet", c.meet, "Join Google Meet (demo)") + link("Materi", c.slides, "File materi (demo)") : `<span class="pill p-locked">🔒 Butuh VERIFIED</span>`}</div>
+    ${open ? "" : `<div class="lock-note">🔒 Materi terkunci — verifikasi pembayaran dulu di Staff Portal.</div>`}</div>`;
+  }).join("");
+}).catch(()=>{ document.getElementById("classList").innerHTML = `<div class="card small">Gagal memuat katalog.</div>`; });
+// Presensi trial: 7/7 PRESENT/LATE membuka form ulasan siswa
+document.getElementById("trialList").innerHTML = db.TRIALS.length ? db.TRIALS.map(t=>{
+  const p = KolaseStore.trialProgress(t);
+  const stu=(db.MST_STUDENTS.find(x=>x.student_id===t.student_id)||{}).nama||t.student_id;
+  const sessPill = (h) => h==="PRESENT"||h==="LATE" ? "p-present" : h==="ABSENT" ? "p-absent" : h==="CANCELLED" ? "p-pending" : "p-trial";
+  const sessLabel = (h) => h || "TRIAL_ACTIVE";
+  return `<div class="card"><div class="meta"><span class="id-mono">${t.trial_id}</span><span>${stu}</span><span>${t.class_id}</span><span class="pill ${p.complete?"p-verified":"p-pending"}">${p.doneCount}/7</span></div>` +
+  t.sessions.map(s=>`<div class="cal-item" style="margin-top:6px"><div class="date-box"><b>${s.seq}</b><span class="small">${s.tanggal.slice(5)}</span></div>
+    <div style="flex:1" class="small">${s.tanggal} • <span class="pill ${sessPill(s.hadir)}">${sessLabel(s.hadir)}</span></div>
+    <select data-trial="${t.trial_id}:${s.seq}"><option>PRESENT</option><option>LATE</option><option>ABSENT</option><option>CANCELLED</option></select>
+    <button class="btn btn-brand btn-sm" data-tsave="${t.trial_id}:${s.seq}">Simpan</button></div>`).join("") + `</div>`;
+}).join("") : `<div class="card small">Belum ada trial. Siswa memulai dari tombol "Coba 7 Trial Gratis".</div>`;
+document.querySelectorAll("[data-tsave]").forEach(b=>b.onclick=()=>{
+  const [tid, seq] = b.getAttribute("data-tsave").split(":");
+  const v = document.querySelector(`[data-trial="${tid}:${seq}"]`).value;
+  const done = KolaseStore.recordTrialAttendance(tid, seq, v);
+  alert(done ? `Trial ${tid} SELESAI 7/7 — form ulasan siswa terbuka!` : `Tersimpan ${v}.`); location.reload();
+});
+document.getElementById("rekap").innerHTML = db.CLASS_MEMBERSHIP.map(m=>{
+  const stu=(db.MST_STUDENTS.find(x=>x.student_id===m.student_id)||{}).nama||m.student_id;
+  const pay=(db.TXN_PAYMENTS.filter(t=>t.enrollment_id===m.enrollment_id).pop()||{}).status||"PENDING";
+  return `<tr><td class="id-mono">${m.enrollment_id}</td><td>${stu}</td><td class="small">${m.class_id}</td><td><span class="pill ${pay==="VERIFIED"?"p-verified":"p-pending"}">${pay}</span></td><td><span class="pill ${m.status==="ACTIVE"?"p-verified":"p-pending"}">${m.status}</span></td><td><b>${m.sisa}</b></td></tr>`;
+}).join("") || `<tr><td colspan="6" class="small">Kosong</td></tr>`;
+</script>
+</body>
+</html>

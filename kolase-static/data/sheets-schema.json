@@ -1,0 +1,45 @@
+{
+  "spreadsheet": "KOLASE Operational (Source of Truth)",
+  "tabs": {
+    "MST_STUDENTS": ["student_id STU-XXXXXX seumur hidup (KOL-POL-COD-001)", "nama", "email", "wa", "tgl_daftar", "segment KIDS|TEENS_ADULTS"],
+    "MST_TEACHERS": ["teacher_id TCH-XXXXXX", "nama", "email", "wa"],
+    "MST_STAFF": ["staff_id ACT-XXXXXX", "nama", "email", "role"],
+    "TXN_PAYMENTS": ["trx_id TXN-YYYY-#### (terbit setelah dana terverifikasi)", "enrollment_id ENR-XXXXXX (internal)", "student_id", "class_id", "nominal", "method QRIS/VA/E-Wallet", "status PENDING/VERIFIED", "tgl_verifikasi"],
+    "TXN_ENTITLEMENT_LEDGER": ["enrollment_id", "student_id", "delta (+N saat VERIFIED, -1 saat deduct PRESENT/LATE/NO_SHOW/LATE_CANCEL, 0 saat valid/teacher cancel)", "reason", "balance_after (negatif = integrity exception, jangan MAX(0))", "at"],
+    "CLASS_MEMBERSHIP": ["enrollment_id ENR-XXXXXX", "student_id", "class_id", "status PENDING/ACTIVE/EXPIRED", "sisa ledger-derived (PUBLIC 4 sesi; trial-credit -7 bila konversi)"],
+    "SESSIONS": ["session_id SES-XXXXXX-ENR-XXXXXX proyeksi per-enrollment (kompatibilitas UI)", "enrollment_id (internal)", "seq", "tanggal (mingguan)", "hadir PRESENT/LATE/STUDENT_NO_SHOW/STUDENT_CANCELLED_LATE/VALID_STUDENT_CANCEL/TEACHER_CANCELLED/ACADEMY_CANCELLED/RESCHEDULED (legacy ABSENT/CANCELLED)"],
+    "CLASS_SESSIONS": ["session_id SES-XXXXXX kanonikal per jadwal kelas (KOL-POL-COD-001)", "class_id", "seq 1-45", "tanggal", "status SCHEDULED/DONE/CANCELLED/RESCHEDULED"],
+    "SESSION_ATTENDANCE": ["session_id SES-XXXXXX", "student_id STU-XXXXXX", "hadir (izin min 6 jam = VALID_STUDENT_CANCEL)", "recorded_by", "recorded_at (maks 12 jam pasca-sesi, SOP-CLS)"],
+    "TRIALS": ["trial_id TRL-xxxxx", "student_id", "class_id", "status STARTED", "at"],
+    "REVIEWS": ["enrollment_id ENR-XXXXXX (1 paket = 1 ulasan)", "student_id", "nama", "rating_kelas 1-5", "rating_guru 1-5", "rating_pembelajaran 1-5", "rating_materi 1-5", "rating_overall (rata-rata 4 aspek)", "teks", "class_id", "at (diisi setelah 1 paket selesai, semua sesi hadir)"]
+  },
+  "flows": {
+    "trial": "7 trial gratis (6 belajar + Sesi 7 Progress Test) di TRIALS; COMPLETED → layak konversi",
+    "checkout": "Checkout Public -> ENR + TXN PENDING -> webhook -> VERIFIED",
+    "verify": "VERIFIED -> grant +N (PUBLIC 4 sesi); bila trial COMPLETED tambah -7 TRIAL_RECOGNITION (exactly once). Buat N SES + N event Calendar + audit",
+    "attendance": "Guru input PRESENT/LATE/NO_SHOW/LATE_CANCEL -> ledger -1 + sisa berkurang; valid/teacher cancel -> 0 + sync Sheets",
+    "pilot_register": "register_pilot -> 01_REGISTRATION_RAW + 04_STUDENT_MASTER (STU-000001, header baris 3)",
+    "pilot_placement": "placement -> 02_PLACEMENT_RAW (Total max 50) + update 04 (Pre max 10, tidak dicampur)",
+    "pilot_postclass": "postclass -> 03_POSTCLASS_RAW (Total max 10) + update 04 Interest/FollowUp",
+    "pilot_observation": "observation -> 06_TEACHER_OBSERVATION (skala 1-5, bukan CEFR)"
+  },
+  "pilot_tabs": {
+    "00_CONFIG": "dropdown terkontrol, STU-000001..022, CLS-000001..022, Galang/Hilal",
+    "01_REGISTRATION_RAW": "20 kolom form pendaftaran (jangan rename, terhubung GForm)",
+    "02_PLACEMENT_RAW": "15 kolom, Placement_Total 0-50, Pre_Check 0-10",
+    "03_POSTCLASS_RAW": "20 kolom, Post_Check_Total 0-10, Interest/Contact consent",
+    "04_STUDENT_MASTER": "33 kolom, 1 siswa = 1 baris, Student_ID manual immutable, header baris 3",
+    "05_CLASS_MASTER": "19 kolom, 1 kelas = 1 baris, header baris 3, CLS-000001 <-> CLS-PUB-KIDS-01",
+    "06_TEACHER_OBSERVATION": "19 kolom, skala 1-5 / NOT_ASSESSED, header baris 3"
+  },
+  "id_bridge": {
+    "STU-XXXXXX": "ID siswa kanonikal seumur hidup (KOL-POL-COD-001); dipakai di Supabase, Sheets 04, dan web",
+    "CLS-XXXXXX": "ID kelas kanonikal; CLS-000001/000002 dipetakan ke CLS-PUB-KIDS-01/CLS-PUB-TEEN-01",
+    "TXN-YYYY-####": "ID transaksi setelah dana terverifikasi; satu pengerjaan asesmen = satu ATM-######"
+  },
+  "sheets_api": {
+    "mode": "real via Apps Script Web App URL (lihat apps-script/DEPLOY.txt)",
+    "config": "Endpoint dikonfigurasi server-side via APPS_SCRIPT_URL / js/sheets-config.js (tidak di-commit, tidak via UI publik). Semua mutasi ter-antre di localStorage kolase_sheets_queue dan di-POST sebagai action register/checkout/verify/attendance/register_pilot/placement/postclass/observation.",
+    "webhook_payment": "POST /api/webhook {trx_id, trial_id?} -> VERIFIED -> N SES + ledger +N (-7 bila trial) + N event Google Calendar"
+  }
+}

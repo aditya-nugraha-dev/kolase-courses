@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KOLASE — Dashboard E-Learning</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="assets/kolase-logo.png">
+</head>
+<body data-guard="student">
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
+  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="teacher-portal.html">Teacher</a><a href="staff-portal.html">Staff</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
+  <button class="burger" data-burger>☰</button>
+</div></header>
+<main class="wrap">
+  <div class="section"><h2 id="title">Dashboard E-Learning</h2><div class="small" id="who"></div></div>
+  <div class="section"><div class="kpi">
+    <div class="card"><div class="small">Sisa Sesi</div><b id="kSisa" style="font-size:26px">-</b></div>
+    <div class="card"><div class="small">Progres</div><b id="kProg">-</b><div class="progress" style="margin-top:6px"><i id="kBar" style="width:0%"></i></div></div>
+    <div class="card"><div class="small">Jadwal Terdekat</div><b id="kNext" style="font-size:14px">-</b><div><a class="btn btn-ghost btn-sm" href="schedule.html">Kalender</a></div></div>
+  </div></div>
+  <div class="section"><div class="card" id="trialCard"><b>Trial Gratis 7 Sesi</b><div id="trialInfo" class="small" style="margin-top:4px"></div><div id="trialBtns" style="margin-top:8px"></div></div></div>
+  <div class="section"><div class="card" id="pkgReviewCard"><b>Ulasan 1 Paket ★</b><div id="pkgReviewInfo" class="small" style="margin-top:4px"></div><div id="pkgReviewBtns" style="margin-top:8px"></div></div></div>
+  <div class="section"><div class="card" id="placementCard">
+    <b>Placement Test A2 (Pre-Check)</b>
+    <div class="small" style="margin-top:4px">Honesty declaration + Language Use + Vocabulary + Listening. Skor otomatis <b>Placement_Total /50</b> + status <span class="id-mono">A2_CONFIRMED</span> / <span class="id-mono">PLACEMENT_PENDING</span>.</div>
+    <div id="pqAttempts" class="small" style="margin-top:8px"></div>
+    <div style="margin-top:8px"><button class="btn btn-brand btn-sm" id="pqOpen">Ikuti Placement Test →</button></div>
+  </div></div>
+  <div class="section"><div class="card" id="feedbackCard">
+    <b>Teacher Evaluation &amp; Feedback</b>
+    <div class="small" style="margin-top:4px">Nilai sesi terakhir dari guru + progres Pre-Check vs Post-Check.</div>
+    <div id="feedbackBody" style="margin-top:8px"><div class="small">Belum ada evaluasi guru.</div></div>
+  </div></div>
+  <div class="section"><h2>Class Area</h2><div id="enrollList" class="grid cols-2"></div></div>
+  <div class="section"><h2>Materi E-Learning per Sesi</h2>
+    <p class="small">Tiap sesi: link GMeet + file materi. Kuis GForm hanya muncul di sesi terakhir. Link terkunci (<span class="pill p-locked">🔒 Butuh VERIFIED</span>) sampai pembayaran enrollment berstatus VERIFIED.</p>
+    <div id="learnList" class="cal-list"></div>
+  </div>
+  <div class="section"><a class="btn btn-brand" href="teacher-chat.html">Buka Teacher Chat →</a></div>
+</main>
+<nav class="mobile-tabs"><a href="dashboard.html" class="active">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html">Profil</a></nav>
+
+<!-- Modal Placement Test A2 -->
+<div class="modal-scrim" id="pqScrim">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pqTitle">
+    <h3 id="pqTitle">Placement Test A2 — Pre-Check</h3>
+    <p class="small">10 soal × 5 poin = <b>Placement_Total /50</b>. Kerjakan mandiri tanpa kamus/penerjemah.</p>
+    <label class="quiz-opt"><input type="checkbox" id="pqHonest"><span><b>Deklarasi kejujuran:</b> saya mengerjakan sendiri tanpa bantuan orang lain / AI / penerjemah. <span class="small">(wajib dicentang)</span></span></label>
+    <div id="pqQuiz"></div>
+    <div class="quiz-q"><p>Pre-Check writing — ceritakan weekend-mu dalam 1–2 kalimat Bahasa Inggris (otomatis dinilai 0–10):</p>
+      <div class="field" style="margin:0"><textarea id="pqWrite" rows="3" placeholder="Last weekend I ..."></textarea></div>
+      <div class="small" id="pqWriteScore" style="margin-top:4px">Pre-Check: -/10</div>
+    </div>
+    <div class="small" id="pqLive" style="margin-top:6px">Skor sementara: <b id="pqLiveScore">0/50</b></div>
+    <div id="pqResult" style="margin-top:8px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn btn-brand btn-sm" id="pqSubmit">Kirim &amp; Hitung Skor</button>
+      <button class="btn btn-ghost btn-sm" id="pqClose">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/store.js"></script><script src="js/app.js"></script>
+<script>
+const db = KolaseStore.loadDB();
+document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "Belum login — buka login.html";
+const myEnr = db.sessionUser ? db.CLASS_MEMBERSHIP.filter(m=>m.student_id===db.sessionUser.id) : [];
+const isVerifiedEnr = (m) => m && m.status === "ACTIVE";
+// Trial 7 sesi: progres + ajakan ulasan bila 7/7
+(function(){
+  const mine = db.sessionUser ? db.TRIALS.filter(t=>t.student_id===db.sessionUser.id) : [];
+  const ready = mine.find(t=>KolaseStore.trialProgress(t).complete && !t.reviewed);
+  const active = mine.find(t=>!KolaseStore.trialProgress(t).complete);
+  const info = document.getElementById("trialInfo"), btns = document.getElementById("trialBtns");
+  if (ready) {
+    info.innerHTML = `Selamat! Trial <span class="id-mono">${ready.trial_id}</span> 7/7 selesai. <span class="pill p-trial">TRIAL_ACTIVE</span>`;
+    btns.innerHTML = `<a class="btn btn-brand btn-sm" href="review-package.html">Tulis Ulasan →</a>`;
+  } else if (active) {
+    const p = KolaseStore.trialProgress(active);
+    info.innerHTML = `<span class="id-mono">${active.trial_id}</span> • ${active.class_id} • progres <b>${p.doneCount}/7</b> <span class="pill p-trial">TRIAL_ACTIVE</span>`;
+    btns.innerHTML = `<div class="progress" style="margin:6px 0"><i style="width:${p.doneCount/7*100}%"></i></div><span class="small">Selesaikan 7 sesi untuk membuka form ulasan.</span>`;
+  } else if (mine.length) {
+    info.textContent = "Terima kasih sudah mengulas! Ambil paket penuh untuk 4 sesi.";
+    btns.innerHTML = `<a class="btn btn-ghost btn-sm" href="catalog.html">Lihat Paket →</a>`;
+  } else {
+    info.textContent = "Belum ikut trial. Gratis 7 sesi sebelum beli paket.";
+    btns.innerHTML = `<a class="btn btn-brand btn-sm" href="catalog.html">Mulai Trial Gratis →</a>`;
+  }
+})();
+// Ulasan 1 paket: terbuka setelah semua sesi 1 enrollment selesai (4/4).
+(function(){
+  const info = document.getElementById("pkgReviewInfo"), btns = document.getElementById("pkgReviewBtns");
+  if (!db.sessionUser) { info.textContent = "Login dulu untuk melihat status ulasan paketmu."; return; }
+  const ready = KolaseStore.eligiblePackages(db.sessionUser.id);
+  if (ready.length) {
+    info.innerHTML = `Selamat! Paket <span class="id-mono">${ready[0].enrollment_id}</span> selesai ${KolaseStore.packageProgress(ready[0].enrollment_id).doneCount} sesi. Beri bintang untuk Kelas, Guru, Pembelajaran, Materi.`;
+    btns.innerHTML = `<a class="btn btn-brand btn-sm" href="review-package.html">Tulis Ulasan Paket →</a>`;
+    return;
+  }
+  const mine = myEnr.map(m => ({ m, p: KolaseStore.packageProgress(m.enrollment_id) })).filter(x => !x.p.complete);
+  if (mine.length) {
+    const cur = mine[mine.length-1];
+    info.innerHTML = `Selesaikan <b>${cur.p.doneCount}/${cur.p.total} sesi</b> (<span class="id-mono">${cur.m.enrollment_id}</span>) untuk membuka ulasan berbintang.`;
+    btns.innerHTML = `<div class="progress" style="margin:6px 0"><i style="width:${cur.p.doneCount/cur.p.total*100}%"></i></div>`;
+  } else if (myEnr.length) {
+    info.textContent = "Terima kasih sudah mengulas semua paketmu! 🎉";
+  } else {
+    info.textContent = "Belum ada paket. Ambil paket untuk mulai belajar 4 sesi.";
+    btns.innerHTML = `<a class="btn btn-ghost btn-sm" href="catalog.html">Lihat Paket →</a>`;
+  }
+})();
+// Class Area: Meet + materi TERKUNCI sampai enrollment VERIFIED (status ACTIVE).
+// URL materi diisi per kelas di data/classes.json; jika masih kosong, tombol menampilkan info demo.
+function materiBtn(label, url, demoMsg) {
+  return url
+    ? `<a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${label}</a>`
+    : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${demoMsg}');return false">${label}</a>`;
+}
+const lockNote = `<div class="lock-note">🔒 Link terkunci — menunggu pembayaran <b>VERIFIED</b> untuk enrollment ini.</div>`;
+fetch("data/classes.json").then(r=>r.json()).then(classes=>{
+  const map = Object.fromEntries(classes.map(c=>[c.id, c]));
+  document.getElementById("enrollList").innerHTML = myEnr.length ? myEnr.map(m=>{
+    const done = db.SESSIONS.filter(s=>s.enrollment_id===m.enrollment_id && s.hadir).length;
+    const total = db.SESSIONS.filter(s=>s.enrollment_id===m.enrollment_id).length || 4;
+    const c = map[m.class_id] || {};
+    const open = isVerifiedEnr(m);
+    const meet = open
+      ? (c.meet
+        ? `<a class="btn btn-brand btn-sm" href="${c.meet}" target="_blank" rel="noopener">Join Meet</a>`
+        : `<a class="btn btn-brand btn-sm" href="#" onclick="alert('Join Google Meet (demo) — isi URL Meet di data/classes.json');return false">Join Meet</a>`)
+      : `<span class="pill p-locked">🔒 Butuh VERIFIED</span>`;
+    const mats = open ? materiBtn("Materi", c.slides, "File materi dari guru (demo)") : "";
+    return `<div class="card"><div class="meta"><span class="id-mono">${m.enrollment_id}</span><span class="pill ${m.status==="ACTIVE"?"p-verified":"p-pending"}">${m.status}</span></div>
+    <b>${c.nama || m.class_id}</b><div class="small">Sesi ${done} dari ${total} • sisa ${m.sisa}</div>
+    <div class="progress" style="margin:8px 0"><i style="width:${total ? done/total*100 : 0}%"></i></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">${meet}${mats}</div>${open ? "" : lockNote}</div>`;
+  }).join("") : `<div class="card">Belum ada enrollment. <a href="catalog.html">Ambil kelas →</a></div>`;
+});
+if (myEnr[0]) {
+  const m = myEnr[myEnr.length-1];
+  document.getElementById("kSisa").textContent = m.sisa + " sesi";
+  const done = db.SESSIONS.filter(s=>s.enrollment_id===m.enrollment_id && s.hadir).length;
+  const total = db.SESSIONS.filter(s=>s.enrollment_id===m.enrollment_id).length || 4;
+  document.getElementById("kProg").textContent = `Sesi ${done} dari ${total}`;
+  document.getElementById("kBar").style.width = (total ? done/total*100 : 0)+"%";
+  const nx = db.SESSIONS.find(s=>s.enrollment_id===m.enrollment_id && !s.hadir);
+  document.getElementById("kNext").textContent = nx ? `${nx.tanggal} • SES seq ${nx.seq}` : "Selesai";
+}
+// E-learning per sesi: materi + status untuk semua enrollment siswa ini (terkunci bila belum VERIFIED)
+fetch("data/classes.json").then(r=>r.json()).then(classes=>{
+  const map = Object.fromEntries(classes.map(c=>[c.id, c]));
+  const myIds = new Set(myEnr.map(m=>m.enrollment_id));
+  const enrById = Object.fromEntries(myEnr.map(m=>[m.enrollment_id, m]));
+  const mine = db.SESSIONS.filter(s=>myIds.has(s.enrollment_id));
+  const totByEnr = {}; db.SESSIONS.forEach(s=>{ totByEnr[s.enrollment_id]=(totByEnr[s.enrollment_id]||0)+1; });
+  const gcal = (s) => "https://calendar.google.com/calendar/render?action=TEMPLATE"
+    + "&text=" + encodeURIComponent(`KOLASE ${s.enrollment_id} — Sesi ${s.seq}/${totByEnr[s.enrollment_id]||s.seq}`)
+    + `&dates=${s.tanggal.replace(/-/g,"")}T030000Z/${s.tanggal.replace(/-/g,"")}T040000Z`;
+  const link = (label, url, demo) => url
+    ? `<a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${label}</a>`
+    : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${demo}');return false">${label}</a>`;
+  document.getElementById("learnList").innerHTML = mine.length ? mine.map(s=>{
+    const m = enrById[s.enrollment_id] || {};
+    const open = isVerifiedEnr(m);
+    const c = map[m.class_id] || {};
+    const pill = s.hadir==="PRESENT"||s.hadir==="LATE" ? "p-present" : s.hadir==="ABSENT" ? "p-absent" : "p-pending";
+    const total = totByEnr[s.enrollment_id] || s.seq;
+    const isLast = s.seq === total; // GForm hanya di pertemuan terakhir (mis. sesi 4/4)
+    const gformBtn = (isLast && open) ? link("Kuis GForm", c.gform, "Kuis Google Form dari guru (demo)") : "";
+    const mats = open
+      ? `${link("GMeet", c.meet, "Join Google Meet (demo)")}${link("Materi", c.slides, "File materi dari guru (demo)")}${gformBtn}<a class="small" style="align-self:center;color:var(--gold)" href="${gcal(s)}" target="_blank" rel="noopener">+ GCal</a>`
+      : `<span class="pill p-locked">🔒 Butuh VERIFIED</span>`;
+    return `<div class="cal-item"><div class="date-box"><b>${s.seq}</b><span class="small">${s.tanggal.slice(5)}</span></div>
+    <div style="flex:1"><b>Sesi ${s.seq}/${total} • ${s.tanggal}</b><div class="small">${s.session_id}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${mats}</div></div>
+    <span class="pill ${pill}">${s.hadir||"SCHEDULED"}</span></div>`;
+  }).join("") : `<div class="card small">Belum ada sesi. <a href="catalog.html">Ambil kelas →</a></div>`;
+});
+// ---- Placement Test A2 (modal): 10 soal x 5 poin = Placement_Total /50 ----
+const PQ = [
+  { sec: "Language Use", q: "She ___ to school yesterday.", opts: ["go", "went", "goes", "going"], a: 1 },
+  { sec: "Language Use", q: "They ___ football last Sunday.", opts: ["play", "plays", "played", "playing"], a: 2 },
+  { sec: "Language Use", q: "I ___ my homework last night.", opts: ["do", "does", "did", "doing"], a: 2 },
+  { sec: "Language Use", q: "We ___ at home yesterday evening.", opts: ["was", "were", "are", "is"], a: 1 },
+  { sec: "Vocabulary", q: "A place where you borrow books:", opts: ["market", "station", "library", "kitchen"], a: 2 },
+  { sec: "Vocabulary", q: "The opposite of 'early' is ___.", opts: ["soon", "late", "fast", "near"], a: 1 },
+  { sec: "Vocabulary", q: "We had dinner at a ___.", opts: ["restaurant", "pencil", "river", "cloud"], a: 0 },
+  { sec: "Listening", q: "Dengarkan (baca transkrip): “Last Saturday I woke up at seven. Then I visited my grandmother.” — What did the speaker do FIRST?", opts: ["Visited grandmother", "Woke up at seven", "Ate lunch", "Went home"], a: 1 },
+  { sec: "Listening", q: "Who did the speaker visit?", opts: ["A friend", "A teacher", "His/Her grandmother", "Nobody"], a: 2 },
+  { sec: "Listening", q: "When did this happen?", opts: ["Last Sunday", "Last Saturday", "Yesterday morning", "Tonight"], a: 1 },
+];
+const PAST = ["was","were","went","did","had","visited","watched","played","ate","saw","stayed","woke","cooked","cleaned","met","bought","took","made","got","finished","started"];
+const TMARK = ["yesterday","last","weekend","saturday","sunday","then","after","finally","morning","evening","night","ago","morning"];
+function pqPreScore(text) {
+  const t = " " + String(text || "").toLowerCase() + " ";
+  const words = t.trim().split(/\s+/).filter(Boolean).length;
+  let s = 0;
+  if (PAST.some((w) => t.includes(" " + w + " ") || t.includes(" " + w + ","))) s += 4;
+  if (TMARK.some((w) => t.includes(w))) s += 3;
+  if (words >= 8) s += 3;
+  return Math.min(10, s);
+}
+function renderQuiz() {
+  document.getElementById("pqQuiz").innerHTML = PQ.map((it, i) =>
+    `<div class="quiz-q" data-q="${i}"><p>${i + 1}. <span class="small">[${it.sec}]</span> ${it.q}</p>` +
+    it.opts.map((o, j) => `<label class="quiz-opt"><input type="radio" name="pq${i}" value="${j}"><span>${o}</span></label>`).join("") + `</div>`
+  ).join("");
+}
+function pqLiveTotal() {
+  let correct = 0;
+  PQ.forEach((it, i) => {
+    const sel = document.querySelector(`input[name="pq${i}"]:checked`);
+    if (sel && Number(sel.value) === it.a) correct++;
+  });
+  return correct * 5;
+}
+function pqRefresh() {
+  document.getElementById("pqLiveScore").textContent = pqLiveTotal() + "/50";
+  document.getElementById("pqWriteScore").textContent = "Pre-Check: " + pqPreScore(document.getElementById("pqWrite").value) + "/10";
+}
+function pqAttempts() {
+  if (!db.sessionUser) return;
+  const pid = db.sessionUser.id;
+  const rows = db.PILOT_PLACEMENTS.filter(p => (p.pilot_student_id || p.student_id) === pid);
+  document.getElementById("pqAttempts").innerHTML = rows.length
+    ? "Riwayat: " + rows.map(p => `<span class="id-mono">${p.attempt_id}</span> ${p.placement_total}/50 (pre ${p.pre_check_score}/10)`).join(" • ")
+    : "Belum pernah tes. Satu pengerjaan = satu Attempt ID (ATM-######).";
+}
+renderQuiz(); pqAttempts();
+document.getElementById("pqQuiz").addEventListener("change", (e) => {
+  const q = e.target.closest(".quiz-q");
+  if (q) q.querySelectorAll(".quiz-opt").forEach((l) => l.classList.toggle("picked", l.contains(e.target)));
+  pqRefresh();
+});
+document.getElementById("pqWrite").addEventListener("input", pqRefresh);
+document.getElementById("pqOpen").onclick = () => {
+  document.getElementById("pqResult").innerHTML = "";
+  document.getElementById("pqScrim").classList.add("open");
+};
+document.getElementById("pqClose").onclick = () => document.getElementById("pqScrim").classList.remove("open");
+document.getElementById("pqScrim").addEventListener("click", (e) => {
+  if (e.target.id === "pqScrim") e.target.classList.remove("open");
+});
+document.getElementById("pqSubmit").onclick = () => {
+  const out = document.getElementById("pqResult");
+  if (!document.getElementById("pqHonest").checked) { out.innerHTML = `<div class="fit-pending">Centang deklarasi kejujuran dulu.</div>`; return; }
+  const unanswered = PQ.filter((_, i) => !document.querySelector(`input[name="pq${i}"]:checked`)).length;
+  if (unanswered) { out.innerHTML = `<div class="fit-pending">Masih ada ${unanswered} soal belum dijawab.</div>`; return; }
+  const write = document.getElementById("pqWrite").value.trim();
+  if (write.length < 10) { out.innerHTML = `<div class="fit-pending">Isi pre-check writing minimal 1 kalimat pendek.</div>`; return; }
+  try {
+    const r = KolaseStore.submitPlacement(db.sessionUser.id, { placement_total: pqLiveTotal(), pre_check_score: pqPreScore(write) });
+    const fit = r.total >= 30 ? "A2_CONFIRMED" : "PLACEMENT_PENDING";
+    out.innerHTML = `<div class="${fit === "A2_CONFIRMED" ? "fit-ok" : "fit-pending"}">Placement_Total: <b>${r.total}/50</b> • Pre-Check: <b>${r.pre}/10</b> • <span class="id-mono">${r.attemptId}</span><br>Status: <b>${fit}</b>${fit === "A2_CONFIRMED" ? " — cocok untuk kelas A2, guru akan menjadwalkan Class Match." : " — tim guru akan meninjau manual penempatanmu."}</div>`;
+    pqAttempts();
+  } catch (e) { out.innerHTML = `<div class="fit-pending">Gagal menyimpan: ${e.message}</div>`; }
+};
+// ---- Teacher Evaluation & Feedback + Gain indicator ----
+(function(){
+  const body = document.getElementById("feedbackBody");
+  if (!db.sessionUser) { body.innerHTML = `<div class="small">Login dulu untuk melihat evaluasimu.</div>`; return; }
+  const pid = db.sessionUser.id;
+  const obs = db.PILOT_OBSERVATIONS.filter(o => (o.pilot_student_id || o.student_id) === pid);
+  const last = obs[obs.length - 1];
+  const pick = (o, keys) => { for (const k of keys) { if (o && o[k] !== undefined && o[k] !== null && o[k] !== "") return o[k]; } return "—"; };
+  const placements = db.PILOT_PLACEMENTS.filter(p => (p.pilot_student_id || p.student_id) === pid);
+  const posts = db.PILOT_POSTCLASS.filter(p => (p.pilot_student_id || p.student_id) === pid);
+  const pre = placements.length ? placements[placements.length - 1].pre_check_score : null;
+  const post = posts.length ? posts[posts.length - 1].post_check_total : null;
+  let gainHtml = `<div class="small">Belum ada data Pre vs Post — ikuti placement test & sesi kelas dulu.</div>`;
+  if (pre !== null && post !== null) {
+    const gain = Number(post) - Number(pre);
+    const cls = gain > 0 ? "gain-up" : "gain-flat";
+    const pct = Math.max(0, Math.min(100, Number(post) / 10 * 100));
+    gainHtml = `<div class="score-grid">
+      <div class="score-cell"><span>Pre-Check</span><b>${pre}/10</b></div>
+      <div class="score-cell"><span>Post-Check</span><b>${post}/10</b></div>
+      <div class="score-cell"><span>Gain Score</span><b class="${cls}">${gain > 0 ? "+" : ""}${gain}</b></div>
+    </div><div class="progress" style="margin-top:8px"><i style="width:${pct}%"></i></div>`;
+  } else if (pre !== null) {
+    gainHtml = `<div class="small">Pre-Check: <b>${pre}/10</b>. Post-Check menyusul setelah sesi kelas.</div>`;
+  }
+  const evalHtml = last
+    ? `<div class="score-grid">
+      <div class="score-cell"><span>Past Simple</span><b>${pick(last, ["past_simple", "grammar"])}</b></div>
+      <div class="score-cell"><span>Vocab &amp; Time Markers</span><b>${pick(last, ["vocabulary", "time_markers"])}</b></div>
+      <div class="score-cell"><span>Comprehensibility</span><b>${pick(last, ["comprehensibility", "fluency"])}</b></div>
+    </div>
+    <div class="small" style="margin-top:8px"><b>Catatan guru:</b> ${pick(last, ["recommendation", "teacher_notes", "notes", "catatan"])}</div>
+    <div class="small">Observasi terakhir: <span class="id-mono">${last.observation_id || "-"}</span> • ${String(last.at || "").slice(0, 10)}</div>`
+    : `<div class="small">Belum ada observasi guru untukmu.</div>`;
+  body.innerHTML = evalHtml + `<div style="margin-top:10px"><b>Gain Score (Pre vs Post)</b>${gainHtml}</div>`;
+})();
+</script>
+</body>
+</html>

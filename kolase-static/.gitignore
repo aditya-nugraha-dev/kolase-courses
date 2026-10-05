@@ -1,0 +1,3 @@
+# KOLASE static prototype — file lokal yang tidak boleh di-commit:
+# berisi URL Apps Script production + flag dev (lihat js/sheets-config.example.js)
+js/sheets-config.js

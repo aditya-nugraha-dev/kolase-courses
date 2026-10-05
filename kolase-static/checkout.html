@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KOLASE — Checkout</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="assets/kolase-logo.png">
+</head>
+<body data-guard="student">
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
+  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html">Masuk</a></nav>
+  <button class="burger" data-burger>☰</button>
+</div></header>
+<main class="wrap">
+  <div class="section"><h2>Checkout & Payment</h2>
+    <div class="steps"><span>1. Ringkasan</span>→<span>2. Bayar (PENDING)</span>→<span>3. Webhook VERIFIED</span></div>
+    <div class="card" id="summary">Memuat...</div>
+    <div class="card" id="comingSoon" style="display:none"><b>COMING SOON</b><div class="small">Pendaftaran kelas ini belum dibuka. Silakan pilih kelas lain di <a href="catalog.html">katalog</a>.</div></div>
+    <div class="card" id="payCard">
+      <div class="field"><label>Metode bayar</label><select id="method"><option>QRIS</option><option>Bank Transfer (VA)</option><option>E-Wallet</option></select></div>
+      <button class="btn btn-brand" id="payBtn">Buat Enrollment + Bayar</button>
+      <p class="small">Membuat <span class="id-mono">ENR-XXXXXX</span> yang mengikat Student ID ↔ Class ID. Status awal PENDING.</p>
+    </div>
+    <div class="card" id="payBox" style="display:none">
+      <b id="payTitle">Instruksi Pembayaran</b>
+      <div class="pay-box"><div class="qr" id="qrText">QRIS</div>
+        <div class="copy-row"><code id="payCode">-</code><button class="btn btn-ghost btn-sm" data-copy="-" id="copyBtn">Salin Kode</button></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-brand btn-sm" id="simulateWebhook">Simulasi Webhook VERIFIED</button>
+        <span class="small">Di production: callback Midtrans/Xendit → verifyPayment().</span>
+      </div>
+      <div id="verifyResult" class="small"></div>
+    </div>
+  </div>
+</main>
+<script src="js/store.js"></script><script src="js/app.js"></script>
+<script>
+let CLS=null, TRX=null;
+const cid = new URLSearchParams(location.search).get("id") || "CLS-PUB-KIDS-01";
+fetch("data/classes.json").then(r=>r.json()).then(list=>{
+  CLS = list.find(x=>x.id===cid)||list[0];
+  document.getElementById("summary").innerHTML = `<b>${CLS.nama}</b><div class="small">${CLS.id} • ${CLS.jadwal}</div><div class="price">Rp ${Number(CLS.harga).toLocaleString("id-ID")}</div>`;
+  if ((CLS.class_status || "OPEN") !== "OPEN") {
+    document.getElementById("comingSoon").style.display = "block";
+    document.getElementById("payCard").style.display = "none";
+  }
+});
+document.getElementById("payBtn").onclick = () => {
+  try {
+    const m = document.getElementById("method").value;
+    const r = KolaseStore.checkout(CLS.id, CLS.harga, m);
+    TRX = r.trxId;
+    document.getElementById("payBox").style.display = "block";
+    document.getElementById("payCode").textContent = m==="QRIS" ? "QR-KOLASE-"+TRX : "80000"+TRX.replace(/\D/g,"").padStart(6,"0");
+    document.getElementById("qrText").textContent = m;
+    document.getElementById("copyBtn").setAttribute("data-copy", document.getElementById("payCode").textContent);
+    document.getElementById("verifyResult").innerHTML = `ENR <span class="id-mono">${r.enrId}</span> • TRX <span class="id-mono">${r.trxId}</span> • <span class="pill p-pending">PENDING</span>`;
+  } catch(e){ alert(e.message+" — buka login.html dulu & daftar sebagai Student."); location.href="login.html"; }
+};
+document.getElementById("simulateWebhook").onclick = () => {
+  const p = KolaseStore.verifyPayment(TRX);
+  document.getElementById("verifyResult").innerHTML = `TRX <span class="id-mono">${p.trx_id}</span> • <span class="pill p-verified">VERIFIED</span> • +4 sesi dibuat (SES-000001 s/d SES-000004) • <a href="dashboard.html">Buka Dashboard →</a>`;
+};
+</script>
+</body>
+</html>

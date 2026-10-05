@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KOLASE — Pendaftaran Public Class</title>
+  <meta name="description" content="Landing page pendaftaran KOLASE: Public Class Kids dan Adult/Teen, Stages Kids, Term, dan Pathway ke Teens." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/public-class.css" />
+  <link rel="icon" href="assets/kolase-logo.png" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="home.html">
+        <img src="assets/kolase-logo.png" alt="Logo KOLASE" />
+        <span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span>
+      </a>
+      <nav class="nav" aria-label="Navigasi utama">
+        <a href="#masuk">Public Class</a>
+        <a href="#stages">Stages</a>
+        <a href="#kompetensi">Kompetensi</a>
+        <a href="#pathway">Pathway</a>
+      </nav>
+      <a class="btn btn-brand btn-sm" href="#daftar">Daftar</a>
+      <button class="burger" id="burger" aria-label="Menu navigasi" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Section 1: Pintu Masuk / Public Class -->
+    <section id="masuk" class="hero" aria-labelledby="masuk-title">
+      <div class="hero-grid">
+        <div class="hero-card">
+          <img class="hero-banner" src="assets/kolase-banner.png" alt="Logo KOLASE" />
+          <p class="eyebrow">Pintu Masuk / Public Class</p>
+          <h1 id="masuk-title">Mulai dari <em>Public Class</em>, lanjut sampai Stage Review.</h1>
+          <p class="lead">Pilih salah satu Public Class di bawah ini, lalu tekan <strong>Lanjutkan Pembelajaran</strong> untuk membuka pilihan Stages.</p>
+
+          <div class="options" role="group" aria-label="Pilihan Public Class">
+            <button type="button" class="option is-selected" data-program="kids" data-name="Kids Public Class" data-price="Rp 50.000 / Siswa" aria-pressed="true">
+              <span class="option-top">
+                <span class="option-name">Kids Public Class</span>
+                <span class="option-check" aria-hidden="true"></span>
+              </span>
+              <span class="option-price">Rp 50.000 <small>/ Siswa</small></span>
+              <span class="option-meta">Kuota: 50 Siswa</span>
+              <span class="option-desc">Kelas pembuka untuk anak, fokus berani bicara dan kosakata dasar.</span>
+            </button>
+
+            <button type="button" class="option" data-program="adult-teen" data-name="Beginner English (Adult/Teen)" data-price="Rp 75.000 / Siswa" aria-pressed="false">
+              <span class="option-top">
+                <span class="option-name">Beginner English (Adult/Teen)</span>
+                <span class="option-check" aria-hidden="true"></span>
+              </span>
+              <span class="option-price">Rp 75.000 <small>/ Siswa</small></span>
+              <span class="option-meta">Kuota: 50 Peserta • Tanpa asesmen awal • <strong>COMING SOON</strong></span>
+              <span class="option-desc">Mass entry remaja & dewasa 4 sesi; lanjut via Diagnostic Placement 50 poin. Pendaftaran dibuka segera.</span>
+            </button>
+          </div>
+
+          <p class="session-note">1 Sesi dalam 1 Bulan (Durasi 60 menit)</p>
+
+          <div class="hero-actions">
+            <button type="button" id="continueBtn" class="btn btn-brand">Lanjutkan Pembelajaran</button>
+            <a class="btn btn-ghost" href="#pathway">Lihat Pathway</a>
+          </div>
+          <p class="small" id="selectedSummary">Dipilih: <strong>Kids Public Class</strong> — Rp 50.000 / Siswa</p>
+        </div>
+
+        <aside class="card side-card" aria-label="Ringkasan cepat">
+          <h2>Cara ikut</h2>
+          <ol class="steps">
+            <li>Pilih Public Class.</li>
+            <li>Klik Lanjutkan Pembelajaran.</li>
+            <li>Pilih Stage dan isi formulir.</li>
+          </ol>
+          <div class="mini-stats">
+            <div><b>60</b><span>menit/sesi</span></div>
+            <div><b>50</b><span>kuota kelas</span></div>
+            <div><b>10</b><span>sesi/term</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Section 2: Lanjutan / Stages -->
+    <section id="stages" class="section is-hidden" aria-labelledby="stages-title" hidden>
+      <p class="eyebrow">Lanjutan / Stages</p>
+      <h2 id="stages-title">Pilih Stage Kids</h2>
+      <p class="section-lead">Empat tahapan berurutan untuk fondasi speaking anak.</p>
+
+      <div class="grid cols-4" role="group" aria-label="Pilihan Stage Kids">
+        <button type="button" class="card stage is-active" data-stage="1" data-stage-name="Kids Stage 1 - Explorer" aria-pressed="true">
+          <span class="stage-number">Stage 1</span>
+          <span class="stage-name">Explorer</span>
+          <span class="small">Berani bunyi, kata, dan sapaan sederhana.</span>
+        </button>
+        <button type="button" class="card stage" data-stage="2" data-stage-name="Kids Stage 2 - Builder" aria-pressed="false">
+          <span class="stage-number">Stage 2</span>
+          <span class="stage-name">Builder</span>
+          <span class="small">Susun kalimat dan tambah kosakata.</span>
+        </button>
+        <button type="button" class="card stage" data-stage="3" data-stage-name="Kids Stage 3 - Speaker" aria-pressed="false">
+          <span class="stage-number">Stage 3</span>
+          <span class="stage-name">Speaker</span>
+          <span class="small">Cerita pendek dan percakapan terpandu.</span>
+        </button>
+        <button type="button" class="card stage" data-stage="4" data-stage-name="Kids Stage 4 - Communicator" aria-pressed="false">
+          <span class="stage-number">Stage 4</span>
+          <span class="stage-name">Communicator</span>
+          <span class="small">Diskusi sederhana dan presentasi mini.</span>
+        </button>
+      </div>
+
+      <div class="card price-card">
+        <div>
+          <p class="eyebrow">Biaya Lanjutan Stage Kids</p>
+          <p class="price-line"><strong>Mulai Rp500.000</strong> — 3 Term × 10 Sesi = 30 Sesi</p>
+          <p class="small">Selesai 4 sesi Public? Lanjut 1 Term = 10 sesi. Total 3 Term (30 sesi) mulai Rp500.000. Tiap akhir Term: Progress Check + Kids Progress Report; naik stage berbasis bukti akademik.</p>
+        </div>
+        <a class="btn btn-brand" href="#daftar">Ambil Paket Stage</a>
+      </div>
+    </section>
+
+    <!-- Section 3: Detail Kompetensi Akademik -->
+    <section id="kompetensi" class="section" aria-labelledby="kompetensi-title">
+      <p class="eyebrow">Detail Kompetensi Akademik</p>
+      <h2 id="kompetensi-title">Contoh untuk Stage 1 Explore</h2>
+      <p class="section-lead">Tingkat kompetensi akademik dibagi menjadi 3 Term <span class="muted">(Satu periode Pembelajaran)</span>.</p>
+
+      <div class="grid cols-3">
+        <article class="card term">
+          <h3>Term 1</h3>
+          <p><strong>Fondasi bunyi dan kata.</strong></p>
+          <ul>
+            <li>Alfabet, bunyi, dan kosakata benda.</li>
+            <li>Menyapa dan memperkenalkan diri.</li>
+            <li>Instruksi kelas sederhana.</li>
+          </ul>
+        </article>
+        <article class="card term">
+          <h3>Term 2</h3>
+          <p><strong>Kalimat sederhana.</strong></p>
+          <ul>
+            <li>Pola kalimat positif dan tanya.</li>
+            <li>Kosakata aktivitas harian.</li>
+            <li>Dialog pendek berpasangan.</li>
+          </ul>
+        </article>
+        <article class="card term">
+          <h3>Term 3</h3>
+          <p><strong>Unjuk kompetensi.</strong></p>
+          <ul>
+            <li>Bercerita dengan gambar.</li>
+            <li>Presentasi mini 1 menit.</li>
+            <li>Review menuju Graduation.</li>
+          </ul>
+        </article>
+      </div>
+      <p class="small" id="stageNote">Contoh Term di atas memakai Stage 1 — Explorer.</p>
+    </section>
+
+    <!-- Section 4: Pathway & Leveling -->
+    <section id="pathway" class="section" aria-labelledby="pathway-title">
+      <p class="eyebrow">Pathway &amp; Leveling</p>
+      <h2 id="pathway-title">Jembatan menuju Teens Pathway</h2>
+
+      <div class="card bridge">
+        <div class="bridge-steps">
+          <div class="bridge-step"><b>Public Class</b><span>Pintu masuk</span></div>
+          <div class="bridge-line" aria-hidden="true"></div>
+          <div class="bridge-step"><b>Kids Stages</b><span>1–4</span></div>
+          <div class="bridge-line" aria-hidden="true"></div>
+          <div class="bridge-step"><b>Graduation</b><span>10 sesi</span></div>
+          <div class="bridge-line" aria-hidden="true"></div>
+          <div class="bridge-step highlight"><b>Teens Pathway</b><span>Level lanjutan</span></div>
+        </div>
+
+        <div class="number-path" aria-label="Urutan angka pathway">
+          <span>6</span><i>/</i><span>10</span><i>/</i><span>15</span><i>/</i><span>30</span><i>/</i><span>45</span>
+        </div>
+
+        <div class="cefr" aria-label="Progres level CEFR">
+          <div class="cefr-track">
+            <span class="cefr-node is-done">A1</span>
+            <span class="cefr-line" aria-hidden="true"></span>
+            <span class="cefr-node">A2</span>
+            <span class="cefr-line" aria-hidden="true"></span>
+            <span class="cefr-node">B1</span>
+            <span class="cefr-line" aria-hidden="true"></span>
+            <span class="cefr-node">B2</span>
+          </div>
+          <p class="small">A1 -&gt; B2 (Dimulai dari A1)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Formulir singkat -->
+    <section id="daftar" class="section" aria-labelledby="daftar-title">
+      <p class="eyebrow">Pendaftaran</p>
+      <h2 id="daftar-title">Formulir Pendaftaran Singkat</h2>
+      <form id="registerForm" class="card form-card" novalidate>
+        <div class="field">
+          <label for="nama">Nama lengkap</label>
+          <input id="nama" name="nama" type="text" autocomplete="name" placeholder="Nama siswa" required />
+        </div>
+        <div class="field">
+          <label for="wa">Nomor WhatsApp</label>
+          <input id="wa" name="wa" type="tel" inputmode="tel" autocomplete="tel" placeholder="08xxxxxxxxxx" required />
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="program">Program</label>
+            <select id="program" name="program">
+              <option value="kids">Kids Public Class — Rp 50.000</option>
+              <option value="adult-teen">Beginner English (Adult/Teen) — Rp 75.000</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="stage">Stage</label>
+            <select id="stage" name="stage">
+              <option value="1">Stage 1 - Explorer</option>
+              <option value="2">Stage 2 - Builder</option>
+              <option value="3">Stage 3 - Speaker</option>
+              <option value="4">Stage 4 - Communicator</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-brand" type="submit">Kirim Pendaftaran</button>
+        <p class="small form-status" id="formStatus" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">KOLASE • Public Class 60 menit • Kuota 50 • <a href="home.html">Kembali ke Homepage</a></div>
+  </footer>
+
+  <script src="js/public-class.js"></script>
+</body>
+</html>

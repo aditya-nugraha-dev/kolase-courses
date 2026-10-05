@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KOLASE — Profil</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="assets/kolase-logo.png">
+</head>
+<body data-guard="student,teacher,staff,author">
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
+  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html">Masuk</a></nav>
+  <button class="burger" data-burger>☰</button>
+</div></header>
+<main class="wrap">
+  <div class="section"><h2>Profile & Settings</h2>
+    <div class="card" id="ident">...</div>
+    <div style="margin-top:10px"><a class="btn btn-brand btn-sm" id="portalBtn" href="dashboard.html">Buka Portal Saya →</a></div>
+    <div class="section"><h2>Riwayat Transaksi</h2><div class="table-wrap"><table><thead><tr><th>TRX</th><th>ENR</th><th>Nominal</th><th>Status</th></tr></thead><tbody id="trx"></tbody></table></div></div>
+    <div class="section"><h2>Ledger Kuota (TXN_ENTITLEMENT_LEDGER)</h2><div class="table-wrap"><table><thead><tr><th>Waktu</th><th>ENR</th><th>Delta</th><th>Alasan</th><th>Balance</th></tr></thead><tbody id="ledger"></tbody></table></div></div>
+    <div class="section"><h2>Integrasi Google Sheets</h2><div class="card">
+      <p class="small" style="margin:0">Sinkronisasi Sheets dikelola <b>server-side</b> via environment variable (<span class="id-mono">APPS_SCRIPT_URL</span>) — tidak lagi bisa diubah dari halaman ini. Antrean kirim lokal: <span class="id-mono">kolase_sheets_queue</span>.</p>
+      <div class="small" id="sheetsMsg" style="margin-top:8px"></div>
+      <p class="small">Panduan: lihat <span class="id-mono">apps-script/DEPLOY.txt</span> dan <span class="id-mono">js/sheets-config.example.js</span>.</p>
+    </div></div>
+    <div class="section"><button class="btn btn-ghost btn-sm" id="logout">Keluar / Hapus Semua Data Demo</button>
+    <p class="small">Menghapus seluruh data pendaftaran, transaksi, sesi, dan antrean Sheets di browser ini (localStorage), lalu kembali ke akun demo awal.</p></div>
+  </div>
+</main>
+<nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html" class="active">Profil</a></nav>
+<script src="js/store.js"></script><script src="js/app.js"></script>
+<script>
+const db = KolaseStore.loadDB();
+document.getElementById("ident").innerHTML = db.sessionUser
+ ? `<b>${db.sessionUser.nama}</b><div class="small">${db.sessionUser.role} • <span class="id-mono">${db.sessionUser.id}</span></div>`
+ : `Belum login. <a href="login.html">Masuk →</a>`;
+document.getElementById("trx").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="4" class="small">Kosong</td></tr>`;
+document.getElementById("ledger").innerHTML = db.TXN_ENTITLEMENT_LEDGER.map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
+document.getElementById("logout").onclick = () => {
+  if (!confirm("Hapus SEMUA data demo di browser ini (siswa, transaksi, sesi, antrean Sheets)?")) return;
+  localStorage.removeItem("kolase_db_v1");
+  localStorage.removeItem("kolase_sheets_queue");
+  location.href = "login.html";
+};
+document.getElementById("sheetsMsg").textContent =
+  KolaseStore.sheetsEndpoint() ? "Endpoint server-side terdeteksi. Mutasi dikirim ke Sheets." : "Mode mock: endpoint belum dikonfigurasi server-side.";
+</script>
+</body>
+</html>
