@@ -43,7 +43,7 @@ create table if not exists mst_staff (
   nama text not null,
   email text not null,
   wa text default '',
-  role text not null default 'admin'
+  role text not null default 'admin' check (role in ('admin','founder','academic','systems'))
 );
 
 -- ===== Transaksi & ledger =====
@@ -377,3 +377,10 @@ alter table mst_students add column if not exists photo_url text default '';
 alter table mst_teachers add column if not exists photo_url text default '';
 alter table mst_staff add column if not exists photo_url text default '';
 alter table classes add column if not exists photo_url text default '';
+
+-- ===== MIGRASI ROLE LEADERSHIP (founder/academic/systems, ACT-XXXXXX di mst_staff) =====
+-- DB lama: mst_staff.role tanpa check / hanya 'admin'. Longgarkan ke 4 nilai kanonikal.
+do $$ begin
+  begin alter table mst_staff drop constraint if exists mst_staff_role_check; exception when others then null; end;
+  begin alter table mst_staff add constraint mst_staff_role_check check (role in ('admin','founder','academic','systems')); exception when duplicate_object then null; end;
+end $$;

@@ -10,7 +10,7 @@ const waStr = z.string().trim().min(9).max(20).regex(/^[+0-9][0-9\- ]+$/);
 const ageGroupEnum = z.enum(["<13", "13-15", "16-17", "18-24", "25+"]);
 
 export const registerServerSchema = z.object({
-  role: z.enum(["student", "teacher", "staff"]),
+  role: z.enum(["student", "teacher", "founder", "academic", "systems"]),
   nama: nameStr,
   email: emailStr,
   wa: waStr.optional().default(""),
@@ -62,6 +62,18 @@ export const studentLoginSchema = z.object({
 });
 
 export const teacherLoginSchema = z.object({
+  email: emailStr,
+});
+
+export const founderLoginSchema = z.object({
+  email: emailStr,
+});
+
+export const academicLoginSchema = z.object({
+  email: emailStr,
+});
+
+export const systemsLoginSchema = z.object({
   email: emailStr,
 });
 

@@ -4,6 +4,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { parseUnverified } from "./lib/session-edge";
+import { ADMIN_ROLES_EDGE, STUDENT_AREA_ROLES_EDGE } from "./lib/session-edge";
 
 const CSP = [
   "default-src 'self'",
@@ -37,9 +38,9 @@ export function proxy(request: NextRequest) {
   const parsed = session ? parseUnverified(session) : {};
 
   // RBAC kasar (verifikasi HMAC penuh di server):
-  // /student/* -> student|admin|teacher ; /admin/* -> admin|teacher
+  // /student/* -> student + admin penuh ; /admin|guru/* -> admin penuh
   if (pathname.startsWith("/student")) {
-    if (!session || !["student", "admin", "teacher"].includes(parsed.role ?? "")) {
+    if (!session || !STUDENT_AREA_ROLES_EDGE.includes(parsed.role ?? "")) {
       const url = new URL("/masuk", request.url);
       url.searchParams.set("next", pathname);
       url.searchParams.set("need", "student");
@@ -48,7 +49,7 @@ export function proxy(request: NextRequest) {
     }
   }
   if (pathname.startsWith("/admin") || pathname.startsWith("/guru")) {
-    if (!session || !["admin", "teacher"].includes(parsed.role ?? "")) {
+    if (!session || !ADMIN_ROLES_EDGE.includes(parsed.role ?? "")) {
       const url = new URL("/masuk", request.url);
       url.searchParams.set("next", pathname);
       url.searchParams.set("need", "admin");

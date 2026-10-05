@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Halaman yang dijaga memakai <body data-guard="student,teacher"> dst.
   const need = (document.body.getAttribute("data-guard") || "").split(",").map((s) => s.trim()).filter(Boolean);
   // Peran internal bebas akses semua page/fitur. Siswa tetap dibatasi halamannya.
-  const PRIVILEGED = ["staff", "admin", "owner", "author", "teacher"];
+  const PRIVILEGED = ["staff", "admin", "owner", "author", "teacher", "founder", "academic", "systems"];
   if (need.length) {
     let u = null;
     try { u = (JSON.parse(localStorage.getItem("kolase_db_v1") || "null") || {}).sessionUser || null; } catch (e) { u = null; }

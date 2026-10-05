@@ -4,11 +4,17 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 export const SESSION_COOKIE = "kolase_session";
 export const CSRF_COOKIE = "kolase_csrf";
-export type SessionRole = "student" | "admin" | "teacher";
+export type SessionRole = "student" | "admin" | "teacher" | "founder" | "academic" | "systems";
+
+// Leadership (founder/academic/systems) = admin penuh.
+export const ADMIN_ROLES: SessionRole[] = ["admin", "teacher", "founder", "academic", "systems"];
+export const STUDENT_AREA_ROLES: SessionRole[] = ["student", "admin", "teacher", "founder", "academic", "systems"];
+export const APPROVER_ROLES: SessionRole[] = ["admin", "founder", "academic", "systems"];
+const ALL_ROLES: SessionRole[] = ["student", "admin", "teacher", "founder", "academic", "systems"];
 
 export interface SessionPayload {
   role: SessionRole;
-  sub: string; // STU-XXXXXX | admin id | TCH-XXXXXX
+  sub: string; // STU-XXXXXX | TCH-XXXXXX | ACT-XXXXXX | admin
   email?: string;
   iat: number;
   exp: number;
@@ -44,7 +50,7 @@ export function verifyToken(token: string): SessionPayload | null {
     if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
     const payload = JSON.parse(unb64url(body).toString("utf8")) as SessionPayload;
     if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null;
-    if (!["student", "admin", "teacher"].includes(payload.role)) return null;
+    if (!ALL_ROLES.includes(payload.role)) return null;
     return payload;
   } catch {
     return null;

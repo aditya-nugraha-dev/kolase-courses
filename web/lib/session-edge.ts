@@ -2,6 +2,9 @@
 // Hanya decode payload untuk routing cepat di proxy.ts.
 // JANGAN dipakai untuk otorisasi final — verifikasi HMAC ada di lib/session.ts (server).
 
+export const ADMIN_ROLES_EDGE = ["admin", "teacher", "founder", "academic", "systems"];
+export const STUDENT_AREA_ROLES_EDGE = ["student", "admin", "teacher", "founder", "academic", "systems"];
+
 export function parseUnverified(token: string): { role?: string; sub?: string } {
   try {
     const [body] = token.split(".");

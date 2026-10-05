@@ -1,7 +1,8 @@
 // POST /api/payment-confirm — pengganti GForm 02_PAYMENT (publik, hardened).
-// GET /api/payment-confirm — daftar untuk admin|teacher.
+// GET /api/payment-confirm — daftar untuk admin penuh.
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { ADMIN_ROLES, APPROVER_ROLES } from "@/lib/session";
 import { postSheets } from "@/lib/sheets";
 import { paymentConfirmServerSchema } from "@/lib/schemas";
 import {
@@ -80,7 +81,7 @@ export async function GET(req: Request) {
   if (!rl.ok) return NextResponse.json({ ok: false, error: safeErrorMessage(429) }, { status: 429 });
   try {
     const s = await getSession();
-    if (!s || !["admin", "teacher"].includes(s.role)) {
+    if (!s || !ADMIN_ROLES.includes(s.role)) {
       return NextResponse.json({ ok: false, error: safeErrorMessage(403) }, { status: 403 });
     }
     try {
@@ -99,14 +100,14 @@ export async function GET(req: Request) {
   }
 }
 
-// PATCH /api/payment-confirm {id, status} — verifikasi finance (admin only).
+// PATCH /api/payment-confirm {id, status} — verifikasi finance (admin + leadership, tanpa teacher).
 export async function PATCH(req: Request) {
   const ip = getClientIp(req);
   const rl = checkRateLimit(`payment-verify:${ip}`, 30, 60_000);
   if (!rl.ok) return NextResponse.json({ ok: false, error: safeErrorMessage(429) }, { status: 429 });
   try {
     const s = await getSession();
-    if (!s || s.role !== "admin") {
+    if (!s || !APPROVER_ROLES.includes(s.role)) {
       return NextResponse.json({ ok: false, error: safeErrorMessage(403) }, { status: 403 });
     }
     const raw = (await req.json().catch(() => ({}))) as Record<string, unknown>;

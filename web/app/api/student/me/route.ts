@@ -1,13 +1,14 @@
 // GET /api/student/me — profil + kelas + progres milik sesi student.
-// RBAC: sesi student|admin|teacher. Student hanya bisa lihat miliknya sendiri.
+// RBAC: sesi student + admin penuh. Student hanya bisa lihat miliknya sendiri.
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { STUDENT_AREA_ROLES } from "@/lib/session";
 import { logServerError, safeErrorMessage } from "@/lib/security";
 
 export async function GET() {
   try {
     const s = await getSession();
-    if (!s || !["student", "admin", "teacher"].includes(s.role)) {
+    if (!s || !STUDENT_AREA_ROLES.includes(s.role)) {
       return NextResponse.json({ ok: false, error: safeErrorMessage(401) }, { status: 401 });
     }
     const lookupId = s.sub;

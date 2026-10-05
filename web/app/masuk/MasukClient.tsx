@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
+  BookOpen,
   CheckCircle2,
+  Cpu,
+  Crown,
   GraduationCap,
   Loader2,
   LogIn,
@@ -13,20 +16,28 @@ import {
 } from "lucide-react";
 import { Button, Card, Field, Input, Toast } from "../components/ui";
 import TurnstileBox from "../components/TurnstileBox";
+import { detectLeadershipHint } from "@/lib/leadership";
 
-type Role = "student" | "teacher";
+type Role = "student" | "teacher" | "founder" | "academic" | "systems";
 type Mode = "masuk" | "daftar";
 
 const ROLES: Array<{ id: Role; title: string; desc: string; idInfo: string; icon: typeof GraduationCap }> = [
   { id: "student", title: "Student", desc: "Murid / peserta kelas", idInfo: "ID STU-XXXXXX otomatis", icon: GraduationCap },
   { id: "teacher", title: "Teacher", desc: "Pengajar / fasilitator", idInfo: "ID TCH-XXXXXX otomatis", icon: Presentation },
+  { id: "founder", title: "Founder", desc: "Founder & Business Lead", idInfo: "ID ACT-XXXXXX otomatis", icon: Crown },
+  { id: "academic", title: "Academic", desc: "Co-Founder & Academic Lead", idInfo: "ID ACT-XXXXXX otomatis", icon: BookOpen },
+  { id: "systems", title: "Systems", desc: "Head of Systems & Technology", idInfo: "ID ACT-XXXXXX otomatis", icon: Cpu },
 ];
 
-const DEFAULT_DEST: Record<Role, string> = { student: "/student", teacher: "/admin" };
+const DEFAULT_DEST: Record<Role, string> = { student: "/student", teacher: "/admin", founder: "/admin", academic: "/admin", systems: "/admin" };
 const AUTH_PATH: Record<Role, string> = {
   student: "/api/auth/student",
   teacher: "/api/auth/teacher",
+  founder: "/api/auth/founder",
+  academic: "/api/auth/academic",
+  systems: "/api/auth/systems",
 };
+const ID_PREFIX: Record<Role, string> = { student: "STU", teacher: "TCH", founder: "ACT", academic: "ACT", systems: "ACT" };
 
 function safeNext(raw: string | null, fallback: string): string {
   if (raw && raw.startsWith("/") && !raw.startsWith("//") && !raw.includes("..")) return raw;
@@ -101,7 +112,7 @@ export default function MasukClient() {
       });
       const j = await res.json();
       if (j.ok) {
-        const assigned = j.studentId ?? j.teacherId;
+        const assigned = j.studentId ?? j.teacherId ?? j.staffId;
         setToast(`Masuk berhasil${assigned ? ` — ${assigned}` : ""}. Mengalihkan…`);
         window.setTimeout(() => router.push(safeNext(nextParam, DEFAULT_DEST[role])), 600);
       } else {
@@ -114,7 +125,8 @@ export default function MasukClient() {
     }
   };
 
-  // ---- DAFTAR teacher: ID (TCH-) auto-stack dari database ----
+  // ---- DAFTAR teacher/leadership: ID auto-stack dari database ----
+  // student daftar via wizard /daftar; teacher TCH-XXXXXX, leadership ACT-XXXXXX.
   const register = async () => {
     if (!role || role === "student") return;
     setErr("");
@@ -190,6 +202,7 @@ export default function MasukClient() {
   }
 
   const roleLabel = ROLES.find((r) => r.id === role)?.title ?? role;
+  const nameHint = nama ? detectLeadershipHint(nama) : null;
 
   // ---------- STEP 2: masuk atau daftar ----------
   if (!mode) {
@@ -217,7 +230,7 @@ export default function MasukClient() {
             <UserPlus size={24} className="mx-auto text-navy" />
             <span className="font-display mt-2 block text-base font-extrabold text-ink">Daftar</span>
             <span className="mt-1 block text-xs text-ink/60">
-              {role === "student" ? "Wizard placement + ID STU-… otomatis." : "Form singkat + ID TCH-… otomatis."}
+              {role === "student" ? "Wizard placement + ID STU-… otomatis." : `Form singkat + ID ${ID_PREFIX[role]}-… otomatis.`}
             </span>
           </button>
         </div>
@@ -244,7 +257,7 @@ export default function MasukClient() {
     );
   }
 
-  // ---------- STEP 3b: tanda terima daftar teacher ----------
+  // ---------- STEP 3b: tanda terima daftar teacher/leadership ----------
   if (receipt) {
     return (
       <div>
@@ -268,7 +281,7 @@ export default function MasukClient() {
     );
   }
 
-  // ---------- STEP 3c: form daftar teacher ----------
+  // ---------- STEP 3c: form daftar teacher/leadership ----------
   if (mode === "daftar") {
     return (
       <div>
@@ -282,11 +295,36 @@ export default function MasukClient() {
           </div>
           <h2 className="font-display text-lg font-extrabold text-ink">Daftar sebagai {roleLabel}</h2>
           <p className="text-sm text-ink/70">
-            Isi nama + email — ID <b>TCH-XXXXXX</b> terbit berurutan otomatis. Tanpa mengisi ID.
+            Isi nama + email — ID <b>{ID_PREFIX[role]}-XXXXXX</b> terbit berurutan otomatis. Tanpa mengisi ID.
           </p>
           <Field label="Nama Lengkap">
             <Input value={nama} onChange={(e) => setNama(e.target.value)} placeholder="cth. Hilal Ibrahim Badruz" autoComplete="name" />
           </Field>
+          {nameHint && (
+            <div
+              className={`rounded-xl border px-3 py-2.5 text-xs leading-relaxed ${
+                nameHint.role === role
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                  : "border-amber-200 bg-amber-50 text-amber-900"
+              }`}
+            >
+              {nameHint.role === role ? (
+                <>Terdeteksi sebagai <b>{nameHint.title}</b> ({nameHint.displayName}). Lanjutkan pendaftaran {roleLabel}.</>
+              ) : (
+                <>
+                  Nama <b>{nameHint.displayName}</b> terdaftar untuk peran <b>{nameHint.title}</b> — silakan pilih peran{" "}
+                  <b>{ROLES.find((r) => r.id === nameHint.role)?.title ?? nameHint.role}</b> saja.
+                  <button
+                    type="button"
+                    onClick={() => { setRole(nameHint.role); setMode("daftar"); setErr(""); setReceipt(null); }}
+                    className="ml-1 font-bold text-navy hover:underline"
+                  >
+                    Ganti ke {ROLES.find((r) => r.id === nameHint.role)?.title ?? nameHint.role}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
           <Field label="Email">
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@email.id" autoComplete="email" />
           </Field>
@@ -313,7 +351,7 @@ export default function MasukClient() {
       <Card className="mt-3 space-y-4 rounded-xl">
         <h2 className="font-display text-lg font-extrabold text-ink">Masuk sebagai {roleLabel}</h2>
         <p className="text-sm text-ink/70">
-          Cukup email yang dipakai saat daftar — ID kamu (<b>{role === "student" ? "STU" : "TCH"}-XXXXXX</b>) ditemukan otomatis. Tanpa mengisi ID.
+          Cukup email yang dipakai saat daftar — ID kamu (<b>{ID_PREFIX[role]}-XXXXXX</b>) ditemukan otomatis. Tanpa mengisi ID.
         </p>
         <Field label="Email terdaftar">
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@email.id" autoComplete="email" />

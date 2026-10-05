@@ -1,7 +1,8 @@
 // GET /api/admin/students?q=&status= — Student Master untuk admin/teacher.
-// RBAC ketat: hanya role admin|teacher. PII tidak diekspos ke publik.
+// RBAC ketat: admin penuh. PII tidak diekspos ke publik.
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { ADMIN_ROLES } from "@/lib/session";
 import { checkRateLimit, getClientIp, logServerError, safeErrorMessage } from "@/lib/security";
 
 export async function GET(req: Request) {
@@ -10,7 +11,7 @@ export async function GET(req: Request) {
   if (!rl.ok) return NextResponse.json({ ok: false, error: safeErrorMessage(429) }, { status: 429 });
   try {
     const s = await getSession();
-    if (!s || !["admin", "teacher"].includes(s.role)) {
+    if (!s || !ADMIN_ROLES.includes(s.role)) {
       return NextResponse.json({ ok: false, error: safeErrorMessage(403) }, { status: 403 });
     }
     const url = new URL(req.url);

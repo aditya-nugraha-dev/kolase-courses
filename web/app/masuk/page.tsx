@@ -4,7 +4,7 @@ import MasukClient from "./MasukClient";
 
 export const metadata: Metadata = {
   title: "Masuk / Daftar — KOLASE",
-  description: "Pilih peran (Student, Teacher, Staff), lalu masuk pakai email atau daftar — ID terbit berurutan otomatis.",
+  description: "Pilih peran (Student, Teacher, Founder, Academic, Systems), lalu masuk pakai email atau daftar — ID terbit berurutan otomatis.",
 };
 
 export default function MasukPage() {
@@ -16,7 +16,7 @@ export default function MasukPage() {
           Masuk / Daftar KOLASE
         </h1>
         <p className="mt-2 text-center text-sm text-ink/70">
-          Pilih peran dulu — Student, Teacher, atau Staff. Tanpa mengisi ID, ID berurutan otomatis.
+          Pilih peran dulu — Student, Teacher, Founder, Academic, atau Systems. Tanpa mengisi ID, ID berurutan otomatis.
         </p>
         <div className="mt-6">
           <Suspense fallback={<p className="text-center text-sm text-ink/60">Memuat…</p>}>

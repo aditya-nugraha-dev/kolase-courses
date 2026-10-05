@@ -1,7 +1,8 @@
-// POST /api/teacher-report — GForm 03_TEACHER_REPORT (teacher|admin only).
-// GET — daftar untuk admin|teacher.
+// POST /api/teacher-report — GForm 03_TEACHER_REPORT (admin penuh).
+// GET — daftar untuk admin penuh.
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { ADMIN_ROLES } from "@/lib/session";
 import { postSheets } from "@/lib/sheets";
 import { teacherReportServerSchema } from "@/lib/schemas";
 import {
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
   }
   try {
     const s = await getSession();
-    if (!s || !["admin", "teacher"].includes(s.role)) {
+    if (!s || !ADMIN_ROLES.includes(s.role)) {
       return NextResponse.json({ ok: false, error: safeErrorMessage(403) }, { status: 403 });
     }
     const raw = (await req.json().catch(() => ({}))) as Record<string, unknown>;
@@ -73,7 +74,7 @@ export async function GET(req: Request) {
   if (!rl.ok) return NextResponse.json({ ok: false, error: safeErrorMessage(429) }, { status: 429 });
   try {
     const s = await getSession();
-    if (!s || !["admin", "teacher"].includes(s.role)) {
+    if (!s || !ADMIN_ROLES.includes(s.role)) {
       return NextResponse.json({ ok: false, error: safeErrorMessage(403) }, { status: 403 });
     }
     try {

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from "lucide-react";
 import { Badge, Button, Card, Field, Input, Select, Textarea, Toast } from "./ui";
 import TurnstileBox from "./TurnstileBox";
+import { detectLeadershipHint } from "@/lib/leadership";
 import { SCHEDULE_OPTIONS } from "@/lib/mock";
 import {
   QUIZ,
@@ -75,6 +76,8 @@ export default function RegistrationWizard() {
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<RegistrationValues>();
   const ageGroup = watch("ageGroup");
+  const fullNameVal = watch("fullName") ?? "";
+  const leadershipHint = fullNameVal ? detectLeadershipHint(String(fullNameVal)) : null;
 
   const quizScore = useMemo(() => scoreQuiz(answers), [answers]);
   const preScore = useMemo(() => scorePreCheck(writing), [writing]);
@@ -226,6 +229,12 @@ export default function RegistrationWizard() {
           </div>
           <Card className="space-y-4 rounded-xl">
             <h2 className="font-display text-lg font-extrabold text-ink">Step 1 — Student Registration (GForm 1)</h2>
+            {leadershipHint && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-900">
+                Nama <b>{leadershipHint.displayName}</b> terdaftar untuk peran <b>{leadershipHint.title}</b> — wizard ini khusus Student.
+                Silakan masuk via <button type="button" onClick={() => router.push("/masuk")} className="font-bold text-navy hover:underline">/masuk</button> dengan peran yang sesuai saja.
+              </div>
+            )}
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Full Name" error={errors.fullName?.message}>
                 <Input placeholder="cth. Aisyah Rahma" {...register("fullName")} />

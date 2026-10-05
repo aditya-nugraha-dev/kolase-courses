@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { STUDENT_AREA_ROLES } from "@/lib/session";
 import LogoutButton from "./LogoutButton";
 
-// Layout khusus murid: server guard (sesi student|admin|teacher) + sub-navigasi portal.
+// Layout khusus murid: server guard (sesi student + admin penuh) + sub-navigasi portal.
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
-  const s = await requireRole(["student", "admin", "teacher"]);
+  const s = await requireRole([...STUDENT_AREA_ROLES]);
   if (!s) redirect("/masuk?next=/student&need=student");
 
   return (

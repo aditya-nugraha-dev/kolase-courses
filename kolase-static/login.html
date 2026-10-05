@@ -15,9 +15,11 @@
 <main class="wrap">
   <div class="section"><div class="card form-card">
     <h2>Registrasi & Login</h2>
-    <p class="small">Pilih peran → ID permanen otomatis: <span class="id-mono">STU-XXXXXX</span> / <span class="id-mono">TCH-XXXXXX</span> (seumur hidup)</p>
-    <div class="field"><label>Peran</label><select id="role"><option value="student">Student</option><option value="teacher">Teacher</option></select></div>
+    <p class="small">Pilih peran → ID permanen otomatis: <span class="id-mono">STU-XXXXXX</span> / <span class="id-mono">TCH-XXXXXX</span> / <span class="id-mono">ACT-XXXXXX</span> (seumur hidup)</p>
+    <div class="field"><label>Peran</label><select id="role"><option value="student">Student</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select></div>
+    <div class="field" id="staffTypeWrap" style="display:none"><label>Staff sebagai</label><select id="staffType"><option value="founder">Founder & Business Lead</option><option value="academic">Co-Founder & Academic Lead</option><option value="systems">Head of Systems & Technology</option></select></div>
     <div class="field"><label>Nama</label><input id="nama" placeholder="Nama lengkap"></div>
+    <div id="roleHint" class="small" style="display:none;margin:-4px 0 8px"></div>
     <div class="field"><label>Email</label><input id="email" placeholder="nama@email.id"></div>
     <div class="field"><label>No. WA</label><input id="wa" placeholder="08xx"></div>
     <button class="btn btn-brand" id="regBtn" style="width:100%">Buat ID & Masuk</button>
@@ -31,8 +33,52 @@ try {
   const u = (KolaseStore.loadDB().sessionUser) || null;
   if (u) location.replace(KolaseStore.portalFor(u.role));
 } catch (e) {}
+// Staff: tampilkan dropdown jenis staff; hint nama → arahan role yang sesuai (tanpa buat akun otomatis).
+var STAFF_LABEL = { founder: "Founder & Business Lead", academic: "Co-Founder & Academic Lead", systems: "Head of Systems & Technology" };
+function normNama(v) { return String(v || "").toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim(); }
+function detectStaffRole(nama) {
+  var n = normNama(nama);
+  if (n.length < 4) return null;
+  if (n.indexOf("ahrenz") !== -1 || n.indexOf("galang maharsi") !== -1 || n.indexOf("maharsi") !== -1) return "founder";
+  if (n.indexOf("hilal") !== -1 || n.indexOf("badruz") !== -1 || n.indexOf("badruzzaman") !== -1) return "academic";
+  if (n.indexOf("aditya nugraha") !== -1 || n.indexOf("adit nugraha") !== -1 || n.indexOf("aditya") !== -1 || n.indexOf("nugraha") !== -1) return "systems";
+  return null;
+}
+function refreshStaffUI() {
+  var role = document.getElementById("role").value;
+  var wrap = document.getElementById("staffTypeWrap");
+  var hint = document.getElementById("roleHint");
+  var nama = document.getElementById("nama").value;
+  var suggest = detectStaffRole(nama);
+  wrap.style.display = role === "staff" ? "" : "none";
+  if (!suggest) { hint.style.display = "none"; hint.textContent = ""; return; }
+  var label = STAFF_LABEL[suggest];
+  if (role === "staff" && document.getElementById("staffType").value === suggest) {
+    hint.style.display = "";
+    hint.textContent = "Terdeteksi sebagai " + label + ". Lanjutkan pendaftaran Staff.";
+  } else if (role !== "staff" || document.getElementById("staffType").value !== suggest) {
+    hint.style.display = "";
+    hint.innerHTML = "";
+    hint.appendChild(document.createTextNode("Nama ini terdaftar untuk " + label + " — silakan pilih peran Staff › " + label + " saja. "));
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn btn-ghost btn-sm";
+    b.textContent = "Pilihkan otomatis";
+    b.onclick = function () {
+      document.getElementById("role").value = "staff";
+      document.getElementById("staffType").value = suggest;
+      refreshStaffUI();
+    };
+    hint.appendChild(b);
+  }
+}
+document.getElementById("role").addEventListener("change", refreshStaffUI);
+document.getElementById("staffType").addEventListener("change", refreshStaffUI);
+document.getElementById("nama").addEventListener("input", refreshStaffUI);
 document.getElementById("regBtn").onclick = () => {
-  const role = document.getElementById("role").value;
+  var peran = document.getElementById("role").value;
+  // Staff → role aktual sesuai jenis: founder / academic / systems (ID ACT-XXXXXX di MST_STAFF).
+  var role = peran === "staff" ? document.getElementById("staffType").value : peran;
   const nama = document.getElementById("nama").value || "Pengguna Baru";
   const email = document.getElementById("email").value || "";
   const wa = document.getElementById("wa").value || "";
@@ -41,7 +87,7 @@ document.getElementById("regBtn").onclick = () => {
     return;
   }
   const id = KolaseStore.registerPerson(role, nama, email, wa);
-  const dest = role==="student" ? "catalog.html" : "teacher-portal.html";
+  const dest = role==="student" ? "catalog.html" : role==="teacher" ? "teacher-portal.html" : "staff-portal.html";
   document.getElementById("out").innerHTML = `ID kamu: <span class="id-mono">${id}</span> • <a href="${dest}">Lanjut →</a>`;
 };
 </script>

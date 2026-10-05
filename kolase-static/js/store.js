@@ -90,8 +90,9 @@ function registerPerson(role, nama, email, wa) {
     id = nextId("TCH", db.MST_TEACHERS, "teacher_id");
     db.MST_TEACHERS.push({ teacher_id: id, nama, email, wa });
   } else {
+    // Staff & leadership: founder / academic / systems / staff / admin → ACT-XXXXXX di MST_STAFF.
     id = nextId("ACT", db.MST_STAFF, "staff_id");
-    db.MST_STAFF.push({ staff_id: id, nama, email, wa, role: "admin" });
+    db.MST_STAFF.push({ staff_id: id, nama, email, wa, role });
   }
   db.sessionUser = { role, id, nama, email };
   saveDB(db);
@@ -102,7 +103,7 @@ function registerPerson(role, nama, email, wa) {
     ? { student_id: id, nama, email, wa, tgl_daftar: tgl }
     : role === "teacher"
       ? { teacher_id: id, nama, email, wa }
-      : { staff_id: id, nama, email, role: "admin" };
+      : { staff_id: id, nama, email, wa, role };
   postSheets({ action: "register", role, row });
   if (role === "student") {
     const now = new Date().toISOString();

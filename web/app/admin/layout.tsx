@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { ADMIN_ROLES } from "@/lib/session";
 import LogoutButton from "../student/LogoutButton";
 
-// Layout restricted: hanya admin|teacher.
+// Layout restricted: admin penuh (admin|teacher|founder|academic|systems).
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const s = await requireRole(["admin", "teacher"]);
+  const s = await requireRole([...ADMIN_ROLES]);
   if (!s) redirect("/masuk?next=/admin&need=admin");
 
   return (

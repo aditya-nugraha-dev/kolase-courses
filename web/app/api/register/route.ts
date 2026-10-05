@@ -1,6 +1,7 @@
 // POST /api/register — hardened: rate-limit, honeypot, CSRF, Turnstile (opsional),
 // timing anti-bot, Zod server-side, sanitasi anti-XSS, error generik.
-// ID kanonikal: student STU-###### seumur hidup, teacher TCH-XXXXXX, staff ACT-XXXXXX.
+// ID kanonikal: student STU-###### seumur hidup, teacher TCH-XXXXXX,
+// leadership (founder/academic/systems) ACT-XXXXXX di mst_staff.
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
 import { nextId } from "@/lib/ids";
@@ -23,7 +24,9 @@ import { CSRF_COOKIE } from "@/lib/session";
 const TABLES = {
   student: { table: "mst_students", col: "student_id", prefix: "STU" },
   teacher: { table: "mst_teachers", col: "teacher_id", prefix: "TCH" },
-  staff: { table: "mst_staff", col: "staff_id", prefix: "ACT" },
+  founder: { table: "mst_staff", col: "staff_id", prefix: "ACT" },
+  academic: { table: "mst_staff", col: "staff_id", prefix: "ACT" },
+  systems: { table: "mst_staff", col: "staff_id", prefix: "ACT" },
 } as const;
 
 export async function POST(req: Request) {
@@ -75,7 +78,7 @@ export async function POST(req: Request) {
         ? { student_id: id, nama, email, wa, tgl_daftar: new Date().toISOString().slice(0, 10) }
         : role === "teacher"
           ? { teacher_id: id, nama, email, wa }
-          : { staff_id: id, nama, email, wa, role: "admin" };
+          : { staff_id: id, nama, email, wa, role };
 
     let pilot_student_id: string | null = null;
     if (role === "student") {
