@@ -31,72 +31,7 @@ export interface ClassRow {
   status: "OPEN" | "FULL" | "COMING_SOON";
 }
 
-export const MOCK_STUDENTS: StudentRow[] = [
-  {
-    studentId: "STU-000001",
-    fullName: "Siswa Demo",
-    preferredName: "Demo",
-    email: "siswa@demo.id",
-    wa: "0812000001",
-    placementScore: 35,
-    preCheck: 6,
-    postCheck: 8,
-    gainScore: 2,
-    a2Fit: "A2_CONFIRMED",
-    classId: "CLS-000001",
-    attendance: "ATTENDED",
-    status: "COMPLETED",
-    domicile: "Tangerang",
-  },
-  {
-    studentId: "STU-000002",
-    fullName: "Aisyah Rahma",
-    preferredName: "Aisyah",
-    email: "aisyah.rahma@mail.id",
-    wa: "081234567890",
-    placementScore: 28,
-    preCheck: 5,
-    postCheck: 7,
-    gainScore: 2,
-    a2Fit: "A2_CONFIRMED",
-    classId: "CLS-000001",
-    attendance: "ATTENDED",
-    status: "ASSIGNED",
-    domicile: "Jakarta",
-  },
-  {
-    studentId: "STU-000003",
-    fullName: "Bagas Pratama",
-    preferredName: "Bagas",
-    email: "bagas.p@mail.id",
-    wa: "081298765432",
-    placementScore: 18,
-    preCheck: 4,
-    postCheck: null,
-    gainScore: null,
-    a2Fit: "PLACEMENT_PENDING",
-    classId: "CLS-000002",
-    attendance: "",
-    status: "REGISTERED",
-    domicile: "Bekasi",
-  },
-  {
-    studentId: "STU-000004",
-    fullName: "Citra Lestari",
-    preferredName: "Citra",
-    email: "citra.l@mail.id",
-    wa: "081255501122",
-    placementScore: 44,
-    preCheck: 8,
-    postCheck: 9,
-    gainScore: 1,
-    a2Fit: "OTHER_LEVEL",
-    classId: "CLS-000002",
-    attendance: "NO_SHOW",
-    status: "COMPLETED",
-    domicile: "Depok",
-  },
-];
+export const MOCK_STUDENTS: StudentRow[] = [];
 
 export const MOCK_CLASSES: ClassRow[] = [
   {
@@ -143,24 +78,19 @@ export const SCHEDULE_OPTIONS = [
   "Weekday Malam (menunggu kuota)",
 ];
 
-// Akun demo PREVIEW (dipakai bila database belum tersambung).
-// Email di bawah ini publik — hanya untuk coba-coba, bukan data asli.
+// Akun demo dihapus. Login/register wajib via database (Supabase).
 export interface TeacherRow {
-  teacherId: string; // TCH-XXXXXX
+  teacherId: string;
   nama: string;
   email: string;
 }
 
 export interface StaffRow {
-  staffId: string; // ACT-XXXXXX
+  staffId: string;
   nama: string;
   email: string;
 }
 
-export const MOCK_TEACHERS: TeacherRow[] = [
-  { teacherId: "TCH-000002", nama: "Galang", email: "galang@kolase.id" },
-];
+export const MOCK_TEACHERS: TeacherRow[] = [];
 
-export const MOCK_STAFF: StaffRow[] = [
-  { staffId: "ACT-000001", nama: "Mohammad Ahrenz Galang Maharsi", email: "kolaseenglish@gmail.com" },
-];
+export const MOCK_STAFF: StaffRow[] = [];

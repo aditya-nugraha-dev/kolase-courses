@@ -7,7 +7,6 @@ import { timingSafeEqual } from "node:crypto";
 import { studentLoginSchema } from "@/lib/schemas";
 import { checkRateLimit, getClientIp, logServerError, safeErrorMessage } from "@/lib/security";
 import { SESSION_COOKIE, sessionCookieOptions, signPayload } from "@/lib/session";
-import { MOCK_STUDENTS } from "@/lib/mock";
 
 function safeEqual(a: string, b: string): boolean {
   const ba = Buffer.from(a);
@@ -62,15 +61,7 @@ export async function POST(req: Request) {
         logServerError("auth-student-db", e);
       }
     }
-    // Fallback demo/preview (mock) — agar portal bisa dicoba tanpa DB.
-    if (!verifiedId) {
-      const m = MOCK_STUDENTS.find((s) =>
-        studentId
-          ? s.studentId === studentId && safeEqual(s.email.trim().toLowerCase(), normEmail)
-          : safeEqual(s.email.trim().toLowerCase(), normEmail)
-      );
-      if (m) verifiedId = m.studentId;
-    }
+    // Tanpa fallback demo: email harus ada di database.
     // Pesan generik agar tidak bisa enumerasi akun.
     if (!verifiedId) return NextResponse.json({ ok: false, error: safeErrorMessage(401) }, { status: 401 });
 

@@ -3,7 +3,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { logServerError, safeErrorMessage } from "@/lib/security";
-import { MOCK_CLASSES, MOCK_STUDENTS } from "@/lib/mock";
 
 export async function GET() {
   try {
@@ -11,8 +10,7 @@ export async function GET() {
     if (!s || !["student", "admin", "teacher"].includes(s.role)) {
       return NextResponse.json({ ok: false, error: safeErrorMessage(401) }, { status: 401 });
     }
-    const studentId = s.role === "student" ? s.sub : s.sub; // admin preview: sub=admin -> demo STU-000001
-    const lookupId = s.role === "student" ? studentId : "STU-000001";
+    const lookupId = s.sub;
 
     const hasSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
     if (hasSupabase) {
@@ -29,9 +27,7 @@ export async function GET() {
         logServerError("student-me-db", e);
       }
     }
-    const stu = MOCK_STUDENTS.find((x) => x.studentId === lookupId) ?? MOCK_STUDENTS[0];
-    const cls = MOCK_CLASSES.find((c) => c.classId === stu.classId) ?? MOCK_CLASSES[0];
-    return NextResponse.json({ ok: true, source: "mock", student: stu, class: cls });
+    return NextResponse.json({ ok: false, error: safeErrorMessage(404) }, { status: 404 });
   } catch (e) {
     logServerError("student-me", e);
     return NextResponse.json({ ok: false, error: safeErrorMessage(500) }, { status: 500 });

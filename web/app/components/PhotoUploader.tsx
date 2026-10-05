@@ -6,11 +6,11 @@ import { Button, Card, Field, Input, Select, Toast } from "./ui";
 export type PhotoEntity = "student" | "teacher" | "staff" | "class" | "payment";
 
 const ENTITIES: Array<{ value: PhotoEntity; label: string; placeholder: string }> = [
-  { value: "student", label: "Siswa (STU-XXXXXX)", placeholder: "STU-000001" },
-  { value: "teacher", label: "Guru (TCH-XXXXXX)", placeholder: "TCH-000001" },
-  { value: "staff", label: "Staff (ACT-XXXXXX)", placeholder: "ACT-000001" },
-  { value: "class", label: "Kelas (CLS-XXXXXX)", placeholder: "CLS-000001" },
-  { value: "payment", label: "Pembayaran (ID/TXN/STU)", placeholder: "STU-000001" },
+  { value: "student", label: "Siswa (STU-XXXXXX)", placeholder: "STU-XXXXXX" },
+  { value: "teacher", label: "Guru (TCH-XXXXXX)", placeholder: "TCH-XXXXXX" },
+  { value: "staff", label: "Staff (ACT-XXXXXX)", placeholder: "ACT-XXXXXX" },
+  { value: "class", label: "Kelas (CLS-XXXXXX)", placeholder: "CLS-XXXXXX" },
+  { value: "payment", label: "Pembayaran (ID/TXN/STU)", placeholder: "TXN-XXXX" },
 ];
 
 interface PhotoRow {
@@ -71,7 +71,7 @@ export default function PhotoUploader({
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!entityId.trim()) { show("Isi ID dulu (cth. STU-000001).", "red"); return; }
+    if (!entityId.trim()) { show("Isi ID dulu (cth. STU-XXXXXX).", "red"); return; }
     if (!file) { show("Pilih file foto dulu (JPG/PNG/WebP ≤5MB).", "red"); return; }
     setSending(true);
     try {

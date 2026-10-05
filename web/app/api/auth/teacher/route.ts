@@ -6,7 +6,6 @@ import { timingSafeEqual } from "node:crypto";
 import { teacherLoginSchema } from "@/lib/schemas";
 import { checkRateLimit, getClientIp, logServerError, safeErrorMessage } from "@/lib/security";
 import { SESSION_COOKIE, sessionCookieOptions, signPayload } from "@/lib/session";
-import { MOCK_TEACHERS } from "@/lib/mock";
 
 function safeEqual(a: string, b: string): boolean {
   const ba = Buffer.from(a);
@@ -48,11 +47,7 @@ export async function POST(req: Request) {
         logServerError("auth-teacher-db", e);
       }
     }
-    // Fallback demo/preview (mock).
-    if (!verifiedId) {
-      const m = MOCK_TEACHERS.find((t) => safeEqual(t.email.trim().toLowerCase(), normEmail));
-      if (m) verifiedId = m.teacherId;
-    }
+    // Tanpa fallback demo: email harus ada di database.
     if (!verifiedId) return NextResponse.json({ ok: false, error: safeErrorMessage(401) }, { status: 401 });
 
     const token = signPayload({ role: "teacher", sub: verifiedId, email: normEmail });

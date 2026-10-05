@@ -15,7 +15,7 @@ export default function DashboardPage() {
           Student Master & Content Calendar
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-ink/70 sm:text-base">
-          Mirror <b>04_STUDENT_MASTER</b> + <b>01_CONTENT_CALENDAR</b>. Mock: STU-000001, STU-000002, CLS-00000001.
+          Mirror <b>04_STUDENT_MASTER</b> + <b>01_CONTENT_CALENDAR</b>.
           Filter by status, cari nama/email.
         </p>
         <div className="mt-6">

@@ -36,7 +36,7 @@ async function call(path: string, body?: unknown) {
 export default function CorePage() {
   const [health, setHealth] = useState("...");
   const [out, setOut] = useState("");
-  const [f, setF] = useState({ role: "student", nama: "", email: "", wa: "", student_id: "STU-000001", pilot_student_id: "STU-000001", class_id: "CLS-PUB-KIDS-01", pilot_class_id: "CLS-000001", method: "QRIS", trx_id: "", trial_id: "", session_id: "", hadir: "PRESENT", placement_total: "35", pre_check_score: "7", post_check_total: "8", interest_status: "YES" });
+  const [f, setF] = useState({ role: "student", nama: "", email: "", wa: "", student_id: "", pilot_student_id: "", class_id: "CLS-PUB-KIDS-01", pilot_class_id: "CLS-000001", method: "QRIS", trx_id: "", trial_id: "", session_id: "", hadir: "PRESENT", placement_total: "", pre_check_score: "", post_check_total: "", interest_status: "" });
   useEffect(() => { call("/api/health").then((h) => setHealth(`supabase:${h.supabase ? "ON" : "OFF"} sheets:${h.sheets ? "ON" : "OFF"}`)); }, []);
   const run = async (label: string, p: Promise<unknown>) => {
     try { setOut(label + "\n" + JSON.stringify(await p, null, 2)); }

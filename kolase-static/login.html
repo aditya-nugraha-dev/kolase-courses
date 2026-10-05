@@ -14,26 +14,14 @@
 </div></header>
 <main class="wrap">
   <div class="section"><div class="card form-card">
-    <h2>Registrasi & Login (RBAC)</h2>
-    <p class="small">Pilih peran → ID permanen otomatis: <span class="id-mono">STU-XXXXXX</span> / <span class="id-mono">TCH-XXXXXX</span> / <span class="id-mono">ACT-XXXXXX</span> (seumur hidup, KOL-POL-COD-001)</p>
-    <div class="field"><label>Peran</label><select id="role"><option value="student">Student</option><option value="teacher">Teacher</option><option value="staff">Staff/Admin</option></select></div>
+    <h2>Registrasi & Login</h2>
+    <p class="small">Pilih peran → ID permanen otomatis: <span class="id-mono">STU-XXXXXX</span> / <span class="id-mono">TCH-XXXXXX</span> (seumur hidup)</p>
+    <div class="field"><label>Peran</label><select id="role"><option value="student">Student</option><option value="teacher">Teacher</option></select></div>
     <div class="field"><label>Nama</label><input id="nama" placeholder="Nama lengkap"></div>
     <div class="field"><label>Email</label><input id="email" placeholder="nama@email.id"></div>
     <div class="field"><label>No. WA</label><input id="wa" placeholder="08xx"></div>
     <button class="btn btn-brand" id="regBtn" style="width:100%">Buat ID & Masuk</button>
     <div id="out" style="margin-top:10px"></div>
-    <div id="demoBox" hidden>
-      <hr><p class="small">Demo cepat tanpa form (khusus development):</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" data-demo="student">Login Student</button>
-        <button class="btn btn-ghost btn-sm" data-demo="teacher">Login Teacher</button>
-      </div>
-    </div>
-    <hr><p class="small">Akun tetap (Owner & Staff IT) — masuk dengan Staff ID + PIN masing-masing:</p>
-    <div class="field"><label>Staff ID</label><input id="staffId" placeholder="ACT-000001" autocomplete="off"><div class="err" id="staffIdErr" hidden></div></div>
-    <div class="field"><label>PIN keamanan</label><input id="pinInput" type="password" placeholder="PIN akun" autocomplete="off"><div class="err" id="pinErr" hidden></div></div>
-    <button class="btn btn-brand btn-sm" id="staffGo" style="width:100%">Masuk Staff</button>
-    <p class="small" id="pinMsg" style="margin-top:6px"></p>
   </div></div>
 </main>
 <script src="js/store.js"></script><script src="js/app.js"></script>
@@ -46,60 +34,16 @@ try {
 document.getElementById("regBtn").onclick = () => {
   const role = document.getElementById("role").value;
   const nama = document.getElementById("nama").value || "Pengguna Baru";
-  const email = document.getElementById("email").value || "user@demo.id";
-  const wa = document.getElementById("wa").value || "0812000000";
-  const id = KolaseStore.registerPerson(role, nama, email, wa);
-  const dest = role==="student" ? "catalog.html" : role==="teacher" ? "teacher-portal.html" : "staff-portal.html";
-  document.getElementById("out").innerHTML = `ID kamu: <span class="id-mono">${id}</span> • <a href="${dest}">Lanjut →</a>`;
-};
-document.getElementById("staffGo").onclick = () => {
-  const idEl = document.getElementById("staffId");
-  const pinEl = document.getElementById("pinInput");
-  const idErr = document.getElementById("staffIdErr");
-  const pinErr = document.getElementById("pinErr");
-  const msg = document.getElementById("pinMsg");
-  idErr.hidden = true; pinErr.hidden = true; msg.textContent = "";
-  // Validasi format (skema): Staff ID = ACT-XXXXXX, PIN min 4 karakter.
-  const staffId = idEl.value.trim().toUpperCase();
-  const pin = pinEl.value;
-  let valid = true;
-  if (!/^ACT-\d{6}$/.test(staffId)) { idErr.textContent = "Format Staff ID: ACT-XXXXXX (6 digit)."; idErr.hidden = false; valid = false; }
-  if (pin.length < 4) { pinErr.textContent = "PIN minimal 4 karakter."; pinErr.hidden = false; valid = false; }
-  if (!valid) return;
-  // Rate limiting: maks 5x percobaan / 60 detik per Staff ID (anti brute-force).
-  const KEY = "kolase_pin_attempts";
-  const now = Date.now();
-  let log = {};
-  try { log = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { log = {}; }
-  const hits = (log[staffId] || []).filter((t) => now - t < 60000);
-  if (hits.length >= 5) {
-    const wait = Math.ceil((60000 - (now - hits[0])) / 1000);
-    msg.textContent = `Terlalu banyak percobaan. Coba lagi dalam ${wait} detik.`;
+  const email = document.getElementById("email").value || "";
+  const wa = document.getElementById("wa").value || "";
+  if (!email || !wa) {
+    document.getElementById("out").textContent = "Email dan No. WA wajib diisi.";
     return;
   }
-  try {
-    KolaseStore.loginStaff(staffId, pin);
-    try { localStorage.removeItem(KEY); } catch (e) {}
-    location.href = "staff-portal.html";
-  } catch (e) {
-    hits.push(now); log[staffId] = hits;
-    try { localStorage.setItem(KEY, JSON.stringify(log)); } catch (e2) {}
-    // Pesan generik: jangan bocorkan apakah ID-nya ada atau PIN-nya yang salah.
-    msg.textContent = "Staff ID atau PIN salah.";
-    pinEl.value = "";
-  }
+  const id = KolaseStore.registerPerson(role, nama, email, wa);
+  const dest = role==="student" ? "catalog.html" : "teacher-portal.html";
+  document.getElementById("out").innerHTML = `ID kamu: <span class="id-mono">${id}</span> • <a href="${dest}">Lanjut →</a>`;
 };
-// Tombol demo cepat HANYA tampil bila flag dev aktif (window.KOLASE_DEV === true,
-// di-set via js/sheets-config.js lokal). Production: blok ini tetap tersembunyi.
-if (window.KOLASE_DEV === true) {
-  document.getElementById("demoBox").hidden = false;
-}
-document.querySelectorAll("[data-demo]").forEach(b=>b.onclick=()=>{
-  const r=b.getAttribute("data-demo");
-  const map={student:["student","STU-000001","Siswa Demo"],teacher:["teacher","TCH-000001","Ms. Sarah"]};
-  const db=KolaseStore.loadDB(); db.sessionUser={role:map[r][0],id:map[r][1],nama:map[r][2]}; KolaseStore.saveDB(db);
-  location.href = r==="student"?"dashboard.html":r==="teacher"?"teacher-portal.html":"staff-portal.html";
-});
 </script>
 </body>
 </html>

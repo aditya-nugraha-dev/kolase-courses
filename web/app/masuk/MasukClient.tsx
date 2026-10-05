@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
-  Briefcase,
   CheckCircle2,
   GraduationCap,
   Loader2,
@@ -15,20 +14,18 @@ import {
 import { Button, Card, Field, Input, Toast } from "../components/ui";
 import TurnstileBox from "../components/TurnstileBox";
 
-type Role = "student" | "teacher" | "staff";
+type Role = "student" | "teacher";
 type Mode = "masuk" | "daftar";
 
 const ROLES: Array<{ id: Role; title: string; desc: string; idInfo: string; icon: typeof GraduationCap }> = [
   { id: "student", title: "Student", desc: "Murid / peserta kelas", idInfo: "ID STU-XXXXXX otomatis", icon: GraduationCap },
   { id: "teacher", title: "Teacher", desc: "Pengajar / fasilitator", idInfo: "ID TCH-XXXXXX otomatis", icon: Presentation },
-  { id: "staff", title: "Staff", desc: "Tim operasional / admin", idInfo: "ID ACT-XXXXXX otomatis", icon: Briefcase },
 ];
 
-const DEFAULT_DEST: Record<Role, string> = { student: "/student", teacher: "/admin", staff: "/admin" };
+const DEFAULT_DEST: Record<Role, string> = { student: "/student", teacher: "/admin" };
 const AUTH_PATH: Record<Role, string> = {
   student: "/api/auth/student",
   teacher: "/api/auth/teacher",
-  staff: "/api/auth/staff",
 };
 
 function safeNext(raw: string | null, fallback: string): string {
@@ -40,14 +37,12 @@ export default function MasukClient() {
   const router = useRouter();
   const params = useSearchParams();
   const nextParam = params.get("next");
-  const need = params.get("need");
 
-  const [role, setRole] = useState<Role | null>(need === "admin" ? "staff" : null);
+  const [role, setRole] = useState<Role | null>(null);
   const [mode, setMode] = useState<Mode | null>(null);
 
-  // Login (masuk): TANPA isi ID — cukup email (+ admin key khusus staf).
+  // Login (masuk): cukup email, ID ditemukan otomatis.
   const [email, setEmail] = useState("");
-  const [adminKey, setAdminKey] = useState("");
 
   // Daftar teacher/staff: nama + email + WA → ID auto-stack dari database.
   const [nama, setNama] = useState("");
@@ -76,7 +71,7 @@ export default function MasukClient() {
     setMode(null);
     setErr("");
     setReceipt(null);
-    setEmail(r === "student" ? "siswa@demo.id" : r === "teacher" ? "galang@kolase.id" : "kolaseenglish@gmail.com");
+    setEmail("");
   };
 
   const backToRole = () => {
@@ -98,8 +93,7 @@ export default function MasukClient() {
     setErr("");
     setBusy(true);
     try {
-      const body: Record<string, string> =
-        role === "staff" ? { email: email.trim(), adminKey } : { email: email.trim() };
+      const body: Record<string, string> = { email: email.trim() };
       const res = await fetch(AUTH_PATH[role], {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -107,15 +101,11 @@ export default function MasukClient() {
       });
       const j = await res.json();
       if (j.ok) {
-        const assigned = j.studentId ?? j.teacherId ?? j.staffId;
+        const assigned = j.studentId ?? j.teacherId;
         setToast(`Masuk berhasil${assigned ? ` — ${assigned}` : ""}. Mengalihkan…`);
         window.setTimeout(() => router.push(safeNext(nextParam, DEFAULT_DEST[role])), 600);
       } else {
-        setErr(
-          role === "staff"
-            ? "Login gagal. Periksa email & admin key, atau daftar dulu sebagai Staff."
-            : "Email belum terdaftar. Periksa kembali, atau daftar dulu."
-        );
+        setErr("Email belum terdaftar. Periksa kembali, atau daftar dulu.");
       }
     } catch {
       setErr("Login gagal. Coba lagi.");
@@ -124,7 +114,7 @@ export default function MasukClient() {
     }
   };
 
-  // ---- DAFTAR teacher/staff: ID (TCH-/ACT-) auto-stack dari database ----
+  // ---- DAFTAR teacher: ID (TCH-) auto-stack dari database ----
   const register = async () => {
     if (!role || role === "student") return;
     setErr("");
@@ -162,11 +152,8 @@ export default function MasukClient() {
         throw new Error("register gagal");
       }
     } catch {
-      // Fallback preview offline: ID demo agar alur bisa dicoba.
-      const prefix = role === "teacher" ? "TCH" : "ACT";
-      const mockId = `${prefix}-${String(Math.floor(100000 + Math.random() * 899999))}`;
-      setReceipt({ id: mockId, role, preview: true });
-      setToast(`Backend offline — lanjut mode preview (${mockId}).`);
+      // Backend offline: tidak ada preview ID. User harus online / DB tersambung.
+      setErr("Pendaftaran gagal. Pastikan database tersambung lalu coba lagi.");
     } finally {
       setBusy(false);
     }
@@ -196,7 +183,7 @@ export default function MasukClient() {
           ))}
         </div>
         <p className="mt-4 text-center text-xs text-ink/60">
-          Tidak perlu mengisi ID — ID berurutan otomatis dari sistem. Contoh: Genadi Ikhsan Jaya daftar → <b>STU-000001</b>, pendaftar berikutnya → <b>STU-000002</b>.
+          Tidak perlu mengisi ID — ID berurutan otomatis dari sistem.
         </p>
       </div>
     );
@@ -230,7 +217,7 @@ export default function MasukClient() {
             <UserPlus size={24} className="mx-auto text-navy" />
             <span className="font-display mt-2 block text-base font-extrabold text-ink">Daftar</span>
             <span className="mt-1 block text-xs text-ink/60">
-              {role === "student" ? "Wizard placement + ID STU-… otomatis." : `Form singkat + ID ${role === "teacher" ? "TCH" : "ACT"}-… otomatis.`}
+              {role === "student" ? "Wizard placement + ID STU-… otomatis." : "Form singkat + ID TCH-… otomatis."}
             </span>
           </button>
         </div>
@@ -257,7 +244,7 @@ export default function MasukClient() {
     );
   }
 
-  // ---------- STEP 3b: tanda terima daftar teacher/staff ----------
+  // ---------- STEP 3b: tanda terima daftar teacher ----------
   if (receipt) {
     return (
       <div>
@@ -265,14 +252,12 @@ export default function MasukClient() {
           <CheckCircle2 size={40} className="mx-auto text-emerald-600" />
           <h2 className="font-display mt-2 text-xl font-extrabold text-ink">Pendaftaran {roleLabel} Berhasil</h2>
           <p className="mt-1 text-sm text-ink/70">
-            {receipt.preview
-              ? "Backend offline — ID preview lokal (data asli berurutan dari database saat online)."
-              : "ID kamu sudah di-stack otomatis dari database:"}
+            ID kamu sudah di-stack otomatis dari database:
           </p>
           <p className="font-display mx-auto mt-3 inline-block rounded-xl bg-ink px-6 py-3 text-2xl font-extrabold tracking-wider text-sand">
             {receipt.id}
           </p>
-          <p className="mt-2 text-xs text-ink/60">Simpan ID ini. Untuk masuk cukup pakai email{role === "staff" ? " + admin key" : ""} — tanpa mengisi ID.</p>
+          <p className="mt-2 text-xs text-ink/60">Simpan ID ini. Untuk masuk cukup pakai email — tanpa mengisi ID.</p>
           <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Button variant="dark" onClick={() => { setReceipt(null); setMode("masuk"); setErr(""); }}>Lanjut Masuk</Button>
             <Button variant="secondary" onClick={() => router.push("/")}>Ke Beranda</Button>
@@ -283,7 +268,7 @@ export default function MasukClient() {
     );
   }
 
-  // ---------- STEP 3c: form daftar teacher/staff ----------
+  // ---------- STEP 3c: form daftar teacher ----------
   if (mode === "daftar") {
     return (
       <div>
@@ -297,7 +282,7 @@ export default function MasukClient() {
           </div>
           <h2 className="font-display text-lg font-extrabold text-ink">Daftar sebagai {roleLabel}</h2>
           <p className="text-sm text-ink/70">
-            Isi nama + email — ID <b>{role === "teacher" ? "TCH-XXXXXX" : "ACT-XXXXXX"}</b> terbit berurutan otomatis. Tanpa mengisi ID.
+            Isi nama + email — ID <b>TCH-XXXXXX</b> terbit berurutan otomatis. Tanpa mengisi ID.
           </p>
           <Field label="Nama Lengkap">
             <Input value={nama} onChange={(e) => setNama(e.target.value)} placeholder="cth. Hilal Ibrahim Badruz" autoComplete="name" />
@@ -328,34 +313,21 @@ export default function MasukClient() {
       <Card className="mt-3 space-y-4 rounded-xl">
         <h2 className="font-display text-lg font-extrabold text-ink">Masuk sebagai {roleLabel}</h2>
         <p className="text-sm text-ink/70">
-          Cukup email yang dipakai saat daftar — ID kamu (<b>{role === "student" ? "STU" : role === "teacher" ? "TCH" : "ACT"}-XXXXXX</b>) ditemukan otomatis. Tanpa mengisi ID.
+          Cukup email yang dipakai saat daftar — ID kamu (<b>{role === "student" ? "STU" : "TCH"}-XXXXXX</b>) ditemukan otomatis. Tanpa mengisi ID.
         </p>
         <Field label="Email terdaftar">
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@email.id" autoComplete="email" />
         </Field>
-        {role === "staff" && (
-          <Field label="Admin Key">
-            <Input type="password" value={adminKey} onChange={(e) => setAdminKey(e.target.value)} placeholder="••••••••" autoComplete="current-password" />
-          </Field>
-        )}
-        {role === "student" && (
-          <p className="text-xs text-ink/60">Demo preview: <b>siswa@demo.id</b> (ID STU-000001 otomatis)</p>
-        )}
-        {role === "teacher" && (
-          <p className="text-xs text-ink/60">Demo preview: <b>galang@kolase.id</b> (ID TCH-000002 otomatis)</p>
-        )}
         {err && <p className="text-xs font-semibold text-rose-600">{err}</p>}
         <Button onClick={login} disabled={busy} className="w-full">
           {busy ? <Loader2 className="animate-spin" size={18} /> : <><LogIn size={18} /> Masuk sebagai {roleLabel}</>}
         </Button>
-        {role !== "staff" && (
-          <p className="text-center text-xs text-ink/60">
-            Belum punya akun?{" "}
-            <button onClick={() => { setMode("daftar"); setErr(""); }} className="font-bold text-navy hover:underline">
-              Daftar dulu
-            </button>
-          </p>
-        )}
+        <p className="text-center text-xs text-ink/60">
+          Belum punya akun?{" "}
+          <button onClick={() => { setMode("daftar"); setErr(""); }} className="font-bold text-navy hover:underline">
+            Daftar dulu
+          </button>
+        </p>
       </Card>
       <Toast message={toast} tone="dark" />
     </div>

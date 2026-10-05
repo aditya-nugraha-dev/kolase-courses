@@ -1,9 +1,4 @@
 {
-  "demo_login": {
-    "student": { "role": "student", "id": "STU-000001", "nama": "Siswa Demo" },
-    "teacher": { "role": "teacher", "id": "TCH-000001", "nama": "Ms. Sarah" },
-    "staff": { "role": "staff", "id": "ACT-000002", "nama": "Aditya Nugraha" },
-    "owner": { "role": "author", "id": "ACT-000001", "nama": "Mohammad Ahrenz Galang Maharsi" }
-  },
-  "note": "Prototype memakai localStorage. Untuk reset demo, hapus key kolase_db_v1 & kolase_sheets_queue di DevTools > Application."
+  "demo_login": {},
+  "note": "Akun demo dihapus. Registrasi baru via login.html (student/teacher). Untuk reset lokal, hapus key kolase_db_v1 & kolase_sheets_queue di DevTools > Application."
 }

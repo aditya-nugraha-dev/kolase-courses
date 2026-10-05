@@ -3,22 +3,6 @@ Tabs legacy: MST_STUDENTS, MST_TEACHERS, MST_STAFF, TXN_PAYMENTS, TXN_ENTITLEMEN
 Tabs pilot hybrid V1.0: PILOT_REGISTRATIONS (01), PILOT_PLACEMENTS (02), PILOT_POSTCLASS (03), PILOT_OBSERVATIONS (06) */
 const DB_KEY = "kolase_db_v1";
 
-/* Akun permanen — otomatis dikembalikan bila hilang (reset/hapus). JANGAN dihapus manual. */
-const PROTECTED_STAFF = [
-  { staff_id: "ACT-000001", nama: "Mohammad Ahrenz Galang Maharsi", email: "kolaseenglish@gmail.com", wa: "+90 505-930-20-45", role: "author", pin: "OWNER-2026" },
-  { staff_id: "ACT-000002", nama: "Aditya Nugraha", email: "darthrangert04@gmail.com", wa: "+62 896-2737-3322", role: "staff", pin: "IT-2026" },
-];
-function ensureProtectedStaff(db) {
-  if (!Array.isArray(db.MST_STAFF)) db.MST_STAFF = [];
-  PROTECTED_STAFF.forEach((acc) => {
-    const cur = db.MST_STAFF.find((s) => s.staff_id === acc.staff_id);
-    // Akun permanen selalu dikembalikan ke data kanonikal (nama, peran, PIN)
-    if (!cur) db.MST_STAFF.push({ ...acc });
-    else Object.assign(cur, { ...acc });
-  });
-  return db;
-}
-
 const pad6 = (n) => String(n).padStart(6, "0");
 function nextId(prefix, list, field) {
   let max = 0;
@@ -48,13 +32,9 @@ function nextTxnId(list) {
 
 function seed() {
   return {
-    MST_STUDENTS: [
-      { student_id: "STU-000001", pilot_student_id: "STU-000001", nama: "Siswa Demo", email: "siswa@demo.id", wa: "0812000001", tgl_daftar: "2026-09-01", current_status: "REGISTERED", confirmation_status: "PENDING" }
-    ],
-    MST_TEACHERS: [
-      { teacher_id: "TCH-000001", nama: "Ms. Sarah", email: "sarah@kolase.id", wa: "0812000011" }
-    ],
-    MST_STAFF: PROTECTED_STAFF.map((a) => ({ ...a })),
+    MST_STUDENTS: [],
+    MST_TEACHERS: [],
+    MST_STAFF: [],
     TXN_PAYMENTS: [],
     TXN_ENTITLEMENT_LEDGER: [],
     CLASS_MEMBERSHIP: [],
@@ -62,11 +42,7 @@ function seed() {
     CLASS_SESSIONS: [],
     SESSION_ATTENDANCE: [],
     TRIALS: [],
-    REVIEWS: [
-      { nama: "STU-000001 • Kids", rating: 5, teks: "Showcase sesi 4 seru, anak berani tampil.", class_id: "CLS-PUB-KIDS-01", at: "2026-09-01" },
-      { nama: "STU-000002 • Beginner", rating: 5, teks: "Kuota berkurang otomatis, transparan.", class_id: "CLS-PUB-TEEN-01", at: "2026-09-02" },
-      { nama: "STU-000003 • Beginner", rating: 4, teks: "Chat guru fast respon.", class_id: "CLS-PUB-TEEN-01", at: "2026-09-03" }
-    ],
+    REVIEWS: [],
     CHAT: [
       { from: "them", text: "Halo! Selamat datang di kelas A2. Perkenalkan diri ya.", at: "09:00" }
     ],
@@ -84,15 +60,17 @@ function loadDB() {
     if (!raw) { const s = seed(); localStorage.setItem(DB_KEY, JSON.stringify(s)); return s; }
     const db = JSON.parse(raw);
     // Migrasi: DB lama belum punya TRIALS/REVIEWS/PILOT
+    if (!Array.isArray(db.MST_STUDENTS)) db.MST_STUDENTS = [];
+    if (!Array.isArray(db.MST_TEACHERS)) db.MST_TEACHERS = [];
+    if (!Array.isArray(db.MST_STAFF)) db.MST_STAFF = [];
     if (!Array.isArray(db.TRIALS)) db.TRIALS = [];
-    if (!Array.isArray(db.REVIEWS)) db.REVIEWS = seed().REVIEWS;
+    if (!Array.isArray(db.REVIEWS)) db.REVIEWS = [];
     if (!Array.isArray(db.PILOT_REGISTRATIONS)) db.PILOT_REGISTRATIONS = [];
     if (!Array.isArray(db.PILOT_PLACEMENTS)) db.PILOT_PLACEMENTS = [];
     if (!Array.isArray(db.PILOT_POSTCLASS)) db.PILOT_POSTCLASS = [];
     if (!Array.isArray(db.PILOT_OBSERVATIONS)) db.PILOT_OBSERVATIONS = [];
     if (!Array.isArray(db.CLASS_SESSIONS)) db.CLASS_SESSIONS = [];
     if (!Array.isArray(db.SESSION_ATTENDANCE)) db.SESSION_ATTENDANCE = [];
-    ensureProtectedStaff(db);
     return db;
   } catch { return seed(); }
 }
@@ -135,17 +113,6 @@ function registerPerson(role, nama, email, wa) {
     });
   }
   return id;
-}
-
-/* Masuk sebagai akun staff/author permanen (Owner & Staff IT). Wajib PIN yang benar. */
-function loginStaff(staffId, pin) {
-  const db = ensureProtectedStaff(loadDB());
-  const acc = db.MST_STAFF.find((s) => s.staff_id === staffId);
-  if (!acc) throw new Error("Akun staff tidak ditemukan");
-  if (String(pin || "") !== String(acc.pin || "")) throw new Error("PIN salah. Hubungi pemilik akun.");
-  db.sessionUser = { role: acc.role, id: acc.staff_id, nama: acc.nama, email: acc.email };
-  saveDB(db);
-  return db.sessionUser;
 }
 
 function portalFor(role) {
@@ -512,4 +479,4 @@ function postSheets(body) {
 // Sheets real: HANYA via js/sheets-config.js (tidak di-commit, lihat
 // sheets-config.example.js) yang di-inject server-side. Jangan simpan URL
 // endpoint di localStorage / input UI publik.
-window.KolaseStore = { loadDB, saveDB, registerPerson, loginStaff, portalFor, PROTECTED_STAFF, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation };
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation };

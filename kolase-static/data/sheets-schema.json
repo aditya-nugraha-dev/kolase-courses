@@ -18,13 +18,13 @@
     "checkout": "Checkout Public -> ENR + TXN PENDING -> webhook -> VERIFIED",
     "verify": "VERIFIED -> grant +N (PUBLIC 4 sesi); bila trial COMPLETED tambah -7 TRIAL_RECOGNITION (exactly once). Buat N SES + N event Calendar + audit",
     "attendance": "Guru input PRESENT/LATE/NO_SHOW/LATE_CANCEL -> ledger -1 + sisa berkurang; valid/teacher cancel -> 0 + sync Sheets",
-    "pilot_register": "register_pilot -> 01_REGISTRATION_RAW + 04_STUDENT_MASTER (STU-000001, header baris 3)",
+    "pilot_register": "register_pilot -> 01_REGISTRATION_RAW + 04_STUDENT_MASTER (STU-XXXXXX, header baris 3)",
     "pilot_placement": "placement -> 02_PLACEMENT_RAW (Total max 50) + update 04 (Pre max 10, tidak dicampur)",
     "pilot_postclass": "postclass -> 03_POSTCLASS_RAW (Total max 10) + update 04 Interest/FollowUp",
     "pilot_observation": "observation -> 06_TEACHER_OBSERVATION (skala 1-5, bukan CEFR)"
   },
   "pilot_tabs": {
-    "00_CONFIG": "dropdown terkontrol, STU-000001..022, CLS-000001..022, Galang/Hilal",
+    "00_CONFIG": "dropdown terkontrol, STU-XXXXXX, CLS-XXXXXX",
     "01_REGISTRATION_RAW": "20 kolom form pendaftaran (jangan rename, terhubung GForm)",
     "02_PLACEMENT_RAW": "15 kolom, Placement_Total 0-50, Pre_Check 0-10",
     "03_POSTCLASS_RAW": "20 kolom, Post_Check_Total 0-10, Interest/Contact consent",

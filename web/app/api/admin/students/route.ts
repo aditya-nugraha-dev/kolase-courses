@@ -3,7 +3,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { checkRateLimit, getClientIp, logServerError, safeErrorMessage } from "@/lib/security";
-import { MOCK_STUDENTS } from "@/lib/mock";
 
 export async function GET(req: Request) {
   const ip = getClientIp(req);
@@ -39,12 +38,8 @@ export async function GET(req: Request) {
         logServerError("admin-students-db", e);
       }
     }
-    const rows = MOCK_STUDENTS.filter((x) => {
-      if (status && x.status !== status) return false;
-      if (!q) return true;
-      return x.fullName.toLowerCase().includes(q) || x.email.toLowerCase().includes(q);
-    });
-    return NextResponse.json({ ok: true, source: "mock", rows });
+    // Tanpa fallback demo: wajib database tersambung.
+    return NextResponse.json({ ok: true, source: "db", rows: [] });
   } catch (e) {
     logServerError("admin-students", e);
     return NextResponse.json({ ok: false, error: safeErrorMessage(500) }, { status: 500 });
