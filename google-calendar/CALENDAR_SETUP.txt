@@ -1,0 +1,57 @@
+KOLASE — Sinkronisasi Google Calendar API otomatis (15-25 menit, sekali saja)
+
+CARA KERJA
+- 1 akun Google operasional KOLASE (misal admin@kolase.id) memberi izin sekali.
+- Saat pembayaran VERIFIED, /api/webhook membuat N event (1x/minggu, 10:00-11:30 WIB = 90 menit per BP-001 DEC-004):
+  tanpa trial N=15; dengan trial COMPLETED N=8 (P15 sisa 8 = 7 belajar + 1 Final Test per DEC-006).
+  Event mengundang email siswa (+ guru) sebagai attendees,
+  sehingga jadwal otomatis masuk ke Google Calendar milik mereka.
+- Buffer guru min 15 menit antar sesi (BP-001 DEC-031). Calendar hanya proyeksi;
+  sumber kebenaran tetap database/Sheets. Jika konflik dengan DB, DB menang.
+- Tanpa env ini, sistem tetap jalan (calendar dilewati, tercatat skipped:true).
+
+1) GOOGLE CLOUD PROJECT (±5 mnt)
+- Buka console.cloud.google.com > buat project "KOLASE" (atau pakai yang ada).
+- APIs & Services > Library > cari "Google Calendar API" > Enable.
+
+2) OAUTH CLIENT (±5 mnt)
+- APIs & Services > OAuth consent screen > User type: External > isi nama "KOLASE",
+  email Anda > Save. (Test mode cukup; tambahkan email Anda di Test users.)
+- Credentials > Create Credentials > OAuth client ID > tipe "Web application".
+- Authorized redirect URIs > Add URI: http://localhost:53682/callback > Create.
+- Catat Client ID dan Client Secret.
+
+3) AMBIL REFRESH TOKEN (±2 mnt, butuh Node di laptop Anda)
+- cd google-calendar
+- node get-refresh-token.mjs --client-id=XXX --client-secret=YYY
+- Buka URL yang muncul > pilih akun operasional > Allow.
+- Refresh token tercetak di terminal (diawali 1//...).
+
+4) ISI ENV (web/.env — salin dari .env.example bila belum ada)
+- GOOGLE_CLIENT_ID=XXX
+- GOOGLE_CLIENT_SECRET=YYY
+- GOOGLE_REFRESH_TOKEN=1//...
+- GOOGLE_CALENDAR_ID=primary  (atau ID kalender khusus, lihat Settings kalender)
+- Restart: npm run dev (atau redeploy bila hosting).
+
+5) UJI
+- POST /api/webhook dengan trx_id PENDING (atau lewat halaman /core langkah 3).
+  Tanpa trial_id → "calendar": { ok:true, created:15 }.
+  Dengan trial_id COMPLETED → created:8, sisa 8.
+- Cek Google Calendar akun operasional: N event muncul; email siswa/guru
+  menerima undangan (otomatis masuk kalender mereka setelah Accept / auto-add).
+
+6) AGAR GURU OTOMATIS TERUNDANG
+- Tambahkan kolom teacher_email di tabel classes (Supabase) dan isi per kelas,
+  lalu teruskan di web/app/api/webhook/route.ts (lihat komentar TODO di sana).
+  Email siswa sudah otomatis dari mst_students.
+
+TROUBLESHOOT
+- 401 invalid_client: Client ID/Secret salah atau redirect URI belum tersimpan
+  (tunggu ±5 mnt setelah menambah redirect URI).
+- 403 access_denied / unverified app: pakai akun Test user yang didaftarkan,
+  atau publikasikan consent screen (opsional).
+- Token kedaluwarsa: refresh token Test-mode bisa expire bila app idle lama —
+  ulangi langkah 3 (gratis, 2 menit).
+- Event tidak masuk kalender siswa: cek folder Spam undangan, atau siswa klik
+  Accept pada email undangan pertama.

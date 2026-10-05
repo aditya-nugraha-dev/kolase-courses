@@ -1,0 +1,64 @@
+KOLASE — Deploy Apps Script ke Google Sheets (5-10 menit)
+
+1) SIAPKAN SPREADSHEET (milik Anda)
+- Buka sheet Anda: https://docs.google.com/spreadsheets/d/1_YMglbHHCc_7XCgQLBVFYkN_mQOn7bSuo-YwYd1hoH8/edit
+- ID spreadsheet: 1_YMglbHHCc_7XCgQLBVFYkN_mQOn7bSuo-YwYd1hoH8
+- PENTING: Apps Script bekerja berdasarkan NAMA tab, bukan gid. Pastikan nama
+  tab persis: MST_STUDENTS, MST_TEACHERS, MST_STAFF, TXN_PAYMENTS,
+  TXN_ENTITLEMENT_LEDGER, CLASS_MEMBERSHIP, SESSIONS.
+  (Tab yang sudah ada dengan nama lain/beda huruf tidak akan terbaca —
+  rename manual atau biarkan fungsi "setup" membuat yang kurang.)
+- HYBRID PILOT V1.0: tab 01_REGISTRATION_RAW, 02_PLACEMENT_RAW, 03_POSTCLASS_RAW,
+  04_STUDENT_MASTER, 05_CLASS_MASTER, 06_TEACHER_OBSERVATION memakai header di
+  baris 3 (baris 1 judul, 2 deskripsi). Jangan pindah header ke baris 1.
+  Tab *_FORM_RAW_RESPONSE dibiarkan untuk Google Form, jangan ditulis via API.
+- ID KANONIKAL (KOL-POL-COD-001): STU-###### / CLS-###### / SES-###### / ATM-###### (6 digit),
+  TXN-YYYY-####. Jangan pakai format lama STD-xxxxx / TRX-xxxxx untuk data baru.
+- KOLOM Attempt_ID: tambahkan manual sel "Attempt_ID" di ujung kanan baris 3 pada
+  02_PLACEMENT_RAW dan 03_POSTCLASS_RAW (satu ATM per pengerjaan, STU tetap sama).
+  Tanpa kolom ini, Attempt_ID tidak tersimpan di Sheets (tetap aman di Supabase).
+
+2) PASANG SCRIPT
+- Di Sheet: Extensions > Apps Script.
+- Hapus myFunction(), paste seluruh isi Code.gs (folder apps-script/).
+- Jalankan sekali: pilih fungsi "setup" > Run > Allow (tab header otomatis dibuat).
+- Test: Run doGet tidak perlu; lanjut deploy.
+
+3) DEPLOY WEB APP
+- Deploy > New deployment > tipe "Web app".
+- Execute as: Me. Who has access: Anyone (prototype).
+  Production: Anyone with link + set Script Properties KOLASE_API_KEY
+  (Project Settings > Script Properties > KOLASE_API_KEY = random panjang),
+  lalu kirim "key" di setiap POST.
+- Copy URL: https://script.google.com/macros/s/XXXX/exec
+
+4) HUBUNGKAN PROTOTYPE (kolase-static)
+- Cara cepat (tanpa edit file): buka profile.html > bagian "Sheets Endpoint"
+  > paste URL > Simpan. Endpoint tersimpan di localStorage.
+- Atau via console: localStorage.setItem("kolase_sheets_endpoint", "URL_ANDA")
+- Atau permanen: buat js/sheets-config.js dari contoh:
+    copy js/sheets-config.example.js -> js/sheets-config.js, isi URL,
+    lalu tambah <script src="js/sheets-config.js"></script> sebelum store.js.
+- Cek antrean: badge data-sheets-count di index.html + DevTools > Application
+  > localStorage > kolase_sheets_queue.
+
+5) UJI END-TO-END
+- Buka .../apps-script URL + ?action=ping (harus {"ok":true}).
+- Di prototype: auth.html daftar student > checkout > Simulasi Webhook
+  > cek Sheet: TXN_PAYMENTS VERIFIED, CLASS_MEMBERSHIP ACTIVE sisa 15 (langsung)
+  atau sisa 8 + ledger -7 bila konversi trial COMPLETED,
+  SESSIONS N baris (15/8), LEDGER +15 (-7 bila trial). Lalu dashboard presensi PRESENT >
+  LEDGER -1, sisa berkurang 1. Renewal due saat sisa ≤3.
+- GET baca: URL + ?tab=TXN_ENTITLEMENT_LEDGER
+
+6) LANJUT KE NEXT.JS (web/)
+- Isi web/.env (lihat .env.example): SHEETS_ENDPOINT=URL_ANDA,
+  SHEETS_API_KEY=... (jika dipakai), SUPABASE_URL/KEY.
+- API Next.js (app/api/*) menulis ke Supabase dulu, lalu forward ke
+  Apps Script action yang sama (verify/checkout/attendance) — Sheets tetap SoT.
+
+TROUBLESHOOT
+- 401/redirect login: pastikan "Who has access: Anyone".
+- Kolom bergeser: jangan ubah urutan header manual; tambah kolom di kanan saja.
+- Duplikat: Apps Script memakai LockService; retry webhook payment harus idempotent
+  (cek trx_id VERIFIED dulu sebelum tulis ulang).
