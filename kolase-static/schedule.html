@@ -14,27 +14,108 @@
 </div></header>
 <main class="wrap">
   <div class="section"><h2>Student Calendar</h2><p class="small">Agenda 4 minggu • sinkron Google Calendar (source of truth = database/Sheets).</p>
+  <div class="cal-widget">
+    <div class="cal-clock"><div><b id="wibTime">--:--:--</b><div class="small" id="wibDate">Memuat waktu…</div></div><div class="small" style="text-align:right">WIB • GMT+7<br>Asia/Jakarta — Tangerang, Banten</div></div>
+    <div class="cal-nav">
+      <button class="btn btn-ghost btn-sm" id="calPrev" aria-label="Bulan sebelumnya">‹</button>
+      <select id="calMonth" aria-label="Pilih bulan"></select>
+      <select id="calYear" aria-label="Pilih tahun"></select>
+      <button class="btn btn-ghost btn-sm" id="calNext" aria-label="Bulan berikutnya">›</button>
+      <button class="btn btn-ghost btn-sm" id="calToday">Hari ini</button>
+      <button class="btn btn-ghost btn-sm" id="calAll" style="display:none">Semua ×</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend small"><span><span class="pill p-pending">●</span> ada sesi (angka = jumlah)</span><span>Klik tanggal untuk filter agenda di bawah.</span></div>
+  </div>
   <div class="cal-list" id="cal"></div></div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html" class="active">Jadwal</a><a href="profile.html">Profil</a></nav>
 <script src="js/store.js"></script><script src="js/app.js"></script>
 <script>
-const db = KolaseStore.loadDB();
-const list = db.SESSIONS.filter(s=>!db.sessionUser || db.CLASS_MEMBERSHIP.some(m=>m.enrollment_id===s.enrollment_id && m.student_id===db.sessionUser.id));
-const totByEnr = {}; db.SESSIONS.forEach(s=>{ totByEnr[s.enrollment_id]=(totByEnr[s.enrollment_id]||0)+1; });
-document.getElementById("cal").innerHTML = list.length ? list.map(s=>{
-  const [y,m,d]=s.tanggal.split("-");
+var TZ = "Asia/Jakarta"; // Tangerang, Banten = WIB (GMT+7, tanpa DST)
+var MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+var DOW = ["Sen","Sel","Rab","Kam","Jum","Sab","Min"];
+function pad2(n){ return String(n).padStart(2,"0"); }
+function ymd(y,m,d){ return y + "-" + pad2(m+1) + "-" + pad2(d); }
+// Hari/bulan/tahun "sekarang" menurut zona Tangerang (bukan zona browser).
+function jakartaToday(){
+  var parts = new Intl.DateTimeFormat("en-CA",{ timeZone: TZ, year:"numeric", month:"2-digit", day:"2-digit" }).formatToParts(new Date());
+  var o = {};
+  parts.forEach(function(p){ o[p.type]=p.value; });
+  return { y: Number(o.year), m: Number(o.month)-1, d: Number(o.day) };
+}
+var nowJ = jakartaToday();
+var viewY = nowJ.y, viewM = nowJ.m, selected = null;
+function tickClock(){
+  var t = new Date();
+  try {
+    document.getElementById("wibTime").textContent = new Intl.DateTimeFormat("id-ID",{ timeZone: TZ, hour:"2-digit", minute:"2-digit", second:"2-digit", hour12:false }).format(t).replace(/\./g,":");
+    document.getElementById("wibDate").textContent = new Intl.DateTimeFormat("id-ID",{ timeZone: TZ, weekday:"long", day:"2-digit", month:"long", year:"numeric" }).format(t);
+  } catch(e){
+    document.getElementById("wibTime").textContent = pad2(t.getHours())+":"+pad2(t.getMinutes())+":"+pad2(t.getSeconds());
+  }
+}
+tickClock(); setInterval(tickClock, 1000);
+var db = KolaseStore.loadDB();
+var mySessions = db.SESSIONS.filter(function(s){ return !db.sessionUser || db.CLASS_MEMBERSHIP.some(function(m){ return m.enrollment_id===s.enrollment_id && m.student_id===db.sessionUser.id; }); });
+var countByDate = {};
+mySessions.forEach(function(s){ if(/^\d{4}-\d{2}-\d{2}$/.test(s.tanggal||"")) countByDate[s.tanggal]=(countByDate[s.tanggal]||0)+1; });
+var totByEnr = {}; db.SESSIONS.forEach(function(s){ totByEnr[s.enrollment_id]=(totByEnr[s.enrollment_id]||0)+1; });
+function agendaHTML(list){
+  return list.length ? list.map(function(s){
+  var p = String(s.tanggal||"").split("-"); var d=p[2]||"", m=p[1]||"", y=p[0]||"";
   // Link "Tambah ke Google Calendar" real (tanpa OAuth): membuka template event 10:00-11:00 WIB (=03:00-04:00 UTC)
-  const dt = s.tanggal.replace(/-/g, "");
-  const gcal = "https://calendar.google.com/calendar/render?action=TEMPLATE"
-    + "&text=" + encodeURIComponent(`KOLASE ${s.enrollment_id} — Sesi ${s.seq}/${totByEnr[s.enrollment_id]||s.seq}`)
-    + `&dates=${dt}T030000Z/${dt}T040000Z`
-    + "&details=" + encodeURIComponent(`Google Meet • ${s.session_id} • source of truth: database/Sheets`);
-  return `<div class="cal-item"><div class="date-box"><b>${d}</b><span class="small">${m}/${y.slice(2)}</span></div>
-  <div style="flex:1"><b>${s.enrollment_id} — Sesi ${s.seq}/${totByEnr[s.enrollment_id]||s.seq}</b><div class="small">${s.tanggal} • 10:00 WIB • Google Meet • ${s.hadir||s.status}</div>
-  <a class="small" style="color:var(--gold)" href="${gcal}" target="_blank" rel="noopener">+ Tambah ke Google Calendar</a></div>
-  <span class="pill ${s.hadir==="PRESENT"||s.hadir==="LATE"?"p-present":s.hadir==="ABSENT"?"p-absent":"p-pending"}">${s.hadir||"SCHEDULED"}</span></div>`;
-}).join("") : `<div class="card">Belum ada jadwal. <a href="catalog.html">Ambil kelas →</a></div>`;
+  var dt = String(s.tanggal||"").replace(/-/g, "");
+  var gcal = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+    + "&text=" + encodeURIComponent("KOLASE " + s.enrollment_id + " — Sesi " + s.seq + "/" + (totByEnr[s.enrollment_id]||s.seq))
+    + "&dates=" + dt + "T030000Z/" + dt + "T040000Z"
+    + "&details=" + encodeURIComponent("Google Meet • " + s.session_id + " • source of truth: database/Sheets");
+  return '<div class="cal-item"><div class="date-box"><b>'+d+'</b><span class="small">'+m+'/'+String(y).slice(2)+'</span></div>'
+  + '<div style="flex:1"><b>'+s.enrollment_id+' — Sesi '+s.seq+'/'+(totByEnr[s.enrollment_id]||s.seq)+'</b><div class="small">'+s.tanggal+' • 10:00 WIB • Google Meet • '+(s.hadir||s.status)+'</div>'
+  + '<a class="small" style="color:var(--gold)" href="'+gcal+'" target="_blank" rel="noopener">+ Tambah ke Google Calendar</a></div>'
+  + '<span class="pill '+(s.hadir==="PRESENT"||s.hadir==="LATE"?"p-present":s.hadir==="ABSENT"?"p-absent":"p-pending")+'">'+(s.hadir||"SCHEDULED")+'</span></div>';
+  }).join("") : '<div class="card">Belum ada jadwal' + (selected ? ' pada ' + selected + '.' : '.') + ' <a href="catalog.html">Ambil kelas →</a></div>';
+}
+function renderAgenda(){
+  var list = selected ? mySessions.filter(function(s){ return s.tanggal===selected; }) : mySessions;
+  document.getElementById("cal").innerHTML = (selected ? '<p class="small">Filter: <b>'+selected+'</b> ('+list.length+' sesi)</p>' : "") + agendaHTML(list);
+  document.getElementById("calAll").style.display = selected ? "" : "none";
+}
+function renderGrid(){
+  var monthSel = document.getElementById("calMonth"), yearSel = document.getElementById("calYear");
+  if(!monthSel.options.length){
+    MONTHS.forEach(function(name,i){ var o=document.createElement("option"); o.value=i; o.textContent=name; monthSel.appendChild(o); });
+    for(var y=nowJ.y-3; y<=nowJ.y+5; y++){ var o2=document.createElement("option"); o2.value=y; o2.textContent=y; yearSel.appendChild(o2); }
+  }
+  monthSel.value = viewM; yearSel.value = viewY;
+  var grid = document.getElementById("calGrid"); grid.innerHTML = "";
+  DOW.forEach(function(d){ var h=document.createElement("div"); h.className="cal-dow"; h.textContent=d; grid.appendChild(h); });
+  var first = (new Date(viewY, viewM, 1).getDay()+6)%7; // Senin=0
+  var dim = new Date(viewY, viewM+1, 0).getDate();
+  var prevDim = new Date(viewY, viewM, 0).getDate();
+  var todayStr = ymd(nowJ.y, nowJ.m, nowJ.d);
+  function cell(y,m,d,other){
+    var ds = ymd(y,m,d);
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "cal-day" + (other?" is-other":"") + (ds===todayStr?" is-today":"") + (ds===selected?" is-selected":"");
+    b.setAttribute("aria-label", ds + (countByDate[ds] ? " ("+countByDate[ds]+" sesi)" : ""));
+    b.innerHTML = d + (countByDate[ds] ? '<span class="cal-dot">'+countByDate[ds]+'</span>' : '');
+    b.onclick = function(){ selected = (selected===ds) ? null : ds; renderGrid(); renderAgenda(); };
+    grid.appendChild(b);
+  }
+  for(var i=first-1; i>=0; i--){ var pd = prevDim-i, pm = viewM-1, py = viewY; if(pm<0){pm=11;py--;} cell(py,pm,pd,true); }
+  for(var d=1; d<=dim; d++) cell(viewY,viewM,d,false);
+  var tail = (7-((first+dim)%7))%7;
+  for(var t=1; t<=tail; t++){ var nm = viewM+1, ny = viewY; if(nm>11){nm=0;ny++;} cell(ny,nm,t,true); }
+}
+document.getElementById("calPrev").onclick = function(){ viewM--; if(viewM<0){viewM=11;viewY--;} renderGrid(); };
+document.getElementById("calNext").onclick = function(){ viewM++; if(viewM>11){viewM=0;viewY++;} renderGrid(); };
+document.getElementById("calMonth").onchange = function(e){ viewM = Number(e.target.value); renderGrid(); };
+document.getElementById("calYear").onchange = function(e){ viewY = Number(e.target.value); renderGrid(); };
+document.getElementById("calToday").onclick = function(){ nowJ = jakartaToday(); viewY = nowJ.y; viewM = nowJ.m; selected = ymd(nowJ.y,nowJ.m,nowJ.d); renderGrid(); renderAgenda(); };
+document.getElementById("calAll").onclick = function(){ selected = null; renderGrid(); renderAgenda(); };
+renderGrid(); renderAgenda();
 </script>
 </body>
 </html>
