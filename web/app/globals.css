@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@theme {
+  /* KOLASE Brand Guidelines V1.0 */
+  --color-sand: #b29e84;
+  --color-sand-deep: #9c8668;
+  --color-sand-soft: #e8ddd0;
+  --color-ink: #121212;
+  --color-ivory: #f7f3ec;
+  --color-navy: #203248;
+  --color-navy-deep: #162334;
+  --color-paper: #ffffff;
+
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
+}
+
+:root {
+  --background: #f7f3ec;
+  --foreground: #121212;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Display font untuk heading — Georgia Bold sesuai brand */
+.font-display {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+/* Responsif desktop + HP: cegah overflow horizontal, gambar fleksibel,
+   input 16px agar iOS tidak auto-zoom. Tap target 44px+ sudah diatur
+   per-komponen via min-h-[44px]/min-h-[48px] — jangan paksa global
+   `button, a { min-height }` karena merusak header/nav sticky. */
+html, body { max-width: 100%; overflow-x: hidden; }
+html { scroll-behavior: smooth; }
+img, video { max-width: 100%; height: auto; }
+input, select, textarea { font-size: 16px; }
+
+/* Anchor di bawah header sticky (h-16) agar judul tak tertutup. */
+section[id], article[id], div[id] { scroll-margin-top: 5.5rem; }
+
+@media print {
+  header, nav, footer { display: none !important; }
+}

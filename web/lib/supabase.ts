@@ -1,0 +1,9 @@
+// KOLASE — Supabase server client (service_role, JANGAN diimpor dari Client Component)
+import { createClient } from "@supabase/supabase-js";
+
+export function supabaseServer() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Env NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY belum diisi (lihat .env.example)");
+  return createClient(url, key, { auth: { persistSession: false } });
+}
