@@ -63,9 +63,9 @@ a { color: inherit; }
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  border: 1px solid #FFFFFF;
-  object-fit: cover;
-  background: #FFFFFF;
+  border: 0;
+  object-fit: contain;
+  background: transparent;
 }
 
 .logo-name {
