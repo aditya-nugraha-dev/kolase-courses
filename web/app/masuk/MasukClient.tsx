@@ -129,6 +129,10 @@ export default function MasukClient() {
   // student daftar via wizard /daftar; teacher TCH-XXXXXX, leadership ACT-XXXXXX.
   const register = async () => {
     if (!role || role === "student") return;
+    if (role === "founder" || role === "academic" || role === "systems") {
+      setErr("Pendaftaran leadership hanya via undangan admin.");
+      return;
+    }
     setErr("");
     if (nama.trim().length < 3) {
       setErr("Nama lengkap min. 3 karakter.");
@@ -205,6 +209,8 @@ export default function MasukClient() {
   const nameHint = nama ? detectLeadershipHint(nama) : null;
 
   // ---------- STEP 2: masuk atau daftar ----------
+  // Leadership invite-only: founder/academic/systems hanya bisa Masuk (akun via undangan admin).
+  const isLeadership = role === "founder" || role === "academic" || role === "systems";
   if (!mode) {
     return (
       <div>
@@ -214,6 +220,21 @@ export default function MasukClient() {
         <p className="mt-2 text-center text-sm font-bold text-ink/70">
           Masuk sebagai <b className="text-ink">{roleLabel}</b> — mau apa?
         </p>
+        {isLeadership ? (
+          <div className="mt-4">
+            <button
+              onClick={() => { setMode("masuk"); setErr(""); }}
+              className="w-full rounded-xl border border-sand/40 bg-paper p-5 text-center shadow-sm transition hover:border-ink hover:shadow"
+            >
+              <LogIn size={24} className="mx-auto text-navy" />
+              <span className="font-display mt-2 block text-base font-extrabold text-ink">Masuk</span>
+              <span className="mt-1 block text-xs text-ink/60">Cukup email terdaftar, tanpa isi ID.</span>
+            </button>
+            <p className="mt-3 text-center text-xs text-ink/60">
+              Akun {roleLabel} dibuat via undangan admin — pendaftaran mandiri dinonaktifkan.
+            </p>
+          </div>
+        ) : (
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <button
             onClick={() => { setMode("masuk"); setErr(""); }}
@@ -234,6 +255,7 @@ export default function MasukClient() {
             </span>
           </button>
         </div>
+        )}
       </div>
     );
   }

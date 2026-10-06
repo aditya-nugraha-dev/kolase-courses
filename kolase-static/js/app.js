@@ -22,6 +22,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const u = (JSON.parse(localStorage.getItem("kolase_db_v1") || "null") || {}).sessionUser || null;
     if (u) document.body.classList.add("is-logged-in");
   } catch (e) {}
+  // Keluar global: hapus sesi saja (data demo tetap), lalu ke home.
+  document.querySelectorAll("[data-logout]").forEach((a) => {
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      try {
+        const raw = localStorage.getItem("kolase_db_v1");
+        if (raw) { const db = JSON.parse(raw); db.sessionUser = null; localStorage.setItem("kolase_db_v1", JSON.stringify(db)); }
+      } catch (err) {}
+      location.replace("home.html");
+    });
+  });
   // burger pojok kanan atas (HP): toggle dropdown nav
   const burger = document.querySelector("[data-burger]");
   const nav = document.querySelector("[data-nav]");

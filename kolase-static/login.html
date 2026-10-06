@@ -9,7 +9,7 @@
 <body>
 <header class="topbar"><div class="wrap">
   <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
-  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html">Masuk</a></nav>
+  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html" data-guest-only>Masuk</a><a href="#" data-auth-only data-logout>Keluar</a></nav>
   <button class="burger" data-burger>☰</button>
 </div></header>
 <main class="wrap">
@@ -55,7 +55,7 @@ function refreshStaffUI() {
   var label = STAFF_LABEL[suggest];
   if (role === "staff" && document.getElementById("staffType").value === suggest) {
     hint.style.display = "";
-    hint.textContent = "Terdeteksi sebagai " + label + ". Lanjutkan pendaftaran Staff.";
+    hint.textContent = "Terdeteksi sebagai " + label + " — akun dibuat via undangan admin (pendaftaran mandiri dinonaktifkan).";
   } else if (role !== "staff" || document.getElementById("staffType").value !== suggest) {
     hint.style.display = "";
     hint.innerHTML = "";
@@ -77,8 +77,12 @@ document.getElementById("staffType").addEventListener("change", refreshStaffUI);
 document.getElementById("nama").addEventListener("input", refreshStaffUI);
 document.getElementById("regBtn").onclick = () => {
   var peran = document.getElementById("role").value;
-  // Staff → role aktual sesuai jenis: founder / academic / systems (ID ACT-XXXXXX di MST_STAFF).
-  var role = peran === "staff" ? document.getElementById("staffType").value : peran;
+  // Staff leadership invite-only: akun dibuat admin via undangan, bukan daftar mandiri.
+  if (peran === "staff") {
+    document.getElementById("out").textContent = "Pendaftaran " + STAFF_LABEL[document.getElementById("staffType").value] + " hanya via undangan admin. Silakan hubungi admin.";
+    return;
+  }
+  var role = peran;
   const nama = document.getElementById("nama").value || "Pengguna Baru";
   const email = document.getElementById("email").value || "";
   const wa = document.getElementById("wa").value || "";

@@ -66,6 +66,12 @@ export async function POST(req: Request) {
     if (!parsed.success) return NextResponse.json({ ok: false, error: safeErrorMessage(400) }, { status: 400 });
     const b = sanitizeObject({ ...parsed.data } as Record<string, unknown>);
     const role = b.role as keyof typeof TABLES;
+    // 5b) Leadership invite-only: founder/academic/systems TIDAK bisa daftar mandiri.
+    // Akun dibuat via SQL undangan (supabase/seed_leadership.sql) oleh admin.
+    if (role === "founder" || role === "academic" || role === "systems") {
+      logServerError("register-leadership-blocked", `blokir self-register ${role} (${b.email ?? "?"})`);
+      return NextResponse.json({ ok: false, error: safeErrorMessage(403) }, { status: 403 });
+    }
     const nama = sanitizeString(b.nama, 100);
     const email = sanitizeString(b.email, 160).toLowerCase();
     const wa = sanitizeString(b.wa, 20);
