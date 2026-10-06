@@ -15,6 +15,20 @@
 <main class="wrap">
   <div class="section"><h2>Profile & Settings</h2>
     <div class="card" id="ident">...</div>
+    <div class="card" id="photoCard" style="margin-top:10px">
+      <b>Foto Profil</b>
+      <div style="display:flex;gap:12px;align-items:center;margin-top:8px;flex-wrap:wrap">
+        <img id="avatar" alt="Foto profil" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid var(--navy);background:#F1F5F9">
+        <div style="flex:1;min-width:200px">
+          <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" style="font-size:13px">
+          <p class="small">JPG/PNG/WebP • otomatis dikompres ±512px agar muat di browser ini.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-brand btn-sm" id="photoDel" type="button">Hapus Foto</button>
+          </div>
+          <p class="small" id="photoMsg"></p>
+        </div>
+      </div>
+    </div>
     <div style="margin-top:10px"><a class="btn btn-brand btn-sm" id="portalBtn" href="dashboard.html">Buka Portal Saya →</a></div>
     <div class="section"><h2>Riwayat Transaksi</h2><div class="table-wrap"><table><thead><tr><th>TRX</th><th>ENR</th><th>Nominal</th><th>Status</th></tr></thead><tbody id="trx"></tbody></table></div></div>
     <div class="section"><h2>Ledger Kuota (TXN_ENTITLEMENT_LEDGER)</h2><div class="table-wrap"><table><thead><tr><th>Waktu</th><th>ENR</th><th>Delta</th><th>Alasan</th><th>Balance</th></tr></thead><tbody id="ledger"></tbody></table></div></div>
@@ -39,9 +53,71 @@ const db = KolaseStore.loadDB();
 var DANGER_ROLES = ["founder", "systems"];
 var canDanger = !!(db.sessionUser && DANGER_ROLES.indexOf(db.sessionUser.role) !== -1);
 if (canDanger) document.getElementById("dangerZone").style.display = "";
-document.getElementById("ident").innerHTML = db.sessionUser
- ? `<b>${db.sessionUser.nama}</b><div class="small">${db.sessionUser.role} • <span class="id-mono">${db.sessionUser.id}</span></div>`
- : `Belum login. <a href="login.html">Masuk →</a>`;
+function masterRow(u) {
+  if (!u) return null;
+  if (u.role === "student") return db.MST_STUDENTS.find(function(x){ return x.student_id === u.id; }) || null;
+  if (u.role === "teacher") return db.MST_TEACHERS.find(function(x){ return x.teacher_id === u.id; }) || null;
+  return db.MST_STAFF.find(function(x){ return x.staff_id === u.id; }) || null;
+}
+function currentPhoto() {
+  var u = db.sessionUser;
+  if (!u) return "";
+  return u.photo || ((masterRow(u) || {}).photo) || "";
+}
+function renderIdent() {
+  var u = db.sessionUser, ph = currentPhoto();
+  document.getElementById("ident").innerHTML = u
+    ? (ph ? '<img src="' + ph + '" alt="Foto profil" style="width:64px;height:64px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:10px">' : "")
+      + '<span style="display:inline-block;vertical-align:middle"><b>' + u.nama + '</b><div class="small">' + u.role + ' • <span class="id-mono">' + u.id + '</span></div></span>'
+    : 'Belum login. <a href="login.html">Masuk →</a>';
+  document.getElementById("avatar").src = ph || "assets/kolase-logo.png";
+  document.getElementById("photoCard").style.display = u ? "" : "none";
+}
+function savePhoto(dataUrl) {
+  var u = db.sessionUser;
+  if (!u) return;
+  u.photo = dataUrl;
+  var m = masterRow(u);
+  if (m) m.photo = dataUrl;
+  try { KolaseStore.saveDB(db); } catch (e) {
+    document.getElementById("photoMsg").textContent = "Gagal simpan: penyimpanan browser penuh. Hapus foto lama dulu.";
+    return;
+  }
+  renderIdent();
+  document.getElementById("photoMsg").textContent = "Foto tersimpan di browser ini.";
+}
+document.getElementById("photoInput").addEventListener("change", function(e) {
+  var f = e.target.files && e.target.files[0];
+  if (!f) return;
+  if (!/image\/(jpeg|png|webp)/.test(f.type)) { document.getElementById("photoMsg").textContent = "Format harus JPG/PNG/WebP."; return; }
+  var img = new Image();
+  img.onload = function() {
+    try {
+      var max = 512, w = img.width, h = img.height;
+      if (w > max || h > max) { var s = max / Math.max(w, h); w = Math.round(w * s); h = Math.round(h * s); }
+      var c = document.createElement("canvas"); c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      var q = 0.85, out = c.toDataURL("image/jpeg", q);
+      while (out.length > 380000 && q > 0.4) { q -= 0.15; out = c.toDataURL("image/jpeg", q); }
+      URL.revokeObjectURL(img.src);
+      savePhoto(out);
+    } catch (err) { document.getElementById("photoMsg").textContent = "Gagal memproses gambar."; }
+  };
+  img.onerror = function() { document.getElementById("photoMsg").textContent = "File tidak terbaca sebagai gambar."; };
+  img.src = URL.createObjectURL(f);
+  e.target.value = "";
+});
+document.getElementById("photoDel").onclick = function() {
+  var u = db.sessionUser;
+  if (!u) return;
+  delete u.photo;
+  var m = masterRow(u);
+  if (m) delete m.photo;
+  KolaseStore.saveDB(db);
+  renderIdent();
+  document.getElementById("photoMsg").textContent = "Foto dihapus.";
+};
+renderIdent();
 document.getElementById("trx").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="4" class="small">Kosong</td></tr>`;
 document.getElementById("ledger").innerHTML = db.TXN_ENTITLEMENT_LEDGER.map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
 document.getElementById("logout").onclick = () => {
