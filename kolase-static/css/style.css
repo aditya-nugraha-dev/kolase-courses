@@ -190,6 +190,7 @@ footer a{color:var(--navy);font-weight:700}
 /* Kebalikan: tampil HANYA saat sudah login (mis. tombol Keluar di nav) */
 [data-auth-only]{display:none!important}
 .is-logged-in a[data-auth-only]{display:inline!important}
+.is-logged-in button[data-auth-only]{display:inline-block!important}
 hr{border:0;border-top:1px solid var(--line)}
 /* Star rating */
 .stars{display:flex;flex-direction:row-reverse;justify-content:flex-end;gap:4px}

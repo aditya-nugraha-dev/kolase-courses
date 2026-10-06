@@ -9,7 +9,7 @@
 <body data-guard="student,teacher,staff,admin,founder,academic,systems,author">
 <header class="topbar"><div class="wrap">
   <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
-  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html" data-guest-only>Masuk</a><a href="#" data-auth-only data-logout>Keluar</a></nav>
+  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html" data-guest-only>Masuk</a></nav>
   <button class="burger" data-burger>☰</button>
 </div></header>
 <main class="wrap">
@@ -23,7 +23,11 @@
       <div class="small" id="sheetsMsg" style="margin-top:8px"></div>
       <p class="small">Panduan: lihat <span class="id-mono">apps-script/DEPLOY.txt</span> dan <span class="id-mono">js/sheets-config.example.js</span>.</p>
     </div></div>
-    <div class="section"><button class="btn btn-ghost btn-sm" id="logout">Keluar / Hapus Semua Data Demo</button>
+    <div class="section"><h2>Akun</h2><div class="card">
+      <button class="btn btn-brand btn-sm" data-logout data-auth-only>Keluar Akun</button>
+      <p class="small">Hanya keluar dari akun — data pendaftaran, transaksi & sesi tetap tersimpan di browser ini.</p>
+    </div></div>
+    <div class="section"><h2>Zona Berbahaya</h2><button class="btn btn-ghost btn-sm" id="logout">Hapus Semua Data Demo</button>
     <p class="small">Menghapus seluruh data pendaftaran, transaksi, sesi, dan antrean Sheets di browser ini (localStorage), lalu kembali ke akun demo awal.</p></div>
   </div>
 </main>
