@@ -27,20 +27,25 @@
       <button class="btn btn-brand btn-sm" data-logout data-auth-only>Keluar Akun</button>
       <p class="small">Hanya keluar dari akun — data pendaftaran, transaksi & sesi tetap tersimpan di browser ini.</p>
     </div></div>
-    <div class="section"><h2>Zona Berbahaya</h2><button class="btn btn-ghost btn-sm" id="logout">Hapus Semua Data Demo</button>
-    <p class="small">Menghapus seluruh data pendaftaran, transaksi, sesi, dan antrean Sheets di browser ini (localStorage), lalu kembali ke akun demo awal.</p></div>
+    <div class="section" id="dangerZone" style="display:none"><h2>Zona Berbahaya</h2><button class="btn btn-ghost btn-sm" id="logout">Hapus Semua Data Demo</button>
+    <p class="small">Menghapus seluruh data pendaftaran, transaksi, sesi, dan antrean Sheets di browser ini (localStorage), lalu kembali ke akun demo awal. Khusus Founder & Head of Systems.</p></div>
   </div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html" class="active">Profil</a></nav>
 <script src="js/store.js"></script><script src="js/app.js"></script>
 <script>
 const db = KolaseStore.loadDB();
+// Zona Berbahaya HANYA untuk Founder & Business Lead + Head of Systems & Technology.
+var DANGER_ROLES = ["founder", "systems"];
+var canDanger = !!(db.sessionUser && DANGER_ROLES.indexOf(db.sessionUser.role) !== -1);
+if (canDanger) document.getElementById("dangerZone").style.display = "";
 document.getElementById("ident").innerHTML = db.sessionUser
  ? `<b>${db.sessionUser.nama}</b><div class="small">${db.sessionUser.role} • <span class="id-mono">${db.sessionUser.id}</span></div>`
  : `Belum login. <a href="login.html">Masuk →</a>`;
 document.getElementById("trx").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="4" class="small">Kosong</td></tr>`;
 document.getElementById("ledger").innerHTML = db.TXN_ENTITLEMENT_LEDGER.map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
 document.getElementById("logout").onclick = () => {
+  if (!canDanger) return;
   if (!confirm("Hapus SEMUA data demo di browser ini (siswa, transaksi, sesi, antrean Sheets)?")) return;
   localStorage.removeItem("kolase_db_v1");
   localStorage.removeItem("kolase_sheets_queue");

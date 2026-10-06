@@ -105,6 +105,8 @@ function registerPerson(role, nama, email, wa) {
       ? { teacher_id: id, nama, email, wa }
       : { staff_id: id, nama, email, wa, role };
   postSheets({ action: "register", role, row });
+  // Jejak login/masuk (tab LOGIN_LOG di Sheets): siapa, kapan, sebagai apa.
+  postSheets({ action: "login", login: { at: new Date().toISOString(), user_id: id, nama, email, role } });
   if (role === "student") {
     const now = new Date().toISOString();
     postSheets({

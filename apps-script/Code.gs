@@ -20,6 +20,7 @@ const HEADERS = {
   SESSIONS: ["session_id", "enrollment_id", "seq", "tanggal", "hadir", "status"],
   TRIALS: ["trial_id", "student_id", "class_id", "status", "at"],
   REVIEWS: ["nama", "rating", "teks", "class_id", "at"],
+  LOGIN_LOG: ["at", "user_id", "nama", "email", "role"],
   // Grain kanonikal KOL-POL-COD-001 §3.3 (otomatis dibuat via setup saat redeploy)
   CLASS_SESSIONS: ["session_id", "class_id", "seq", "tanggal", "status"],
   SESSION_ATTENDANCE: ["session_id", "student_id", "hadir", "recorded_by", "recorded_at"],
@@ -207,6 +208,11 @@ function doPost(e) {
       }
       appendObj_(tab, row);
       return json_({ ok: true, tab, assigned_id: row[keyCol] });
+    }
+    if (a === "login") {
+      // Jejak masuk/login: { login: { at, user_id, nama, email, role } } → tab LOGIN_LOG
+      if (body.login) appendObj_("LOGIN_LOG", body.login);
+      return json_({ ok: true, tab: "LOGIN_LOG" });
     }
     if (a === "checkout") {
       appendObj_("TXN_PAYMENTS", body.payment);
