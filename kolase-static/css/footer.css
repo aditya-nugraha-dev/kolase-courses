@@ -1,0 +1,36 @@
+/* KOLASE footer — ala referensi: kartu border, 5 kolom, CTA kontak, bottom bar + copyright */
+.kolase-footer{margin:26px 0 90px;color:var(--muted);font-size:13px;border:0;padding:0;background:transparent}
+.kf-card{background:#FFFFFF;border:1.5px solid #0F172A;border-radius:14px;box-shadow:4px 4px 0 #0F172A;padding:22px 22px 14px}
+.kf-grid{display:grid;gap:20px;grid-template-columns:1fr}
+.kf-brand .kf-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-family:var(--serif);font-size:17px;letter-spacing:.06em}
+.kf-brand .kf-logo img{width:28px;height:28px;object-fit:contain;border-radius:8px}
+.kf-tag{margin:10px 0 14px;line-height:1.6;max-width:32ch;color:#475569}
+.kf-contact{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.kf-contact a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+.kf-contact a:hover{color:#1E3A8A}
+.kf-ico{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;flex:none;border:1.5px solid #0F172A;border-radius:8px;background:#f0ece6;font-size:15px}
+.kf-cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.kf-cta .btn{border-radius:999px}
+.kf-col h4{margin:0 0 10px;font-size:13px;color:var(--ink);font-family:var(--serif);letter-spacing:.02em}
+.kf-col ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.kf-col a{color:#475569;text-decoration:none}
+.kf-col a:hover{color:#1E3A8A;text-decoration:underline}
+.kf-bottom{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+.kf-legal{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.kf-legal a{color:var(--ink);text-decoration:none;font-weight:600}
+.kf-legal a:hover{color:#1E3A8A;text-decoration:underline}
+.kf-legal span{color:#CBD5E1}
+.kf-social{display:flex;gap:8px}
+.kf-social a{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1.5px solid #0F172A;border-radius:8px;background:#f0ece6;text-decoration:none;font-size:16px;transition:transform .12s ease}
+.kf-social a:hover{transform:translateY(-1px);background:#e4d9cb}
+.kf-copy{border-top:1px solid var(--line);margin-top:12px;padding-top:12px;text-align:center;color:#64748B;font-size:12.5px}
+/* override footer generik lama agar kartu baru yang tampil */
+footer.kolase-footer a{color:inherit}
+footer.kolase-footer .kf-col a{color:#475569}
+footer.kolase-footer .kf-legal a,footer.kolase-footer .kf-contact a{color:var(--ink)}
+footer.kolase-footer .kf-legal a:hover,footer.kolase-footer .kf-col a:hover,footer.kolase-footer .kf-contact a:hover{color:#1E3A8A}
+
+@media(min-width:860px){
+  .kf-grid{grid-template-columns:1.4fr .7fr .8fr .7fr .7fr}
+  .kolase-footer{margin-bottom:30px}
+}

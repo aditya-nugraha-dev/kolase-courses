@@ -1,6 +1,7 @@
 /* KOLASE Public Class landing — high-contrast light theme (bg #F8F9FA, card #FFFFFF,
    ink #0F172A, muted #64748B, navy #b29e84 primary, amber #D97706 highlight). */
 @import url("https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap");
+@import url("footer.css");
 :root {
   --bg: #F8F9FA;
   --bg2: #F3F4F6;

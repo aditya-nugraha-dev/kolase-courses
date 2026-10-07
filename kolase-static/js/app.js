@@ -1,5 +1,32 @@
 /* Shared UI: nav, catalog render, copy buttons, sheets queue badge */
+function renderKolaseFooter() {
+  const year = new Date().getFullYear();
+  const html = `<div class="wrap"><div class="kf-card"><div class="kf-grid">`
+    + `<div class="kf-brand"><a class="kf-logo" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span>KOLASE</span></a>`
+    + `<p class="kf-tag">Belajar Bahasa Inggris 4 sesi, terjadwal &amp; terukur. Kids &amp; Beginner, Google Meet, QRIS / VA / E-Wallet.</p>`
+    + `<ul class="kf-contact">`
+    + `<li><a href="mailto:kolaseenglish@gmail.com"><span class="kf-ico">✉</span><span>kolaseenglish@gmail.com</span></a></li>`
+    + `<li><a href="https://wa.me/628131191163" target="_blank" rel="noopener"><span class="kf-ico">☎</span><span>+62 813 1191 163</span></a></li>`
+    + `<li><a href="https://www.instagram.com/kolaseacademy?stkn=a3RicXlmbnFwaWhk" target="_blank" rel="noopener"><span class="kf-ico">◎</span><span>@kolaseacademy</span></a></li>`
+    + `</ul><div class="kf-cta"><a class="btn btn-brand btn-sm" href="mailto:kolaseenglish@gmail.com">Email Kami</a>`
+    + `<a class="btn btn-ghost btn-sm" href="https://wa.me/628131191163" target="_blank" rel="noopener">Chat WA</a></div></div>`
+    + `<nav class="kf-col" aria-label="Home"><h4>Home</h4><ul><li><a href="home.html">Home</a></li><li><a href="catalog.html">Katalog</a></li><li><a href="public-class.html">Public Class</a></li></ul></nav>`
+    + `<nav class="kf-col" aria-label="About Us"><h4>About Us</h4><ul><li><a href="tim.html">Tim Kami</a></li><li><a href="ownership.html">Ownership</a></li><li><a href="trust-legal.html">Terms &amp; Privacy</a></li></ul></nav>`
+    + `<nav class="kf-col" aria-label="Academics"><h4>Academics</h4><ul><li><a href="dashboard.html">Dashboard</a></li><li><a href="schedule.html">Kalender</a></li><li><a href="teacher-chat.html">Chat Guru</a></li></ul></nav>`
+    + `<nav class="kf-col" aria-label="Contact Us"><h4>Contact Us</h4><ul><li><a href="mailto:kolaseenglish@gmail.com">Information</a></li><li><a href="https://www.instagram.com/kolaseacademy?stkn=a3RicXlmbnFwaWhk" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://wa.me/628131191163" target="_blank" rel="noopener">Map &amp; Direction</a></li></ul></nav>`
+    + `</div><div class="kf-bottom"><div class="kf-legal"><a href="trust-legal.html">Terms of Service</a><span>|</span><a href="trust-legal.html">Privacy Policy</a><span>|</span><a href="trust-legal.html">Cookie Policy</a></div>`
+    + `<div class="kf-social"><a href="mailto:kolaseenglish@gmail.com" aria-label="Email" title="kolaseenglish@gmail.com">✉</a>`
+    + `<a href="https://wa.me/628131191163" target="_blank" rel="noopener" aria-label="WhatsApp" title="+62 813 1191 163">☎</a>`
+    + `<a href="https://www.instagram.com/kolaseacademy?stkn=a3RicXlmbnFwaWhk" target="_blank" rel="noopener" aria-label="Instagram" title="@kolaseacademy">◎</a></div></div>`
+    + `<div class="kf-copy">Copyright © ${year} KOLASE Academy. All rights reserved.</div>`
+    + `</div></div>`;
+  document.querySelectorAll("footer").forEach((f) => {
+    f.classList.add("kolase-footer");
+    f.innerHTML = html;
+  });
+}
 document.addEventListener("DOMContentLoaded", () => {
+  try { renderKolaseFooter(); } catch (e) {}
   // RBAC route guard — workflow box 1 Strict Segregation.
   // Halaman yang dijaga memakai <body data-guard="student,teacher"> dst.
   const need = (document.body.getAttribute("data-guard") || "").split(",").map((s) => s.trim()).filter(Boolean);
