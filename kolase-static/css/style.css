@@ -65,7 +65,7 @@ h1{line-height:1.2}
 .badge-hot{background:var(--amber-bg);border:1px solid var(--amber);color:var(--amber-d);padding:6px 12px;border-radius:999px;font-size:12px;letter-spacing:.05em;font-weight:700}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
 .stat{background:#F8FAFC;border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:10px;text-align:center}
-.stat b{display:block;font-size:18px;color:var(--navy);font-family:var(--serif)}
+.stat b{display:block;font-size:18px;color:#1E3A8A;font-family:var(--serif)}
 /* Cards grid */
 .section{padding:18px 0 8px}
 .section h2{margin:6px 0 12px;font-size:20px;color:var(--ink)}
@@ -82,7 +82,7 @@ h1{line-height:1.2}
 .poster-grid{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
 .poster-grid a{display:block;overflow:hidden;border-radius:12px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow-sm)}
 .poster-grid img{width:100%;height:auto;display:block;aspect-ratio:4/5;object-fit:cover}
-.poster-sub{margin:18px 0 8px;font-size:15px;color:var(--navy)}
+.poster-sub{margin:18px 0 8px;font-size:15px;color:#1E3A8A}
 /* Forms */
 .field{margin:10px 0}
 .field label{display:block;font-size:12px;letter-spacing:.08em;margin-bottom:6px;color:#475569;font-weight:700}
