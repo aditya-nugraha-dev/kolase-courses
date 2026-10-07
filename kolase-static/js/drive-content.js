@@ -3,8 +3,8 @@
 (function () {
   // Section khusus: persembahan pembelajaran dari layanan KOLASE.
   const SHOWCASE = [
-    { t: "CNT-000019", d: "Cuplikan suasana belajar di kelas KOLASE.", id: "1_lNpv2D0qFi9sqVOEwgsECAEN25SVjup" },
-    { t: "Konten Galang", d: "Cerita pembelajaran dari layanan KOLASE.", id: "1hJvLyS1dcjlKTSDNyqz9ibavMjYDIF9Z" }
+    { t: "Founder & Business Lead", d: "Cerita pembelajaran dari layanan KOLASE.", id: "1hJvLyS1dcjlKTSDNyqz9ibavMjYDIF9Z" },
+    { t: "Co-Founder & Academic Lead", d: "Cuplikan suasana belajar di kelas KOLASE.", id: "1_lNpv2D0qFi9sqVOEwgsECAEN25SVjup" }
   ];
   // Hanya yang aman publik. Internal (keuangan, data siswa, manual perusahaan) TIDAK ditautkan.
   const MATERI = [
@@ -23,9 +23,20 @@
   }
   function showcaseCard(v) {
     return `<div class="card video-card"><div class="video-frame">`
-      + `<iframe src="https://drive.google.com/file/d/${v.id}/preview" title="${v.t}" allow="autoplay; fullscreen" loading="lazy"></iframe></div>`
-      + `<b>${v.t}</b><p class="small" style="margin:4px 0 8px">${v.d}</p>`
-      + `<div><a class="small" href="https://drive.google.com/file/d/${v.id}/view" target="_blank" rel="noopener">Buka di Drive →</a></div></div>`;
+      + `<iframe data-src="https://drive.google.com/file/d/${v.id}/preview" title="${v.t}" allow="autoplay; fullscreen" loading="lazy"></iframe></div>`
+      + `<b>${v.t}</b><p class="small" style="margin:4px 0 0">${v.d}</p></div>`;
+  }
+  // Muat iframe saat di-scroll mendekati layar (hemat kuota + siap diputar).
+  // Catatan: browser melarang play otomatis bersuara, jadi tetap perlu 1x klik play.
+  function armAutoplay(scope) {
+    const frames = (scope || document).querySelectorAll(".video-frame iframe[data-src]");
+    if (!frames.length) return;
+    const load = (f) => { try { if (!f.src) f.src = f.getAttribute("data-src"); } catch (e) {} f.removeAttribute("data-src"); };
+    if (!("IntersectionObserver" in window)) { frames.forEach(load); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { load(en.target); io.unobserve(en.target); } });
+    }, { rootMargin: "200px 0px" });
+    frames.forEach((f) => io.observe(f));
   }
   function docCard(x) {
     return `<div class="card"><h3>${x.t}</h3><p class="small">${x.d}</p>`
@@ -33,7 +44,7 @@
   }
   document.addEventListener("DOMContentLoaded", () => {
     const sc = document.querySelector("[data-drive-showcase]");
-    if (sc) sc.innerHTML = SHOWCASE.map(showcaseCard).join("");
+    if (sc) { sc.innerHTML = SHOWCASE.map(showcaseCard).join(""); armAutoplay(sc); }
     const mm = document.querySelector("[data-drive-materi]");
     if (mm) mm.innerHTML = MATERI.map(docCard).join("");
     const ii = document.querySelector("[data-drive-info]");
