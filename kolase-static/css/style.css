@@ -182,7 +182,7 @@ details.accordion{background:var(--card);border:1px solid var(--line);border-rad
 .lock-note{display:flex;gap:8px;align-items:center;background:#F1F5F9;border:1px dashed #94A3B8;border-radius:10px;padding:10px 12px;font-size:13px;color:#475569;margin-top:8px}
 /* Footer */
 footer{margin:26px 0 90px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
-footer a{color:var(--navy);font-weight:700}
+footer a{color:#1E3A8A;font-weight:700}
 .id-mono{font-family:ui-monospace,Menlo,Consolas,monospace;background:#F1F5F9;border:1px solid var(--line);color:#334155;padding:2px 6px;border-radius:6px;font-size:12px}
 .small{font-size:13px;color:var(--muted)}
 /* Mode login: ajakan daftar/login khusus pengunjung baru disembunyikan (yang tampil hanya logout di Profil) */

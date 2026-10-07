@@ -4,6 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KOLASE — Masuk / Daftar</title>
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/auth.css">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
 <body>
@@ -13,27 +14,121 @@
   <button class="burger" data-burger>☰</button>
 </div></header>
 <main class="wrap">
-  <div class="section"><div class="card form-card">
-    <h2>Registrasi & Login</h2>
-    <p class="small">Pilih peran → ID permanen otomatis: <span class="id-mono">STU-XXXXXX</span> / <span class="id-mono">TCH-XXXXXX</span> / <span class="id-mono">ACT-XXXXXX</span> (seumur hidup)</p>
-    <div class="field"><label>Peran</label><select id="role"><option value="student">Student</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select></div>
-    <div class="field" id="staffTypeWrap" style="display:none"><label>Staff sebagai</label><select id="staffType"><option value="founder">Founder & Business Lead</option><option value="academic">Co-Founder & Academic Lead</option><option value="systems">Head of Systems & Technology</option></select></div>
-    <div class="field"><label>Nama</label><input id="nama" placeholder="Nama lengkap"></div>
-    <div id="roleHint" class="small" style="display:none;margin:-4px 0 8px"></div>
-    <div class="field"><label>Email</label><input id="email" placeholder="nama@email.id"></div>
-    <div class="field"><label>No. WA</label><input id="wa" placeholder="08xx"></div>
-    <button class="btn btn-brand" id="regBtn" style="width:100%">Buat ID & Masuk</button>
-    <div id="out" style="margin-top:10px"></div>
-  </div></div>
+  <div class="auth-section">
+    <div class="auth-card">
+      <div class="auth-media" role="img" aria-label="Suasana kelas KOLASE">
+        <div class="auth-media-caption">
+          <b>Berani bicara Inggris dari kelas pertama.</b>
+          <span>KOLASE • Kids & Beginner • 4 sesi terjadwal</span>
+        </div>
+      </div>
+      <div class="auth-body">
+        <div class="auth-title" id="authTitle">Welcome to KOLASE!</div>
+        <div class="auth-tabs" role="tablist" aria-label="Pilih mode">
+          <button type="button" id="tabLogin" class="active" role="tab" aria-selected="true">Login</button>
+          <button type="button" id="tabRegister" role="tab" aria-selected="false">Register</button>
+        </div>
+        <p class="auth-desc" id="authDesc">Masuk untuk lanjutkan kelas, lihat jadwal & chat guru. ID permanen <span class="id-mono">STU-XXXXXX</span> berlaku seumur hidup.</p>
+
+        <!-- LOGIN -->
+        <form id="loginPane" autocomplete="on">
+          <label class="auth-label" for="loginId">User name</label>
+          <div class="auth-input"><input id="loginId" name="username" autocomplete="username email" placeholder="Enter your User name / Email"></div>
+          <label class="auth-label" for="loginPass">Password</label>
+          <div class="auth-input">
+            <input id="loginPass" name="current-password" type="password" autocomplete="current-password" placeholder="Enter your Password">
+            <button type="button" class="auth-eye" data-eye="loginPass" aria-label="Tampilkan password">👁</button>
+          </div>
+          <div class="auth-row">
+            <label><input type="checkbox" id="remember" checked> Remember me</label>
+            <button type="button" class="auth-link" id="forgotBtn">Forgot Password?</button>
+          </div>
+          <button class="auth-btn" type="submit" id="loginBtn">Login</button>
+          <div class="auth-out" id="loginOut" role="status" aria-live="polite"></div>
+          <div class="auth-switch">Belum punya akun? <button type="button" class="auth-link" id="goRegister">Register</button></div>
+        </form>
+
+        <!-- REGISTER -->
+        <form id="registerPane" hidden autocomplete="on">
+          <label class="auth-label" for="regEmail">Email Address</label>
+          <div class="auth-input"><input id="regEmail" type="email" autocomplete="email" placeholder="Enter your Email Address"></div>
+          <label class="auth-label" for="regNama">User name</label>
+          <div class="auth-input"><input id="regNama" autocomplete="name" placeholder="Enter your User name"></div>
+          <label class="auth-label" for="regPass">Password</label>
+          <div class="auth-input">
+            <input id="regPass" type="password" autocomplete="new-password" placeholder="Enter your Password (min. 4 karakter)">
+            <button type="button" class="auth-eye" data-eye="regPass" aria-label="Tampilkan password">👁</button>
+          </div>
+          <div class="field-inline" style="margin-top:12px">
+            <div>
+              <label class="auth-label" for="regWa" style="margin-top:0">No. WA</label>
+              <div class="auth-input"><input id="regWa" inputmode="tel" autocomplete="tel" placeholder="08xx"></div>
+            </div>
+            <div>
+              <label class="auth-label" for="regRole" style="margin-top:0">Peran</label>
+              <div class="auth-input"><select id="regRole"><option value="student">Student</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select></div>
+            </div>
+          </div>
+          <div id="staffTypeWrap" style="display:none">
+            <label class="auth-label" for="regStaffType">Staff sebagai</label>
+            <div class="auth-input"><select id="regStaffType"><option value="founder">Founder & Business Lead</option><option value="academic">Co-Founder & Academic Lead</option><option value="systems">Head of Systems & Technology</option></select></div>
+          </div>
+          <div id="roleHint" class="small" style="display:none;margin:8px 2px 0"></div>
+          <button class="auth-btn" type="submit" id="regBtn">Register</button>
+          <div class="auth-out" id="regOut" role="status" aria-live="polite"></div>
+          <div class="auth-switch">Sudah punya akun? <button type="button" class="auth-link" id="goLogin">Login</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
 </main>
+<footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
 <script src="js/sheets-config.js"></script><script src="js/store.js"></script><script src="js/app.js"></script>
 <script>
-// Sudah masuk? Langsung ke portal, tanpa form login lagi.
+// Sudah masuk? Langsung ke portal.
 try {
   const u = (KolaseStore.loadDB().sessionUser) || null;
   if (u) location.replace(KolaseStore.portalFor(u.role));
 } catch (e) {}
-// Staff: tampilkan dropdown jenis staff; hint nama → arahan role yang sesuai (tanpa buat akun otomatis).
+
+// Tabs Login/Register seperti referensi (desktop 2 kolom, mobile 1 kolom via css/auth.css)
+const loginPane = document.getElementById("loginPane");
+const registerPane = document.getElementById("registerPane");
+const tabLogin = document.getElementById("tabLogin");
+const tabRegister = document.getElementById("tabRegister");
+const authTitle = document.getElementById("authTitle");
+const authDesc = document.getElementById("authDesc");
+function setMode(mode){
+  const isLogin = mode !== "register";
+  loginPane.hidden = !isLogin;
+  registerPane.hidden = isLogin;
+  tabLogin.classList.toggle("active", isLogin);
+  tabRegister.classList.toggle("active", !isLogin);
+  tabLogin.setAttribute("aria-selected", String(isLogin));
+  tabRegister.setAttribute("aria-selected", String(!isLogin));
+  authTitle.textContent = "Welcome to KOLASE!";
+  authDesc.innerHTML = isLogin
+    ? 'Masuk untuk lanjutkan kelas, lihat jadwal & chat guru. ID permanen <span class="id-mono">STU-XXXXXX</span> berlaku seumur hidup.'
+    : 'Daftar 1 menit, ID permanen langsung jadi: <span class="id-mono">STU-XXXXXX</span> / <span class="id-mono">TCH-XXXXXX</span>.';
+  try { history.replaceState(null, "", mode === "register" ? "login.html?mode=register" : "login.html"); } catch(e){}
+}
+tabLogin.onclick = () => setMode("login");
+tabRegister.onclick = () => setMode("register");
+document.getElementById("goRegister").onclick = () => setMode("register");
+document.getElementById("goLogin").onclick = () => setMode("login");
+if (new URLSearchParams(location.search).get("mode") === "register") setMode("register");
+
+// Show/hide password (ikon mata)
+document.querySelectorAll("[data-eye]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const inp = document.getElementById(btn.getAttribute("data-eye"));
+    const show = inp.type === "password";
+    inp.type = show ? "text" : "password";
+    btn.textContent = show ? "🙈" : "👁";
+  });
+});
+
+// Staff invite-only + hint nama (logika lama dipertahankan)
 var STAFF_LABEL = { founder: "Founder & Business Lead", academic: "Co-Founder & Academic Lead", systems: "Head of Systems & Technology" };
 function normNama(v) { return String(v || "").toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim(); }
 function detectStaffRole(nama) {
@@ -45,54 +140,114 @@ function detectStaffRole(nama) {
   return null;
 }
 function refreshStaffUI() {
-  var role = document.getElementById("role").value;
+  var role = document.getElementById("regRole").value;
   var wrap = document.getElementById("staffTypeWrap");
   var hint = document.getElementById("roleHint");
-  var nama = document.getElementById("nama").value;
+  var nama = document.getElementById("regNama").value;
   var suggest = detectStaffRole(nama);
   wrap.style.display = role === "staff" ? "" : "none";
   if (!suggest) { hint.style.display = "none"; hint.textContent = ""; return; }
   var label = STAFF_LABEL[suggest];
-  if (role === "staff" && document.getElementById("staffType").value === suggest) {
+  if (role === "staff" && document.getElementById("regStaffType").value === suggest) {
     hint.style.display = "";
     hint.textContent = "Terdeteksi sebagai " + label + " — akun dibuat via undangan admin (pendaftaran mandiri dinonaktifkan).";
-  } else if (role !== "staff" || document.getElementById("staffType").value !== suggest) {
+  } else {
     hint.style.display = "";
     hint.innerHTML = "";
     hint.appendChild(document.createTextNode("Nama ini terdaftar untuk " + label + " — silakan pilih peran Staff › " + label + " saja. "));
     var b = document.createElement("button");
-    b.type = "button";
-    b.className = "btn btn-ghost btn-sm";
-    b.textContent = "Pilihkan otomatis";
+    b.type = "button"; b.className = "btn btn-ghost btn-sm"; b.textContent = "Pilihkan otomatis";
     b.onclick = function () {
-      document.getElementById("role").value = "staff";
-      document.getElementById("staffType").value = suggest;
+      document.getElementById("regRole").value = "staff";
+      document.getElementById("regStaffType").value = suggest;
       refreshStaffUI();
     };
     hint.appendChild(b);
   }
 }
-document.getElementById("role").addEventListener("change", refreshStaffUI);
-document.getElementById("staffType").addEventListener("change", refreshStaffUI);
-document.getElementById("nama").addEventListener("input", refreshStaffUI);
-document.getElementById("regBtn").onclick = () => {
-  var peran = document.getElementById("role").value;
-  // Staff leadership invite-only: akun dibuat admin via undangan, bukan daftar mandiri.
+document.getElementById("regRole").addEventListener("change", refreshStaffUI);
+document.getElementById("regStaffType").addEventListener("change", refreshStaffUI);
+document.getElementById("regNama").addEventListener("input", refreshStaffUI);
+
+// LOGIN submit
+loginPane.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const out = document.getElementById("loginOut");
+  const id = document.getElementById("loginId").value.trim();
+  const pass = document.getElementById("loginPass").value;
+  out.className = "auth-out"; out.textContent = "";
+  if (!id || !pass) { out.classList.add("err"); out.textContent = "User name/Email dan Password wajib diisi."; return; }
+  try {
+    let user = null;
+    if (KolaseStore.loginPerson) {
+      user = KolaseStore.loginPerson(id, pass, document.getElementById("remember").checked);
+    } else {
+      // fallback: cari di DB lokal tanpa password (kompatibel akun lama)
+      const db = KolaseStore.loadDB();
+      const all = [...(db.MST_STUDENTS||[]).map(r=>({role:"student",id:r.student_id,nama:r.nama,email:r.email})),
+                   ...(db.MST_TEACHERS||[]).map(r=>({role:"teacher",id:r.teacher_id,nama:r.nama,email:r.email})),
+                   ...(db.MST_STAFF||[]).map(r=>({role:r.role||"staff",id:r.staff_id,nama:r.nama,email:r.email}))];
+      const q = id.toLowerCase();
+      user = all.find(u => (u.email||"").toLowerCase()===q || (u.nama||"").toLowerCase()===q || (u.id||"").toLowerCase()===q) || null;
+      if (user) { db.sessionUser = user; KolaseStore.saveDB(db); }
+    }
+    if (!user) throw new Error("Akun tidak ditemukan / password salah.");
+    out.classList.add("ok"); out.textContent = "Berhasil masuk • " + user.id + " — mengalihkan…";
+    setTimeout(() => location.replace(KolaseStore.portalFor(user.role)), 600);
+  } catch (err) {
+    out.classList.add("err"); out.textContent = err.message;
+  }
+});
+
+// REGISTER submit
+registerPane.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const out = document.getElementById("regOut");
+  out.className = "auth-out"; out.textContent = "";
+  const peran = document.getElementById("regRole").value;
   if (peran === "staff") {
-    document.getElementById("out").textContent = "Pendaftaran " + STAFF_LABEL[document.getElementById("staffType").value] + " hanya via undangan admin. Silakan hubungi admin.";
+    out.classList.add("err");
+    out.textContent = "Pendaftaran " + STAFF_LABEL[document.getElementById("regStaffType").value] + " hanya via undangan admin. Silakan hubungi admin.";
     return;
   }
-  var role = peran;
-  const nama = document.getElementById("nama").value || "Pengguna Baru";
-  const email = document.getElementById("email").value || "";
-  const wa = document.getElementById("wa").value || "";
-  if (!email || !wa) {
-    document.getElementById("out").textContent = "Email dan No. WA wajib diisi.";
-    return;
+  const nama = document.getElementById("regNama").value.trim() || "Pengguna Baru";
+  const email = document.getElementById("regEmail").value.trim();
+  const wa = document.getElementById("regWa").value.trim();
+  const pass = document.getElementById("regPass").value;
+  if (!email || !wa) { out.classList.add("err"); out.textContent = "Email dan No. WA wajib diisi."; return; }
+  if (!pass || pass.length < 4) { out.classList.add("err"); out.textContent = "Password min. 4 karakter."; return; }
+  try {
+    const id = KolaseStore.registerPerson(peran, nama, email, wa, pass);
+    const dest = peran === "student" ? "catalog.html" : peran === "teacher" ? "teacher-portal.html" : "staff-portal.html";
+    out.classList.add("ok");
+    out.innerHTML = "";
+    out.append("ID kamu: ");
+    const s = document.createElement("span"); s.className = "id-mono"; s.textContent = id; out.appendChild(s);
+    out.append(" • ");
+    const a = document.createElement("a"); a.href = dest; a.textContent = "Lanjut →"; out.appendChild(a);
+    setTimeout(() => location.replace(dest), 900);
+  } catch (err) {
+    out.classList.add("err"); out.textContent = err.message;
   }
-  const id = KolaseStore.registerPerson(role, nama, email, wa);
-  const dest = role==="student" ? "catalog.html" : role==="teacher" ? "teacher-portal.html" : "staff-portal.html";
-  document.getElementById("out").innerHTML = `ID kamu: <span class="id-mono">${id}</span> • <a href="${dest}">Lanjut →</a>`;
+});
+
+// Forgot password: reset sederhana via email
+document.getElementById("forgotBtn").onclick = () => {
+  const out = document.getElementById("loginOut");
+  const id = document.getElementById("loginId").value.trim() || prompt("Masukkan Email / User name untuk reset password:");
+  if (!id) return;
+  try {
+    if (KolaseStore.resetPassword) {
+      const np = prompt("Password baru (min. 4 karakter):");
+      if (!np) return;
+      KolaseStore.resetPassword(id, np);
+      out.className = "auth-out ok"; out.textContent = "Password direset. Silakan login dengan password baru.";
+    } else {
+      out.className = "auth-out"; out.textContent = "Hubungi admin untuk reset password (fitur reset membutuhkan update store.js).";
+    }
+  } catch (err) {
+    out.className = "auth-out err"; out.textContent = err.message;
+  }
 };
 </script>
 </body>

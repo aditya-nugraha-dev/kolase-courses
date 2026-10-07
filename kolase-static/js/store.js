@@ -77,22 +77,28 @@ function loadDB() {
 function saveDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
 /* Core flows */
-function registerPerson(role, nama, email, wa) {
+function registerPerson(role, nama, email, wa, password) {
   const db = loadDB();
+  const em = String(email || "").trim().toLowerCase();
+  if (em) {
+    const dup = [...(db.MST_STUDENTS || []), ...(db.MST_TEACHERS || []), ...(db.MST_STAFF || [])]
+      .some((r) => String(r.email || "").trim().toLowerCase() === em);
+    if (dup) throw new Error("Email sudah terdaftar. Silakan Login.");
+  }
   let id;
   let pilotId = null;
   if (role === "student") {
     id = nextId("STU", db.MST_STUDENTS, "student_id"); // STU-###### seumur hidup (KOL-POL-COD-001 §3.1)
     pilotId = id;
-    db.MST_STUDENTS.push({ student_id: id, pilot_student_id: id, nama, email, wa, tgl_daftar: new Date().toISOString().slice(0, 10), current_status: "REGISTERED", confirmation_status: "PENDING" });
+    db.MST_STUDENTS.push({ student_id: id, pilot_student_id: id, nama, email, wa, password: password || "", tgl_daftar: new Date().toISOString().slice(0, 10), current_status: "REGISTERED", confirmation_status: "PENDING" });
     db.PILOT_REGISTRATIONS.push({ pilot_student_id: pilotId, student_id: id, full_name: nama, email, whatsapp: wa, at: new Date().toISOString() });
   } else if (role === "teacher") {
     id = nextId("TCH", db.MST_TEACHERS, "teacher_id");
-    db.MST_TEACHERS.push({ teacher_id: id, nama, email, wa });
+    db.MST_TEACHERS.push({ teacher_id: id, nama, email, wa, password: password || "" });
   } else {
     // Staff & leadership: founder / academic / systems / staff / admin → ACT-XXXXXX di MST_STAFF.
     id = nextId("ACT", db.MST_STAFF, "staff_id");
-    db.MST_STAFF.push({ staff_id: id, nama, email, wa, role });
+    db.MST_STAFF.push({ staff_id: id, nama, email, wa, role, password: password || "" });
   }
   db.sessionUser = { role, id, nama, email };
   saveDB(db);
@@ -120,6 +126,79 @@ function registerPerson(role, nama, email, wa) {
 
 function portalFor(role) {
   return role === "student" ? "dashboard.html" : role === "teacher" ? "teacher-portal.html" : "staff-portal.html";
+}
+
+/* Auth Login/Register ala referensi (mock localStorage, kompatibel akun lama tanpa password) */
+function findUserByLogin(query) {
+  const db = loadDB();
+  const q = String(query || "").trim().toLowerCase();
+  if (!q) return null;
+  const pick = (list, idField, roleOf) => (list || []).map((r) => ({
+    _ref: r, _idField: idField,
+    role: typeof roleOf === "function" ? roleOf(r) : roleOf,
+    id: r[idField], nama: r.nama, email: r.email, password: r.password || "",
+  }));
+  const all = [
+    ...pick(db.MST_STUDENTS, "student_id", "student"),
+    ...pick(db.MST_TEACHERS, "teacher_id", "teacher"),
+    ...pick(db.MST_STAFF, "staff_id", (r) => r.role || "staff"),
+  ];
+  return all.find((u) =>
+    String(u.email || "").toLowerCase() === q ||
+    String(u.nama || "").toLowerCase() === q ||
+    String(u.id || "").toLowerCase() === q) || null;
+}
+
+function loginPerson(query, password, remember) {
+  const db = loadDB();
+  const q = String(query || "").trim().toLowerCase();
+  const pass = String(password || "");
+  const search = (list, idField, roleOf) => (list || []).map((r) => ({ r, idField, role: typeof roleOf === "function" ? roleOf(r) : roleOf }));
+  const all = [
+    ...search(db.MST_STUDENTS, "student_id", "student"),
+    ...search(db.MST_TEACHERS, "teacher_id", "teacher"),
+    ...search(db.MST_STAFF, "staff_id", (r) => r.role || "staff"),
+  ];
+  const hit = all.find(({ r, idField }) =>
+    String(r.email || "").toLowerCase() === q ||
+    String(r.nama || "").toLowerCase() === q ||
+    String(r[idField] || "").toLowerCase() === q);
+  if (!hit) throw new Error("Akun tidak ditemukan. Cek Email / User name, atau Register dulu.");
+  // Migrasi akun lama tanpa password: set password saat login pertama.
+  if (!hit.r.password) {
+    hit.r.password = pass;
+    saveDB(db);
+  } else if (hit.r.password !== pass) {
+    throw new Error("Password salah. Gunakan Forgot Password untuk reset.");
+  }
+  const user = { role: hit.role, id: hit.r[hit.idField], nama: hit.r.nama, email: hit.r.email };
+  db.sessionUser = user;
+  saveDB(db);
+  try {
+    if (remember === false) sessionStorage.setItem("kolase_remember", "0");
+    else try { sessionStorage.removeItem("kolase_remember"); } catch (e) {}
+  } catch (e) {}
+  postSheets({ action: "login", login: { at: new Date().toISOString(), user_id: user.id, nama: user.nama, email: user.email, role: user.role } });
+  return user;
+}
+
+function resetPassword(query, newPassword) {
+  const db = loadDB();
+  const q = String(query || "").trim().toLowerCase();
+  const np = String(newPassword || "");
+  if (np.length < 4) throw new Error("Password baru min. 4 karakter.");
+  let changed = false;
+  ["MST_STUDENTS", "MST_TEACHERS", "MST_STAFF"].forEach((tab) => {
+    (db[tab] || []).forEach((r) => {
+      const ids = [r.student_id, r.teacher_id, r.staff_id].filter(Boolean).map((v) => String(v).toLowerCase());
+      if (String(r.email || "").toLowerCase() === q || String(r.nama || "").toLowerCase() === q || ids.includes(q)) {
+        r.password = np; changed = true;
+      }
+    });
+  });
+  if (!changed) throw new Error("Akun tidak ditemukan untuk reset.");
+  saveDB(db);
+  return true;
 }
 
 function checkout(classId, nominal, method) {
@@ -482,4 +561,4 @@ function postSheets(body) {
 // Sheets real: HANYA via js/sheets-config.js (tidak di-commit, lihat
 // sheets-config.example.js) yang di-inject server-side. Jangan simpan URL
 // endpoint di localStorage / input UI publik.
-window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation };
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation };

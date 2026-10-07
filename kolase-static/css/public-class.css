@@ -234,7 +234,7 @@ h1 em { color: var(--gold); font-style: normal; }
   flex: none;
 }
 
-.option-price { color: var(--gold); font-weight: 800; font-size: 20px; }
+.option-price { color: #1E3A8A; font-weight: 800; font-size: 20px; }
 .option-price small { color: var(--muted); font-weight: 500; }
 .option-meta { color: var(--ink); font-size: 14px; }
 .option-desc { color: var(--muted); font-size: 14px; }
@@ -412,7 +412,7 @@ footer {
   font-size: 13px;
 }
 
-footer a { color: var(--gold); }
+footer a { color: #1E3A8A; }
 
 @media (min-width: 860px) {
   .nav { display: flex; }
