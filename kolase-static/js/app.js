@@ -1,9 +1,6 @@
 /* Shared UI: nav, catalog render, copy buttons, sheets queue badge */
 function renderKolaseFooter() {
   const year = new Date().getFullYear();
-  const FB = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.6-1.5h1.3V4.9c-.3 0-1.1-.1-2-.1-2 0-3.4 1.2-3.4 3.5V11H8.5v3H11v7h2.5z"/></svg>`;
-  const TW = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 5.9c-.7.3-1.5.6-2.3.7.8-.5 1.5-1.3 1.8-2.3-.8.5-1.7.8-2.6 1-.7-.8-1.8-1.3-3-1.3-2.3 0-4.1 1.8-4.1 4.1 0 .3 0 .6.1.9-3.4-.2-6.4-1.8-8.4-4.3-.4.6-.6 1.3-.6 2.1 0 1.4.7 2.7 1.8 3.4-.7 0-1.3-.2-1.9-.5v.1c0 2 1.4 3.7 3.3 4-.3.1-.7.2-1.1.2-.3 0-.5 0-.8-.1.5 1.6 2 2.8 3.8 2.8-1.4 1.1-3.1 1.7-5 1.7-.3 0-.6 0-1-.1 1.8 1.1 3.9 1.8 6.2 1.8 7.4 0 11.4-6.1 11.4-11.4 0-.2 0-.3 0-.5.8-.5 1.4-1.2 2-1.9z"/></svg>`;
-  const IN = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 8.8v12H2.7v-12h3.8zM4.6 2.5c1.2 0 2.2 1 2.2 2.2s-1 2.2-2.2 2.2-2.2-1-2.2-2.2 1-2.2 2.2-2.2zm7.2 6.3h3.6v1.6h.1c.5-.9 1.7-1.9 3.5-1.9 3.7 0 4.4 2.4 4.4 5.6v6.7h-3.8v-6c0-1.4 0-3.2-2-3.2s-2.3 1.5-2.3 3.1v6.1h-3.5V8.8z"/></svg>`;
   const html = `<div class="wrap"><div class="kf-card"><div class="kf-grid">`
     + `<div class="kf-brand"><a class="kf-logo" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span>KOLASE</span></a>`
     + `<p class="kf-tag">We believe in the power of play to foster creativity, problem-solving skills, and imagination.</p>`
@@ -17,9 +14,7 @@ function renderKolaseFooter() {
     + `<nav class="kf-col" aria-label="Academics"><h4>Academics</h4><ul><li><a href="#">Special Features</a></li><li><a href="#">Gallery</a></li></ul></nav>`
     + `<nav class="kf-col" aria-label="Contact Us"><h4>Contact Us</h4><ul><li><a href="mailto:kolaseenglish@gmail.com">Information</a></li><li><a href="https://maps.google.com/?q=Tangerang,Indonesia" target="_blank" rel="noopener">Map &amp; Direction</a></li></ul></nav>`
     + `</div><div class="kf-bottom"><div class="kf-legal"><a href="trust-legal.html">Terms of Service</a><span>|</span><a href="trust-legal.html">Privacy Policy</a><span>|</span><a href="trust-legal.html">Cookie Policy</a></div>`
-    + `<div class="kf-social"><a href="#" aria-label="Facebook" title="Facebook">${FB}</a>`
-    + `<a href="#" aria-label="Twitter" title="Twitter">${TW}</a>`
-    + `<a href="#" aria-label="LinkedIn" title="LinkedIn">${IN}</a></div></div>`
+    + `</div>`
     + `<div class="kf-copy">Copyright © (${year}) KOLASE Academy. All rights reserved.</div>`
     + `</div></div>`;
   let bars = document.querySelectorAll("footer");
