@@ -84,6 +84,7 @@ function savePhoto(dataUrl) {
     return;
   }
   renderIdent();
+  try { if (window.KolaseNavAvatar) window.KolaseNavAvatar.refresh(); } catch (e) {}
   document.getElementById("photoMsg").textContent = "Foto tersimpan di browser ini.";
 }
 document.getElementById("photoInput").addEventListener("change", function(e) {
@@ -115,6 +116,7 @@ document.getElementById("photoDel").onclick = function() {
   if (m) delete m.photo;
   KolaseStore.saveDB(db);
   renderIdent();
+  try { if (window.KolaseNavAvatar) window.KolaseNavAvatar.refresh(); } catch (e) {}
   document.getElementById("photoMsg").textContent = "Foto dihapus.";
 };
 renderIdent();

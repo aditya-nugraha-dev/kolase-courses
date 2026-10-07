@@ -28,8 +28,37 @@ function renderKolaseFooter() {
     f.innerHTML = html;
   });
 }
+/* Navbar: ganti link "Profil" jadi foto profil saat sudah login.
+   Foto dibaca dari sessionUser.photo (diisi halaman Profil) atau baris master. */
+function refreshNavAvatar() {
+  try {
+    const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const raw = localStorage.getItem("kolase_db_v1");
+    const db = raw ? JSON.parse(raw) : null;
+    const u = (db && db.sessionUser) || null;
+    const link = document.querySelector('[data-nav] a[href="profile.html"]');
+    if (!u || !link) return false;
+    let photo = u.photo || "";
+    if (!photo && db) {
+      const tbl = u.role === "student" ? db.MST_STUDENTS : u.role === "teacher" ? db.MST_TEACHERS : db.MST_STAFF;
+      const idF = u.role === "student" ? "student_id" : u.role === "teacher" ? "teacher_id" : "staff_id";
+      const row = (tbl || []).find((r) => r && r[idF] === u.id);
+      if (row && row.photo) photo = row.photo;
+    }
+    const first = String((u.nama || "?").trim().split(/\s+/)[0] || "?");
+    const face = photo
+      ? `<img src="${photo}" alt="Foto profil">`
+      : `<span class="nav-initial" aria-hidden="true">${esc(first.charAt(0).toUpperCase())}</span>`;
+    link.classList.add("nav-avatar");
+    link.innerHTML = face + `<span class="nav-uname">${esc(first)}</span>`;
+    link.title = `${u.nama} • ${u.id}`;
+    return true;
+  } catch (e) { return false; }
+}
+window.KolaseNavAvatar = { refresh: refreshNavAvatar };
 document.addEventListener("DOMContentLoaded", () => {
   try { renderKolaseFooter(); } catch (e) {}
+  try { refreshNavAvatar(); } catch (e) {}
   // RBAC route guard — workflow box 1 Strict Segregation.
   // Halaman yang dijaga memakai <body data-guard="student,teacher"> dst.
   const need = (document.body.getAttribute("data-guard") || "").split(",").map((s) => s.trim()).filter(Boolean);
