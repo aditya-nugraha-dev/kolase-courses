@@ -323,7 +323,7 @@ h1 em { color: var(--gold); font-style: normal; }
   border-color: var(--gold);
 }
 
-.price-line { font-size: 18px; margin: 6px 0; }
+.price-line { font-size: 18px; margin: 6px 0; color: #1E3A8A; }
 
 .term ul { margin: 8px 0 0; padding-left: 20px; color: var(--ink); }
 .term li { margin: 6px 0; }

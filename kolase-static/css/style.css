@@ -74,7 +74,7 @@ h1{line-height:1.2}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm)}
 .card h3{margin:0 0 6px;font-size:16px;color:var(--ink)}
 .meta{font-size:13px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
-.price{font-weight:800;font-size:18px;color:var(--navy)}
+.price{font-weight:800;font-size:18px;color:#1E3A8A}
 .price s,.card s{color:var(--muted);font-weight:400;font-size:13px;margin-left:6px}
 .swipe-row{display:grid;gap:12px;grid-auto-flow:column;grid-auto-columns:78%;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x mandatory}
 .swipe-row .card{scroll-snap-align:start}
