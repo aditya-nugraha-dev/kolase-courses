@@ -1,7 +1,7 @@
 /* KOLASE — High-contrast light theme (bg #F8F9FA, card #FFFFFF, ink #0F172A,
    muted #64748B, navy #b29e84 primary, amber #D97706 highlight, font Hammersmith One) */
 @import url("https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap");
-@import url("footer.css?v=4");
+@import url("footer.css?v=5");
 :root{
   --bg:#F8F9FA; --bg2:#F3F4F6; --card:#FFFFFF; --card2:#FFFFFF;
   --ink:#0F172A; --muted:#64748B; --line:#E2E8F0;
@@ -127,7 +127,8 @@ th{background:#F1F5F9;font-size:12px;letter-spacing:.08em;color:var(--navy);font
 .copy-row code{flex:1;background:#F1F5F9;border:1px solid var(--line);color:var(--navy);padding:10px;border-radius:8px;overflow:hidden;text-overflow:ellipsis}
 /* Bottom bars (mobile) */
 .sticky-cta{position:sticky;bottom:0;background:#FFFFFFF2;border-top:1px solid var(--line);padding:10px 16px;backdrop-filter:blur(6px)}
-.mobile-tabs{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;background:#FFFFFF;border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+/* Tab bawah HP disembunyikan permanen per permintaan (navigasi via burger atas) */
+.mobile-tabs{display:none!important}
 .mobile-tabs a{flex:1;text-align:center;padding:10px 4px;font-size:11px;text-decoration:none;color:#94A3B8}
 .mobile-tabs a.active{color:var(--navy);font-weight:800}
 /* Bottom sheet filter */
@@ -192,7 +193,7 @@ details.accordion{background:var(--card);border:1px solid var(--line);border-rad
 .gain-flat{color:var(--amber-d);font-weight:800}
 .lock-note{display:flex;gap:8px;align-items:center;background:#F1F5F9;border:1px dashed #94A3B8;border-radius:10px;padding:10px 12px;font-size:13px;color:#475569;margin-top:8px}
 /* Footer */
-footer{margin:26px 0 90px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
+footer{margin:26px 0 30px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
 footer a{color:#1E3A8A;font-weight:700}
 .id-mono{font-family:ui-monospace,Menlo,Consolas,monospace;background:#F1F5F9;border:1px solid var(--line);color:#334155;padding:2px 6px;border-radius:6px;font-size:12px}
 .small{font-size:13px;color:var(--muted)}

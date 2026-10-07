@@ -1,5 +1,5 @@
 /* KOLASE footer — ala referensi: kartu border, 5 kolom, CTA kontak, bottom bar + copyright */
-.kolase-footer{margin:26px 0 90px;color:var(--muted);font-size:13px;border:0;padding:0;background:transparent}
+.kolase-footer{margin:26px 0 30px;color:var(--muted);font-size:13px;border:0;padding:0;background:transparent}
 .kf-card{background:#FFFFFF;border:1.5px solid #0F172A;border-radius:14px;box-shadow:4px 4px 0 #0F172A;padding:22px 22px 14px}
 .kf-grid{display:grid;gap:20px;grid-template-columns:1fr}
 .kf-brand .kf-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-family:var(--serif);font-size:17px;letter-spacing:.06em}
