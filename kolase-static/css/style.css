@@ -1,15 +1,15 @@
 /* KOLASE — High-contrast light theme (bg #F8F9FA, card #FFFFFF, ink #0F172A,
-   muted #64748B, navy #1E3A8A primary, amber #D97706 highlight, font Hammersmith One) */
+   muted #64748B, navy #b29e84 primary, amber #D97706 highlight, font Hammersmith One) */
 @import url("https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap");
 :root{
   --bg:#F8F9FA; --bg2:#F3F4F6; --card:#FFFFFF; --card2:#FFFFFF;
   --ink:#0F172A; --muted:#64748B; --line:#E2E8F0;
-  --navy:#1E3A8A; --navy-d:#172E6E; --navy-ink:#0F172A;
+  --navy:#b29e84; --navy-d:#857763; --navy-ink:#0F172A;
   --amber:#D97706; --amber-d:#92400E; --amber-bg:#FEF3C7;
   --gold:var(--navy); --gold-d:var(--navy-d);
   --green-bg:#ECFDF5; --green-tx:#065F46; --green-bd:#6EE7B7;
   --rose-bg:#FEF2F2; --rose-tx:#991B1B; --rose-bd:#FCA5A5;
-  --sky-bg:#EFF6FF; --sky-tx:#1D4ED8; --sky-bd:#93C5FD;
+  --sky-bg:#f0ece6; --sky-tx:#857763; --sky-bd:#d1c5b5;
   --radius:14px; --max:1152px;
   --serif:"Hammersmith One",Georgia,"Times New Roman",serif;
   --shadow-sm:0 1px 2px rgba(15,23,42,.06),0 1px 3px rgba(15,23,42,.08);
@@ -25,14 +25,14 @@ h1,h2,.logo-name{font-family:var(--serif);letter-spacing:.02em}
 h1{line-height:1.2}
 .logo-name{letter-spacing:.14em}
 /* Top nav — deep navy agar kontras maksimal dengan teks putih */
-.topbar{position:sticky;top:0;z-index:50;background:#1E3A8A;border-bottom:1px solid var(--navy-d)}
+.topbar{position:sticky;top:0;z-index:50;background:#b29e84;border-bottom:1px solid var(--navy-d)}
 .topbar .wrap{display:flex;align-items:center;gap:12px;height:64px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
 .brand img{height:38px;width:38px;object-fit:contain;border-radius:10px;border:0;background:transparent}
 .brand .logo-name{font-size:19px;color:#FFFFFF}
-.brand .logo-name small{display:block;font-family:system-ui;font-size:9px;letter-spacing:.3em;color:#C7D2FE}
+.brand .logo-name small{display:block;font-family:system-ui;font-size:9px;letter-spacing:.3em;color:#FFFFFF}
 .nav{display:none;gap:4px;margin-left:auto}
-.nav a{text-decoration:none;font-size:13px;letter-spacing:.06em;color:#E0E7FF;padding:8px 12px;border-radius:8px;border:1px solid transparent}
+.nav a{text-decoration:none;font-size:13px;letter-spacing:.06em;color:#FFFFFF;padding:8px 12px;border-radius:8px;border:1px solid transparent}
 .nav a.active,.nav a:hover{border-color:#FFFFFF;color:#FFFFFF;background:#ffffff22}
 .btn{display:inline-block;border:1px solid var(--navy);border-radius:10px;padding:12px 18px;font-weight:400;font-family:var(--serif);cursor:pointer;text-decoration:none;letter-spacing:.04em}
 .btn-brand{background:var(--navy);color:#FFFFFF;border-color:var(--navy)}
@@ -45,14 +45,14 @@ h1{line-height:1.2}
 .btn:disabled{opacity:.55;cursor:not-allowed}
 .burger{margin-left:auto;background:#FFFFFF;border:1px solid #FFFFFF;color:var(--navy);border-radius:8px;padding:8px 12px;font-size:18px;line-height:1;display:block;min-height:44px;min-width:44px;font-weight:800;cursor:pointer}
 .topbar .burger{color:var(--navy);border-color:#FFFFFF;background:#FFFFFF}
-.burger:hover{background:#E0E7FF}
+.burger:hover{background:#FFFFFF}
 /* Dropdown nav HP: muncul saat burger diklik (class .open dari js/app.js) */
-.nav.open{display:flex;flex-direction:column;position:absolute;top:60px;right:12px;background:var(--navy);border:1px solid #3B5BBF;border-radius:12px;padding:8px;z-index:60;min-width:200px}
+.nav.open{display:flex;flex-direction:column;position:absolute;top:60px;right:12px;background:var(--navy);border:1px solid #857763;border-radius:12px;padding:8px;z-index:60;min-width:200px}
 /* Hero */
 .hero{padding:28px 0}
 .hero-grid{display:grid;gap:16px}
 .hero-card{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:18px;padding:28px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
-.hero-card::after{content:"";position:absolute;inset:auto -60px -60px auto;width:220px;height:220px;background:radial-gradient(circle,#1E3A8A14,transparent 70%)}
+.hero-card::after{content:"";position:absolute;inset:auto -60px -60px auto;width:220px;height:220px;background:radial-gradient(circle,#b29e8414,transparent 70%)}
 .hero-card h1{margin:0 0 10px;font-size:30px;line-height:1.2;color:var(--ink)}
 .hero-card h1 em{color:var(--navy);font-style:normal}
 .hero-media{display:flex;align-items:center}
@@ -61,7 +61,7 @@ h1{line-height:1.2}
 .hero-logo img{height:64px;width:64px;object-fit:cover;border-radius:14px;border:1px solid var(--line);background:#FFFFFF}
 .hero-banner{width:100%;border-radius:14px;border:1px solid var(--line);margin-bottom:14px}
 .badges{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-.badge{background:#EFF6FF;border:1px solid var(--sky-bd);color:var(--navy);padding:6px 12px;border-radius:999px;font-size:12px;letter-spacing:.05em;font-weight:700}
+.badge{background:#f0ece6;border:1px solid var(--sky-bd);color:var(--navy);padding:6px 12px;border-radius:999px;font-size:12px;letter-spacing:.05em;font-weight:700}
 .badge-hot{background:var(--amber-bg);border:1px solid var(--amber);color:var(--amber-d);padding:6px 12px;border-radius:999px;font-size:12px;letter-spacing:.05em;font-weight:700}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
 .stat{background:#F8FAFC;border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:10px;text-align:center}
@@ -127,7 +127,7 @@ th{background:#F1F5F9;font-size:12px;letter-spacing:.08em;color:var(--navy);font
 /* Calendar */
 .cal-list{display:grid;gap:10px}
 .cal-item{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:var(--shadow-sm)}
-.date-box{min-width:56px;text-align:center;background:#EFF6FF;border:1px solid var(--sky-bd);border-radius:10px;padding:8px}
+.date-box{min-width:56px;text-align:center;background:#f0ece6;border:1px solid var(--sky-bd);border-radius:10px;padding:8px}
 .date-box b{display:block;font-size:18px;color:var(--navy);font-family:var(--serif)}
 /* Widget kalender bulan + jam WIB (schedule.html) */
 .cal-widget{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow-sm);margin:12px 0}
@@ -169,7 +169,7 @@ details.accordion{background:var(--card);border:1px solid var(--line);border-rad
 .quiz-opt{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin:6px 0;cursor:pointer;font-size:14px}
 .quiz-opt:hover{border-color:var(--navy)}
 .quiz-opt input{margin-top:2px;accent-color:var(--navy)}
-.quiz-opt.picked{border-color:var(--navy);background:#EFF6FF}
+.quiz-opt.picked{border-color:var(--navy);background:#f0ece6}
 .fit-ok{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green-tx);border-radius:12px;padding:12px;margin-top:12px;font-weight:700}
 .fit-pending{background:var(--amber-bg);border:1px solid var(--amber);color:var(--amber-d);border-radius:12px;padding:12px;margin-top:12px;font-weight:700}
 /* Skor & gain (widget feedback) */

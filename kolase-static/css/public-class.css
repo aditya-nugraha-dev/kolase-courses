@@ -1,5 +1,5 @@
 /* KOLASE Public Class landing — high-contrast light theme (bg #F8F9FA, card #FFFFFF,
-   ink #0F172A, muted #64748B, navy #1E3A8A primary, amber #D97706 highlight). */
+   ink #0F172A, muted #64748B, navy #b29e84 primary, amber #D97706 highlight). */
 @import url("https://fonts.googleapis.com/css2?family=Hammersmith+One&display=swap");
 :root {
   --bg: #F8F9FA;
@@ -9,8 +9,8 @@
   --muted: #64748B;
   --line: #E2E8F0;
   --silver: #FFFFFF;
-  --gold: #1E3A8A;
-  --gold-dark: #172E6E;
+  --gold: #b29e84;
+  --gold-dark: #857763;
   --amber: #D97706;
   --amber-d: #92400E;
   --amber-bg: #FEF3C7;
@@ -40,8 +40,8 @@ a { color: inherit; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: #1E3A8A;
-  border-bottom: 1px solid #172E6E;
+  background: #b29e84;
+  border-bottom: 1px solid #857763;
   backdrop-filter: blur(8px);
 }
 
@@ -80,7 +80,7 @@ a { color: inherit; }
   font-family: system-ui, sans-serif;
   font-size: 9px;
   letter-spacing: 0.3em;
-  color: #C7D2FE;
+  color: #FFFFFF;
 }
 
 .nav {
@@ -92,7 +92,7 @@ a { color: inherit; }
 .nav a {
   text-decoration: none;
   font-size: 13px;
-  color: #E0E7FF;
+  color: #FFFFFF;
   padding: 8px 12px;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -106,8 +106,8 @@ a { color: inherit; }
   position: absolute;
   top: 60px;
   right: 12px;
-  background: #1E3A8A;
-  border: 1px solid #3B5BBF;
+  background: #b29e84;
+  border: 1px solid #857763;
   border-radius: 12px;
   padding: 8px;
   z-index: 60;
@@ -118,7 +118,7 @@ a { color: inherit; }
   margin-left: auto;
   background: #FFFFFF;
   border: 1px solid #FFFFFF;
-  color: #1E3A8A;
+  color: #b29e84;
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 18px;
@@ -129,7 +129,7 @@ a { color: inherit; }
   font-weight: 800;
 }
 
-.burger:hover { background: #E0E7FF; }
+.burger:hover { background: #FFFFFF; }
 
 .topbar .btn { margin-left: 0; }
 .topbar .nav + .btn { margin-left: 0; }
@@ -148,7 +148,7 @@ a { color: inherit; }
 }
 
 .btn-brand {
-  background: #1E3A8A;
+  background: #b29e84;
   color: #FFFFFF;
 }
 
@@ -344,8 +344,8 @@ h1 em { color: var(--gold); font-style: normal; }
 }
 
 .bridge-step span { display: block; color: var(--muted); font-size: 13px; }
-.bridge-step.highlight { border-color: var(--gold); background: #1E3A8A; color: #FFFFFF; }
-.bridge-step.highlight span { color: #C7D2FE; }
+.bridge-step.highlight { border-color: var(--gold); background: #b29e84; color: #FFFFFF; }
+.bridge-step.highlight span { color: #FFFFFF; }
 .bridge-line { display: none; }
 
 .number-path {
@@ -379,8 +379,8 @@ h1 em { color: var(--gold); font-style: normal; }
 
 .cefr-node.is-done {
   color: #FFFFFF;
-  background: #1E3A8A;
-  border-color: #1E3A8A;
+  background: #b29e84;
+  border-color: #b29e84;
   font-weight: 800;
 }
 
