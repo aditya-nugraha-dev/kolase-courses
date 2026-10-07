@@ -156,7 +156,13 @@
       + `<a href="#" aria-label="LinkedIn" title="LinkedIn">${IN}</a></div></div>`
       + `<div class="kf-copy">Copyright © (${year}) KOLASE Academy. All rights reserved.</div>`
       + `</div></div>`;
-    document.querySelectorAll("footer").forEach((f) => {
+    let bars = document.querySelectorAll("footer");
+    if (!bars.length) {
+      const made = document.createElement("footer");
+      document.body.appendChild(made);
+      bars = document.querySelectorAll("footer");
+    }
+    bars.forEach((f) => {
       f.classList.add("kolase-footer");
       f.innerHTML = fhtml;
     });
