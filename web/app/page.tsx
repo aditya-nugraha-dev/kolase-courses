@@ -35,7 +35,6 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-ivory font-sans text-ink">
       <main className="flex-1">
         <Hero />
-        <TrialGratis />
         <ValueProps />
         <ProgramDetails />
         <Curriculum />
@@ -72,6 +71,7 @@ export default function Home() {
           </div>
         </section>
 
+        <TrialGratis />
         <section className="bg-paper">
           <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:py-16">
             <SectionHeading
