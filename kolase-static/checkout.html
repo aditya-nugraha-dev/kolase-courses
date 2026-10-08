@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="css/style.css?v=5">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
-<body data-guard="student">
+<body data-guard="student,staff,admin,founder,academic,systems,author,owner">
 <header class="topbar"><div class="wrap">
   <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
   <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html" data-guest-only>Masuk</a></nav>
@@ -35,28 +35,48 @@
     </div>
   </div>
 </main>
-<script src="js/store.js?v=4"></script><script src="js/app.js?v=4"></script>
+<script src="js/store.js?v=6"></script><script src="js/app.js?v=6"></script>
 <script>
 let CLS=null, TRX=null;
-const cid = new URLSearchParams(location.search).get("id") || "CLS-PUB-KIDS-01";
+const qs = new URLSearchParams(location.search);
+const cid = qs.get("id") || "CLS-PUB-KIDS-01";
+const preEnr = qs.get("enr") || "";
+function showPayBox(method, enrId, trxId) {
+  TRX = trxId;
+  document.getElementById("payBox").style.display = "block";
+  document.getElementById("payCard").style.display = "none";
+  document.getElementById("payCode").textContent = method==="QRIS" ? "QR-KOLASE-"+trxId : "80000"+String(trxId).replace(/\D/g,"").padStart(6,"0");
+  document.getElementById("qrText").textContent = method;
+  document.getElementById("copyBtn").setAttribute("data-copy", document.getElementById("payCode").textContent);
+  document.getElementById("verifyResult").innerHTML = `ENR <span class="id-mono">${enrId}</span> • TRX <span class="id-mono">${trxId}</span> • <span class="pill p-pending">PENDING</span>`;
+}
 fetch("data/classes.json").then(r=>r.json()).then(list=>{
   CLS = list.find(x=>x.id===cid)||list[0];
   document.getElementById("summary").innerHTML = `<b>${CLS.nama}</b><div class="small">${CLS.id} • ${CLS.jadwal}</div><div class="price">Rp ${Number(CLS.harga).toLocaleString("id-ID")}</div>`;
   if ((CLS.class_status || "OPEN") !== "OPEN") {
     document.getElementById("comingSoon").style.display = "block";
     document.getElementById("payCard").style.display = "none";
+    return;
+  }
+  // Lanjutan keputusan trial "lanjut": enrollment sudah dibuat → langsung ke bayar.
+  if (preEnr) {
+    try {
+      const db = KolaseStore.loadDB();
+      const m = (db.CLASS_MEMBERSHIP || []).find(x=>x.enrollment_id===preEnr && db.sessionUser && x.student_id===db.sessionUser.id && x.status==="PENDING");
+      const pay = m ? (db.TXN_PAYMENTS || []).filter(x=>x.enrollment_id===m.enrollment_id && x.status==="PENDING").pop() : null;
+      if (m && pay) {
+        document.getElementById("method").value = pay.method || "QRIS";
+        document.getElementById("summary").innerHTML += `<div class="small" style="margin-top:6px">Lanjutan trial 7 sesi 🎉 — selesaikan pembayaran di bawah.</div>`;
+        showPayBox(pay.method || "QRIS", m.enrollment_id, pay.trx_id);
+      }
+    } catch(e){}
   }
 });
 document.getElementById("payBtn").onclick = () => {
   try {
     const m = document.getElementById("method").value;
     const r = KolaseStore.checkout(CLS.id, CLS.harga, m);
-    TRX = r.trxId;
-    document.getElementById("payBox").style.display = "block";
-    document.getElementById("payCode").textContent = m==="QRIS" ? "QR-KOLASE-"+TRX : "80000"+TRX.replace(/\D/g,"").padStart(6,"0");
-    document.getElementById("qrText").textContent = m;
-    document.getElementById("copyBtn").setAttribute("data-copy", document.getElementById("payCode").textContent);
-    document.getElementById("verifyResult").innerHTML = `ENR <span class="id-mono">${r.enrId}</span> • TRX <span class="id-mono">${r.trxId}</span> • <span class="pill p-pending">PENDING</span>`;
+    showPayBox(m, r.enrId, r.trxId);
   } catch(e){ alert(e.message+" — buka login.html dulu & daftar sebagai Student."); location.href="login.html"; }
 };
 document.getElementById("simulateWebhook").onclick = () => {

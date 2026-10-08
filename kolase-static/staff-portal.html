@@ -28,6 +28,19 @@
   <div class="section"><h2>Ledger Terakhir (TXN_ENTITLEMENT_LEDGER)</h2>
     <div class="table-wrap"><table><thead><tr><th>Waktu</th><th>ENR</th><th>Delta</th><th>Alasan</th><th>Balance</th></tr></thead><tbody id="ledT"></tbody></table></div>
   </div>
+  <div class="section" id="database"><h2>Database Pengguna</h2>
+    <p class="small">Teacher mengajar di kelas apa • student siapa saja yang masuk • hapus data permanen (konfirmasi ganda).</p>
+    <div class="kpi">
+      <div class="card"><div class="small">Teacher</div><b id="kT" style="font-size:26px">-</b></div>
+      <div class="card"><div class="small">Student</div><b id="kS2" style="font-size:26px">-</b></div>
+      <div class="card"><div class="small">Trial aktif</div><b id="kTr" style="font-size:26px">-</b></div>
+    </div>
+    <div class="field" style="max-width:320px"><label>Cari nama / email / ID</label><input id="dbQ" placeholder="cth. Galang / STU-..."></div>
+    <h3 style="margin-top:12px">Teacher & Kelas yang Diajar</h3>
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nama & Kontak</th><th>Mengajar di Kelas</th><th>Aksi</th></tr></thead><tbody id="teacherT"></tbody></table></div>
+    <h3 style="margin-top:12px">Student Masuk</h3>
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nama & Kontak</th><th>Kelas & Trial</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="studentT"></tbody></table></div>
+  </div>
   <div class="section"><div style="display:flex;gap:8px;flex-wrap:wrap">
     <a class="btn btn-ghost btn-sm" href="ownership.html">Ownership Chart</a>
     <button class="btn btn-ghost btn-sm" id="schemaToggle">Skema Sheets (internal)</button>
@@ -40,7 +53,7 @@
   </div>
 </main>
 <nav class="mobile-tabs"><a href="home.html">Home</a><a href="staff-portal.html" class="active">Portal</a><a href="profile.html">Profil</a></nav>
-<script src="js/store.js?v=4"></script><script src="js/app.js?v=4"></script>
+<script src="js/store.js?v=6"></script><script src="js/app.js?v=6"></script>
 <script>
 const db = KolaseStore.loadDB();
 document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "";
@@ -60,6 +73,53 @@ document.querySelectorAll("[data-ver]").forEach(b=>b.onclick=()=>{
 });
 document.getElementById("payT").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td class="small">${t.method}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
 document.getElementById("ledT").innerHTML = db.TXN_ENTITLEMENT_LEDGER.slice(-10).reverse().map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
+// Database Pengguna: teacher (+kelas diajar) & student (+kelas/trial) + hapus permanen.
+function escDb(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
+function renderDatabase(){
+  const d = KolaseStore.loadDB();
+  const q = (document.getElementById("dbQ").value || "").trim().toLowerCase();
+  const match = (v) => !q || String(v || "").toLowerCase().includes(q);
+  const teachers = (d.MST_TEACHERS || []).filter(t => match(t.nama) || match(t.email) || match(t.teacher_id));
+  const students = (d.MST_STUDENTS || []).filter(s => match(s.nama) || match(s.email) || match(s.student_id));
+  document.getElementById("kT").textContent = (d.MST_TEACHERS || []).length;
+  document.getElementById("kS2").textContent = (d.MST_STUDENTS || []).length;
+  document.getElementById("kTr").textContent = (d.TRIALS || []).filter(t => t.status === "STARTED").length;
+  const memByStudent = {};
+  (d.CLASS_MEMBERSHIP || []).forEach(m => { (memByStudent[m.student_id] = memByStudent[m.student_id] || []).push(m); });
+  const trialByStudent = {};
+  (d.TRIALS || []).forEach(t => { if (t.status === "STARTED" || t.status === "COMPLETED") trialByStudent[t.student_id] = t.status + " " + (t.sessions || []).filter(s => s.hadir === "PRESENT" || s.hadir === "LATE").length + "/7"; });
+  const classList = window.__dbClasses || [];
+  document.getElementById("teacherT").innerHTML = teachers.length ? teachers.map(t => {
+    const byName = classList.filter(c => {
+      const g = ((c.guru || "") + " " + (c.teacher_name || "")).toLowerCase();
+      return t.nama && g.indexOf(String(t.nama).toLowerCase()) !== -1;
+    });
+    return `<tr><td class="id-mono">${escDb(t.teacher_id)}</td><td><b>${escDb(t.nama)}</b><div class="small">${escDb(t.email || "")}${t.wa ? " • " + escDb(t.wa) : ""}</div></td><td class="small">${byName.length ? byName.map(c => `<span class="id-mono">${escDb(c.id)}</span> ${escDb(c.nama)}`).join("<br>") : "Belum pegang kelas"}</td><td><button class="btn btn-ghost btn-sm" data-del-teacher="${escDb(t.teacher_id)}" style="color:#b91c1c">Hapus</button></td></tr>`;
+  }).join("") : `<tr><td colspan="4" class="small">Kosong</td></tr>`;
+  document.getElementById("studentT").innerHTML = students.length ? students.map(s => {
+    const mems = memByStudent[s.student_id] || [];
+    return `<tr><td class="id-mono">${escDb(s.student_id)}</td><td><b>${escDb(s.nama)}</b><div class="small">${escDb(s.email || "")}${s.wa ? " • " + escDb(s.wa) : ""}</div></td><td class="small">${mems.length ? mems.map(m => `${escDb(m.class_id)} (${escDb(m.status)}, sisa ${m.sisa})`).join("<br>") : "Belum ada kelas"}<br><span>Trial: ${escDb(trialByStudent[s.student_id] || "—")}</span></td><td><span class="pill p-pending">${escDb(s.current_status || "REGISTERED")}</span></td><td><button class="btn btn-ghost btn-sm" data-del-student="${escDb(s.student_id)}" style="color:#b91c1c">Hapus</button></td></tr>`;
+  }).join("") : `<tr><td colspan="5" class="small">Kosong</td></tr>`;
+  document.querySelectorAll("[data-del-teacher]").forEach(b => b.onclick = () => {
+    const id = b.getAttribute("data-del-teacher");
+    if (!confirm(`Hapus teacher ${id} permanen?`)) return;
+    if (!confirm("Yakin? Tindakan ini tidak bisa dibatalkan.")) return;
+    try { KolaseStore.deleteTeacher(id); alert("Teacher " + id + " dihapus."); location.reload(); }
+    catch(e){ alert(e.message); }
+  });
+  document.querySelectorAll("[data-del-student]").forEach(b => b.onclick = () => {
+    const id = b.getAttribute("data-del-student");
+    if (!confirm(`Hapus student ${id} + SELURUH datanya (kelas, bayar, trial, chat) permanen?`)) return;
+    if (!confirm("Yakin? Tindakan ini tidak bisa dibatalkan.")) return;
+    try { KolaseStore.deleteStudent(id); alert("Student " + id + " dihapus."); location.reload(); }
+    catch(e){ alert(e.message); }
+  });
+}
+fetch("data/classes.json").then(r=>r.json()).then(classes=>{
+  window.__dbClasses = classes;
+  renderDatabase();
+}).catch(()=>renderDatabase());
+document.getElementById("dbQ").addEventListener("input", renderDatabase);
 // Skema Sheets viewer (internal staff): render data/sheets-schema.json sebagai kartu
 document.getElementById("schemaToggle").onclick = () => {
   const sec = document.getElementById("schemaSection");

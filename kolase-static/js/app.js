@@ -56,7 +56,71 @@ function refreshNavAvatar() {
   } catch (e) { return false; }
 }
 window.KolaseNavAvatar = { refresh: refreshNavAvatar };
+/* Navbar per peran — ditulis ulang tiap halaman agar konsisten:
+   tamu: Home, Katalog, Kalender, Masuk • student: Dashboard, Kalender, Chat Teacher, Profil
+   (tanpa Home; logo → dashboard) • teacher: Dashboard, Chat, Profil
+   • staff: semua link student+teacher. Berlaku juga untuk mobile-tabs. */
+var ROLE_NAVS = {
+  guest: {
+    brand: "home.html",
+    links: [["home.html", "Home"], ["catalog.html", "Katalog"], ["schedule.html", "Kalender"], ["login.html", "Masuk"]],
+    tabs: [["home.html", "Home"], ["catalog.html", "Katalog"], ["schedule.html", "Kalender"], ["login.html", "Masuk"]]
+  },
+  student: {
+    brand: "dashboard.html",
+    links: [["dashboard.html", "Dashboard"], ["schedule.html", "Kalender"], ["teacher-chat.html", "Chat Teacher"], ["profile.html", "Profil"]],
+    tabs: [["dashboard.html", "Materi"], ["teacher-chat.html", "Chat"], ["schedule.html", "Jadwal"], ["profile.html", "Profil"]]
+  },
+  teacher: {
+    brand: "teacher-portal.html",
+    links: [["teacher-portal.html", "Dashboard"], ["teacher-chat.html", "Chat"], ["profile.html", "Profil"]],
+    tabs: [["teacher-portal.html", "Kelas"], ["teacher-chat.html", "Chat"], ["schedule.html", "Jadwal"], ["profile.html", "Profil"]]
+  },
+  staff: {
+    brand: "home.html",
+    links: [["home.html", "Home"], ["catalog.html", "Katalog"], ["dashboard.html", "Dashboard"], ["schedule.html", "Kalender"], ["teacher-portal.html", "Teacher"], ["staff-portal.html", "Staff"], ["teacher-chat.html", "Chat"], ["profile.html", "Profil"]],
+    tabs: [["home.html", "Home"], ["staff-portal.html", "Portal"], ["profile.html", "Profil"]]
+  }
+};
+var STAFF_GROUP = ["staff", "admin", "owner", "author", "founder", "academic", "systems"];
+function roleNavKey(role) {
+  if (!role) return "guest";
+  if (role === "student") return "student";
+  if (role === "teacher") return "teacher";
+  return "staff";
+}
+function renderRoleNav() {
+  try {
+    var db = JSON.parse(localStorage.getItem("kolase_db_v1") || "null");
+    var u = (db && db.sessionUser) || null;
+    var nav = ROLE_NAVS[roleNavKey(u && u.role)];
+    var brand = document.querySelector(".topbar .brand");
+    if (brand) brand.setAttribute("href", nav.brand);
+    var navEl = document.querySelector("[data-nav]");
+    if (navEl) navEl.innerHTML = nav.links.map(function (l) { return '<a href="' + l[0] + '">' + l[1] + "</a>"; }).join("");
+    var tabs = document.querySelector(".mobile-tabs");
+    if (tabs) tabs.innerHTML = nav.tabs.map(function (l) { return '<a href="' + l[0] + '">' + l[1] + "</a>"; }).join("");
+  } catch (e) {}
+}
+/* CTA global "Trial 7 Sesi Gratis" ([data-trial="CLS-ID"]): student → mulai
+   trial lalu ke dashboard; tamu/peran lain → login/register dulu. */
+function handleTrialCta(cid) {
+  try {
+    var db = JSON.parse(localStorage.getItem("kolase_db_v1") || "null");
+    var u = (db && db.sessionUser) || null;
+    if (!u || u.role !== "student") { location.href = "login.html?mode=register"; return; }
+    if (window.KolaseStore && KolaseStore.startTrial) KolaseStore.startTrial(cid);
+    location.href = "dashboard.html";
+  } catch (err) { alert(err && err.message ? err.message : "Gagal memulai trial."); }
+}
+document.addEventListener("click", function (e) {
+  var b = e.target && e.target.closest ? e.target.closest("[data-trial]") : null;
+  if (!b) return;
+  e.preventDefault();
+  handleTrialCta(b.getAttribute("data-trial"));
+});
 document.addEventListener("DOMContentLoaded", () => {
+  try { renderRoleNav(); } catch (e) {}
   try { renderKolaseFooter(); } catch (e) {}
   try { refreshNavAvatar(); } catch (e) {}
   // RBAC route guard — workflow box 1 Strict Segregation.
@@ -158,14 +222,16 @@ function cardHTML(c) {
   const cta = open
     ? `<a class="btn btn-ghost btn-sm" href="checkout.html?id=${c.id}">Checkout</a>`
     : `<span class="pill p-pending">COMING SOON</span>`;
+  const trial = open ? `<button class="btn btn-ghost btn-sm" data-trial="${c.id}">🎁 Trial 7 Sesi</button>` : ``;
   return `<div class="card">
     <div class="meta"><span class="pill p-verified">${c.level}</span><span>${c.jadwal}</span>${open ? `` : `<span class="pill p-pending">COMING SOON</span>`}</div>
     <h3>${c.nama}</h3>
     <div class="small">${c.guru} • ${c.kuota} kursi • ${sesi} sesi</div>
     <div style="margin:8px 0"><span class="price">Rp ${Number(c.harga).toLocaleString("id-ID")}</span>${coret}</div>
-    <div style="display:flex;gap:8px;align-items:center">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <a class="btn btn-brand btn-sm" href="class-details.html?id=${c.id}">Lihat Detail</a>
       ${cta}
+      ${trial}
     </div>
   </div>`;
 }

@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="css/style.css?v=5">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
-<body data-guard="student">
+<body data-guard="student,staff,admin,founder,academic,systems,author,owner">
 <header class="topbar"><div class="wrap">
   <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
   <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="teacher-portal.html">Teacher</a><a href="staff-portal.html">Staff</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
@@ -61,21 +61,37 @@
   </div>
 </div>
 
-<script src="js/store.js?v=4"></script><script src="js/app.js?v=4"></script>
+<script src="js/store.js?v=6"></script><script src="js/app.js?v=6"></script>
 <script>
 const db = KolaseStore.loadDB();
 document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "Belum login — buka login.html";
 const myEnr = db.sessionUser ? db.CLASS_MEMBERSHIP.filter(m=>m.student_id===db.sessionUser.id) : [];
 const isVerifiedEnr = (m) => m && m.status === "ACTIVE";
-// Trial 7 sesi: progres + ajakan ulasan bila 7/7
+// Trial 7 sesi: progres → bila 7/7 tanya lanjut/berhenti → lanjut = bayar Kids.
 (function(){
   const mine = db.sessionUser ? db.TRIALS.filter(t=>t.student_id===db.sessionUser.id) : [];
-  const ready = mine.find(t=>KolaseStore.trialProgress(t).complete && !t.reviewed);
+  const complete = mine.filter(t=>KolaseStore.trialProgress(t).complete);
+  const undecided = complete.find(t=>!t.decision);
+  const lanjut = complete.find(t=>t.decision==="lanjut" && !t.reviewed);
   const active = mine.find(t=>!KolaseStore.trialProgress(t).complete);
   const info = document.getElementById("trialInfo"), btns = document.getElementById("trialBtns");
-  if (ready) {
-    info.innerHTML = `Selamat! Trial <span class="id-mono">${ready.trial_id}</span> 7/7 selesai. <span class="pill p-trial">TRIAL_ACTIVE</span>`;
-    btns.innerHTML = `<a class="btn btn-brand btn-sm" href="review-package.html">Tulis Ulasan →</a>`;
+  if (undecided) {
+    info.innerHTML = `Selamat! Trial <span class="id-mono">${undecided.trial_id}</span> 7/7 selesai 🎉 <span class="pill p-verified">COMPLETE</span><br>Lanjut ke <b>Kelas Kids berbayar</b> atau berhenti di sini?`;
+    btns.innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-brand btn-sm" id="trialYes">Ya, Lanjut → Bayar Kids</button><button class="btn btn-ghost btn-sm" id="trialNo">Tidak, Berhenti</button></div>`;
+    document.getElementById("trialYes").onclick = () => {
+      try {
+        const r = KolaseStore.decideTrial(undecided.trial_id, "lanjut", "CLS-PUB-KIDS-01", 50000);
+        location.href = "checkout.html?id=CLS-PUB-KIDS-01&enr=" + encodeURIComponent(r.enrId);
+      } catch(e){ alert(e.message); }
+    };
+    document.getElementById("trialNo").onclick = () => {
+      if (!confirm("Berhenti setelah trial gratis? Trial ditutup permanen.")) return;
+      try { KolaseStore.decideTrial(undecided.trial_id, "berhenti"); location.reload(); }
+      catch(e){ alert(e.message); }
+    };
+  } else if (lanjut) {
+    info.innerHTML = `Pilihan <b>lanjut</b> tersimpan untuk trial <span class="id-mono">${lanjut.trial_id}</span> (<span class="id-mono">${lanjut.enrollment_id || ""}</span>). Selesaikan pembayaran Kelas Kids untuk membuka Meet & materi.`;
+    btns.innerHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn btn-brand btn-sm" href="checkout.html?id=CLS-PUB-KIDS-01${lanjut.enrollment_id ? "&enr=" + encodeURIComponent(lanjut.enrollment_id) : ""}">Selesaikan Pembayaran →</a><a class="btn btn-ghost btn-sm" href="review-package.html">Tulis Ulasan →</a></div>`;
   } else if (active) {
     const p = KolaseStore.trialProgress(active);
     info.innerHTML = `<span class="id-mono">${active.trial_id}</span> • ${active.class_id} • progres <b>${p.doneCount}/7</b> <span class="pill p-trial">TRIAL_ACTIVE</span>`;
@@ -118,6 +134,7 @@ function materiBtn(label, url, demoMsg) {
     : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${demoMsg}');return false">${label}</a>`;
 }
 const lockNote = `<div class="lock-note">🔒 Link terkunci — menunggu pembayaran <b>VERIFIED</b> untuk enrollment ini.</div>`;
+const escHtml = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 fetch("data/classes.json").then(r=>r.json()).then(classes=>{
   const map = Object.fromEntries(classes.map(c=>[c.id, c]));
   document.getElementById("enrollList").innerHTML = myEnr.length ? myEnr.map(m=>{
@@ -125,16 +142,28 @@ fetch("data/classes.json").then(r=>r.json()).then(classes=>{
     const total = db.SESSIONS.filter(s=>s.enrollment_id===m.enrollment_id).length || 4;
     const c = map[m.class_id] || {};
     const open = isVerifiedEnr(m);
+    const isKids = (c.level === "KIDS") || String(m.class_id).indexOf("CLS-PUB-KIDS") === 0;
     const meet = open
       ? (c.meet
         ? `<a class="btn btn-brand btn-sm" href="${c.meet}" target="_blank" rel="noopener">Join Meet</a>`
         : `<a class="btn btn-brand btn-sm" href="#" onclick="alert('Join Google Meet (demo) — isi URL Meet di data/classes.json');return false">Join Meet</a>`)
       : `<span class="pill p-locked">🔒 Butuh VERIFIED</span>`;
     const mats = open ? materiBtn("Materi", c.slides, "File materi dari guru (demo)") : "";
+    // CTA khusus Kelas Kids: GMeet besar + GForm absensi.
+    const kidsCta = (open && isKids)
+      ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${c.meet ? `<a class="btn btn-brand btn-sm" href="${c.meet}" target="_blank" rel="noopener">📹 Join GMeet Kelas Kids</a>` : meet}${c.gform ? `<a class="btn btn-brand btn-sm" href="${c.gform}" target="_blank" rel="noopener">📝 Isi GForm Absensi</a>` : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('GForm absensi & feedback dibagikan via WhatsApp grup kelas');return false">📝 GForm Absensi</a>`}</div>`
+      : "";
+    // Materi yang diupload guru untuk kelas ini.
+    const gm = open ? KolaseStore.materialsFor(m.class_id) : [];
+    const gmHtml = open ? (gm.length
+      ? `<div class="small" style="margin-top:8px"><b>Materi dari guru (${gm.length}):</b></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">` + gm.map(x => x.kind === "link"
+        ? `<a class="btn btn-ghost btn-sm" href="${escHtml(x.url)}" target="_blank" rel="noopener">📄 ${escHtml(x.title)}</a>`
+        : `<a class="btn btn-ghost btn-sm" href="${x.url}" download="${escHtml(x.name || "materi")}">⬇ ${escHtml(x.title)}</a>`).join("") + `</div>`
+      : `<div class="small" style="margin-top:8px">Belum ada materi dari guru.</div>`) : "";
     return `<div class="card"><div class="meta"><span class="id-mono">${m.enrollment_id}</span><span class="pill ${m.status==="ACTIVE"?"p-verified":"p-pending"}">${m.status}</span></div>
     <b>${c.nama || m.class_id}</b><div class="small">Sesi ${done} dari ${total} • sisa ${m.sisa}</div>
     <div class="progress" style="margin:8px 0"><i style="width:${total ? done/total*100 : 0}%"></i></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">${meet}${mats}</div>${open ? "" : lockNote}</div>`;
+    <div style="display:flex;gap:8px;flex-wrap:wrap">${meet}${mats}</div>${kidsCta}${gmHtml}${open ? "" : lockNote}</div>`;
   }).join("") : `<div class="card">Belum ada enrollment. <a href="catalog.html">Ambil kelas →</a></div>`;
 });
 if (myEnr[0]) {

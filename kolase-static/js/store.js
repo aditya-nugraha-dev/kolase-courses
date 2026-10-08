@@ -43,6 +43,8 @@ function seed() {
     SESSION_ATTENDANCE: [],
     TRIALS: [],
     REVIEWS: [],
+    MATERIALS: [],
+    CHAT_THREADS: {},
     CHAT: [
       { from: "them", text: "Halo! Selamat datang di kelas A2. Perkenalkan diri ya.", at: "09:00" }
     ],
@@ -71,6 +73,8 @@ function loadDB() {
     if (!Array.isArray(db.PILOT_OBSERVATIONS)) db.PILOT_OBSERVATIONS = [];
     if (!Array.isArray(db.CLASS_SESSIONS)) db.CLASS_SESSIONS = [];
     if (!Array.isArray(db.SESSION_ATTENDANCE)) db.SESSION_ATTENDANCE = [];
+    if (!Array.isArray(db.MATERIALS)) db.MATERIALS = [];
+    if (!db.CHAT_THREADS || typeof db.CHAT_THREADS !== "object") db.CHAT_THREADS = {};
     return db;
   } catch { return seed(); }
 }
@@ -238,7 +242,7 @@ function verifyPayment(trxId, trialId) {
   let sisa = isPublic ? 4 : 15;
   if (!isPublic) {
   if (trialId) trial = (db.TRIALS || []).find((x) => x.trial_id === trialId && x.status !== "CONVERTED");
-  if (!trial) trial = (db.TRIALS || []).find((x) => x.student_id === pay.student_id && x.class_id === pay.class_id && trialProgress(x).complete && !x.converted);
+  if (!trial) trial = (db.TRIALS || []).find((x) => x.student_id === pay.student_id && x.class_id === pay.class_id && trialProgress(x).complete && !x.converted && x.decision !== "berhenti");
   withTrial = Boolean(trial && trialProgress(trial).complete);
   sisa = withTrial ? 8 : 15;
   }
@@ -390,6 +394,45 @@ function recordTrialAttendance(trialId, seq, hadir) {
   if (t.done) t.status = "COMPLETED";
   saveDB(db);
   return t.done;
+}
+
+/* Keputusan setelah 7/7: "lanjut" = buatkan enrollment Kids (PENDING) lalu ke
+   checkout/pembayaran; "berhenti" = trial DROPPED (tidak dikonversi saat verify). */
+function decideTrial(trialId, decision, classId, nominal) {
+  const db = loadDB();
+  const t = (db.TRIALS || []).find((x) => x.trial_id === trialId);
+  if (!t) throw new Error("Trial tidak ditemukan");
+  const u = db.sessionUser;
+  const PRIV = ["staff", "admin", "owner", "author", "founder", "academic", "systems"];
+  if (!u || (u.role === "student" && u.id !== t.student_id)) throw new Error("Ini bukan trial-mu.");
+  if (!trialProgress(t).complete) throw new Error("Selesaikan 7 sesi dulu.");
+  if (decision === "berhenti") {
+    t.decision = "berhenti";
+    t.status = "DROPPED";
+    saveDB(db);
+    return { stopped: true };
+  }
+  if (decision !== "lanjut") throw new Error("Keputusan tidak dikenal.");
+  t.decision = "lanjut";
+  const cid = classId || t.class_id;
+  let m = (db.CLASS_MEMBERSHIP || []).find((x) => x.student_id === t.student_id && x.class_id === cid && (x.status === "PENDING" || x.status === "ACTIVE"));
+  if (!m) {
+    const isPublic = String(cid || "").startsWith("CLS-PUB-");
+    const cap = isPublic ? 50 : 5;
+    const occupied = (db.CLASS_MEMBERSHIP || []).filter((x) => x.class_id === cid && (x.status === "PENDING" || x.status === "ACTIVE")).length;
+    if (occupied >= cap) throw new Error(`Kelas penuh (${occupied}/${cap})`);
+    const enrId = nextId("ENR", db.CLASS_MEMBERSHIP, "enrollment_id");
+    const trxId = nextTxnId(db.TXN_PAYMENTS);
+    const pay = { trx_id: trxId, enrollment_id: enrId, student_id: t.student_id, class_id: cid, nominal: Number(nominal || 0), method: "QRIS", status: "PENDING", tgl: new Date().toISOString() };
+    m = { enrollment_id: enrId, student_id: t.student_id, class_id: cid, status: "PENDING", sisa: 0, trial_id: t.trial_id, trial_credit_applied: false };
+    db.TXN_PAYMENTS.push(pay);
+    db.CLASS_MEMBERSHIP.push(m);
+    postSheets({ action: "checkout", payment: pay, membership: m });
+  }
+  t.enrollment_id = m.enrollment_id;
+  saveDB(db);
+  const trx = (db.TXN_PAYMENTS || []).filter((x) => x.enrollment_id === m.enrollment_id).pop() || null;
+  return { enrId: m.enrollment_id, trxId: trx ? trx.trx_id : null, status: m.status };
 }
 
 function submitReview(trialId, rating, teks) {
@@ -561,4 +604,133 @@ function postSheets(body) {
 // Sheets real: HANYA via js/sheets-config.js (tidak di-commit, lihat
 // sheets-config.example.js) yang di-inject server-side. Jangan simpan URL
 // endpoint di localStorage / input UI publik.
-window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation };
+
+/* Materi kelas dari guru: link URL atau file kecil (dataURL ≤1,2MB agar
+   muat di localStorage). Dibaca murid sekelas di dashboard. */
+function materialsFor(classId) {
+  const db = loadDB();
+  return (db.MATERIALS || []).filter((m) => m.class_id === classId);
+}
+function addMaterialLink(classId, title, url) {
+  const db = loadDB();
+  const u = db.sessionUser;
+  if (!u) throw new Error("Login dulu.");
+  const t = String(title || "").trim();
+  const link = String(url || "").trim();
+  if (!classId || !t || !link) throw new Error("Kelas, judul, dan link wajib diisi.");
+  const row = { id: nextId("MAT", db.MATERIALS, "id"), class_id: classId, title: t, kind: "link", url: link, name: "", size: 0, by: u.id, at: new Date().toISOString() };
+  db.MATERIALS.unshift(row);
+  saveDB(db);
+  return row;
+}
+function addMaterialFile(classId, title, dataUrl, name, size) {
+  const db = loadDB();
+  const u = db.sessionUser;
+  if (!u) throw new Error("Login dulu.");
+  const t = String(title || "").trim();
+  if (!classId || !t || !dataUrl) throw new Error("Kelas, judul, dan file wajib diisi.");
+  if (String(dataUrl).length > 1400000) throw new Error("File kebesaran untuk browser ini (maks ~900KB). Pakai link Drive sebagai gantinya.");
+  const row = { id: nextId("MAT", db.MATERIALS, "id"), class_id: classId, title: t, kind: "file", url: dataUrl, name: String(name || "materi"), size: Number(size || 0), by: u.id, at: new Date().toISOString() };
+  db.MATERIALS.unshift(row);
+  try { saveDB(db); } catch (e) { throw new Error("Penyimpanan browser penuh. Hapus materi lama dulu."); }
+  return row;
+}
+function deleteMaterial(id) {
+  const db = loadDB();
+  db.MATERIALS = (db.MATERIALS || []).filter((m) => m.id !== id);
+  saveDB(db);
+  return true;
+}
+
+/* Chat per murid: 1 thread per STU-XXXXXX. Murid hanya thread sendiri;
+   teacher/staff memegang semua thread (daftar + balas). */
+function migrateLegacyChat(db) {
+  if (!db.CHAT_THREADS || typeof db.CHAT_THREADS !== "object") db.CHAT_THREADS = {};
+  if (Array.isArray(db.CHAT) && db.CHAT.length) {
+    const u = db.sessionUser;
+    const key = (u && u.role === "student") ? u.id : "ARSIP";
+    const t = db.CHAT_THREADS[key] || { student_id: key, nama: (u && u.nama) || "Arsip", messages: [], updated_at: new Date().toISOString() };
+    db.CHAT.forEach((m) => t.messages.push({ from: m.from === "me" ? "student" : "teacher", text: m.text, at: m.at || "" }));
+    t.updated_at = new Date().toISOString();
+    db.CHAT_THREADS[key] = t;
+    db.CHAT = [];
+  }
+  return db;
+}
+function chatThread(sid) {
+  const db = migrateLegacyChat(loadDB());
+  saveDB(db);
+  return db.CHAT_THREADS[sid] || null;
+}
+function listChatThreads() {
+  const db = migrateLegacyChat(loadDB());
+  saveDB(db);
+  const u = db.sessionUser;
+  const PRIV = ["staff", "admin", "owner", "author", "teacher", "founder", "academic", "systems"];
+  if (!u || (u.role !== "teacher" && PRIV.indexOf(u.role) === -1)) throw new Error("Khusus teacher/staff.");
+  return Object.values(db.CHAT_THREADS).sort((a, b) => String(b.updated_at || "").localeCompare(String(a.updated_at || "")));
+}
+function sendChat(text) {
+  const db = migrateLegacyChat(loadDB());
+  const u = db.sessionUser;
+  if (!u || u.role !== "student") throw new Error("Login sebagai student dulu.");
+  const v = String(text || "").trim();
+  if (!v) throw new Error("Pesan kosong.");
+  if (v.length > 1000) throw new Error("Pesan maks. 1000 karakter.");
+  const t = db.CHAT_THREADS[u.id] || { student_id: u.id, nama: u.nama, messages: [], updated_at: "" };
+  t.student_id = u.id; t.nama = u.nama;
+  t.messages.push({ from: "student", text: v, at: new Date().toTimeString().slice(0, 5) });
+  if (t.messages.length > 500) t.messages = t.messages.slice(-500);
+  t.updated_at = new Date().toISOString();
+  db.CHAT_THREADS[u.id] = t;
+  saveDB(db);
+  return true;
+}
+function teacherSendChat(sid, text, asStaff) {
+  const db = migrateLegacyChat(loadDB());
+  const u = db.sessionUser;
+  const PRIV = ["staff", "admin", "owner", "author", "teacher", "founder", "academic", "systems"];
+  if (!u || (u.role !== "teacher" && PRIV.indexOf(u.role) === -1)) throw new Error("Khusus teacher/staff.");
+  const v = String(text || "").trim();
+  if (!sid || !v) throw new Error("Tujuan dan pesan wajib diisi.");
+  if (v.length > 1000) throw new Error("Pesan maks. 1000 karakter.");
+  const t = db.CHAT_THREADS[sid] || { student_id: sid, nama: sid, messages: [], updated_at: "" };
+  t.messages.push({ from: asStaff ? "staff" : "teacher", text: v, at: new Date().toTimeString().slice(0, 5) });
+  if (t.messages.length > 500) t.messages = t.messages.slice(-500);
+  t.updated_at = new Date().toISOString();
+  db.CHAT_THREADS[sid] = t;
+  saveDB(db);
+  return true;
+}
+
+/* Database staff: hapus teacher / student beserta seluruh data terkait. */
+function deleteTeacher(teacherId) {
+  const db = loadDB();
+  const before = (db.MST_TEACHERS || []).length;
+  db.MST_TEACHERS = (db.MST_TEACHERS || []).filter((r) => r.teacher_id !== teacherId);
+  if (db.MST_TEACHERS.length === before) throw new Error("Teacher tidak ditemukan.");
+  saveDB(db);
+  return true;
+}
+function deleteStudent(studentId) {
+  const db = loadDB();
+  if (!(db.MST_STUDENTS || []).some((r) => r.student_id === studentId)) throw new Error("Student tidak ditemukan.");
+  const enrs = new Set((db.CLASS_MEMBERSHIP || []).filter((m) => m.student_id === studentId).map((m) => m.enrollment_id));
+  db.MST_STUDENTS = db.MST_STUDENTS.filter((r) => r.student_id !== studentId);
+  db.CLASS_MEMBERSHIP = (db.CLASS_MEMBERSHIP || []).filter((m) => m.student_id !== studentId);
+  db.TXN_PAYMENTS = (db.TXN_PAYMENTS || []).filter((t) => t.student_id !== studentId);
+  db.TXN_ENTITLEMENT_LEDGER = (db.TXN_ENTITLEMENT_LEDGER || []).filter((l) => !enrs.has(l.enrollment_id));
+  db.SESSIONS = (db.SESSIONS || []).filter((s) => !enrs.has(s.enrollment_id));
+  db.SESSION_ATTENDANCE = (db.SESSION_ATTENDANCE || []).filter((a) => a.student_id !== studentId);
+  db.TRIALS = (db.TRIALS || []).filter((t) => t.student_id !== studentId);
+  db.PILOT_REGISTRATIONS = (db.PILOT_REGISTRATIONS || []).filter((p) => (p.student_id || p.pilot_student_id) !== studentId);
+  db.PILOT_PLACEMENTS = (db.PILOT_PLACEMENTS || []).filter((p) => (p.student_id || p.pilot_student_id) !== studentId);
+  db.PILOT_POSTCLASS = (db.PILOT_POSTCLASS || []).filter((p) => (p.student_id || p.pilot_student_id) !== studentId);
+  db.PILOT_OBSERVATIONS = (db.PILOT_OBSERVATIONS || []).filter((o) => (o.student_id || o.pilot_student_id) !== studentId);
+  db.REVIEWS = (db.REVIEWS || []).filter((r) => r.student_id !== studentId);
+  if (db.CHAT_THREADS && db.CHAT_THREADS[studentId]) delete db.CHAT_THREADS[studentId];
+  if (db.sessionUser && db.sessionUser.id === studentId) db.sessionUser = null;
+  saveDB(db);
+  return true;
+}
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent };
