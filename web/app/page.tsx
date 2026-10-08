@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Hero from "./components/landing/Hero";
+import TrialGratis from "./components/landing/TrialGratis";
 import ValueProps from "./components/landing/ValueProps";
 import ProgramDetails from "./components/landing/ProgramDetails";
 import Curriculum from "./components/landing/Curriculum";
@@ -34,6 +35,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-ivory font-sans text-ink">
       <main className="flex-1">
         <Hero />
+        <TrialGratis />
         <ValueProps />
         <ProgramDetails />
         <Curriculum />
