@@ -7,7 +7,9 @@ export const CSRF_COOKIE = "kolase_csrf";
 export type SessionRole = "student" | "admin" | "teacher" | "founder" | "academic" | "systems";
 
 // Leadership (founder/academic/systems) = admin penuh.
+// Staff = admin + leadership: pegang penuh semua fitur + database pengguna.
 export const ADMIN_ROLES: SessionRole[] = ["admin", "teacher", "founder", "academic", "systems"];
+export const STAFF_ROLES: SessionRole[] = ["admin", "founder", "academic", "systems"];
 export const STUDENT_AREA_ROLES: SessionRole[] = ["student", "admin", "teacher", "founder", "academic", "systems"];
 export const APPROVER_ROLES: SessionRole[] = ["admin", "founder", "academic", "systems"];
 const ALL_ROLES: SessionRole[] = ["student", "admin", "teacher", "founder", "academic", "systems"];

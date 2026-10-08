@@ -2,9 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Gift, LogOut } from "lucide-react";
 
-// Tombol hamburger khusus HP (lg:hidden). Nav desktop tetap lg:flex.
-export default function MobileMenu() {
+// Tombol hamburger khusus HP (lg:hidden). Link mengikuti peran dari Header.
+export default function MobileMenu({
+  links,
+  showTrialCta,
+  loggedIn,
+  onLogout,
+}: {
+  links: Array<{ href: string; label: string }>;
+  showTrialCta: boolean;
+  loggedIn: boolean;
+  onLogout: () => void;
+}) {
   const [open, setOpen] = useState(false);
 
   const linkCls =
@@ -37,70 +48,31 @@ export default function MobileMenu() {
           id="mobile-menu"
           className="absolute inset-x-4 top-16 rounded-xl border border-navy-deep bg-navy p-2 shadow-xl"
         >
-          <Link href="/" className={linkCls} onClick={() => setOpen(false)}>
-            Beranda
-          </Link>
-          <Link href="/tentang" className={linkCls} onClick={() => setOpen(false)}>
-            Tentang & Visi Misi
-          </Link>
-          <Link href="/#keunggulan" className={linkCls} onClick={() => setOpen(false)}>
-            Kenapa KOLASE
-          </Link>
-          <Link href="/#program" className={linkCls} onClick={() => setOpen(false)}>
-            Program
-          </Link>
-          <Link href="/#kurikulum" className={linkCls} onClick={() => setOpen(false)}>
-            Kurikulum & Jadwal
-          </Link>
-          <Link href="/program/little-speakers" className={linkCls} onClick={() => setOpen(false)}>
-            Little Speakers
-          </Link>
-          <Link href="/bayar" className={linkCls} onClick={() => setOpen(false)}>
-            Konfirmasi Bayar
-          </Link>
-          <Link href="/guru" className={linkCls} onClick={() => setOpen(false)}>
-            Guru
-          </Link>
-          <Link href="/orang-tua" className={linkCls} onClick={() => setOpen(false)}>
-            Orang Tua
-          </Link>
-          <Link href="/konten" className={linkCls} onClick={() => setOpen(false)}>
-            Konten
-          </Link>
-          <Link href="/foto" className={linkCls} onClick={() => setOpen(false)}>
-            Foto per ID
-          </Link>
-          <Link href="/sertifikat" className={linkCls} onClick={() => setOpen(false)}>
-            Sertifikat
-          </Link>
-          <Link href="/bantuan" className={linkCls} onClick={() => setOpen(false)}>
-            Bantuan
-          </Link>
-          <Link href="/daftar" className={linkCls} onClick={() => setOpen(false)}>
-            Daftar / Placement Check
-          </Link>
-          <Link href="/student" className={linkCls} onClick={() => setOpen(false)}>
-            Portal Murid
-          </Link>
-          <Link href="/admin" className={linkCls} onClick={() => setOpen(false)}>
-            Guru/Admin
-          </Link>
-          <Link href="/masuk" className={linkCls} onClick={() => setOpen(false)}>
-            Masuk
-          </Link>
-          <Link href="/dashboard" className={linkCls} onClick={() => setOpen(false)}>
-            Dashboard
-          </Link>
-          <Link href="/core" className={linkCls} onClick={() => setOpen(false)}>
-            Core
-          </Link>
-          <Link
-            href="/daftar"
-            onClick={() => setOpen(false)}
-            className="mt-1 block rounded-lg bg-sand px-3 py-3 text-center text-base font-bold text-ink"
-          >
-            Daftar Pilot Class
-          </Link>
+          {links.map((l) => (
+            <Link key={l.href + l.label} href={l.href} className={linkCls} onClick={() => setOpen(false)}>
+              {l.label}
+            </Link>
+          ))}
+          {showTrialCta && (
+            <Link
+              href="/daftar"
+              onClick={() => setOpen(false)}
+              className="mt-1 flex items-center justify-center gap-1.5 rounded-lg bg-sand px-3 py-3 text-center text-base font-bold text-ink"
+            >
+              <Gift size={17} /> Trial 7 Sesi Gratis
+            </Link>
+          )}
+          {loggedIn && (
+            <button
+              onClick={() => {
+                setOpen(false);
+                onLogout();
+              }}
+              className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border border-ivory/30 px-3 py-3 text-center text-base font-semibold text-ivory"
+            >
+              <LogOut size={17} /> Keluar
+            </button>
+          )}
         </nav>
       )}
     </div>

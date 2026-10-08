@@ -39,11 +39,21 @@ export function proxy(request: NextRequest) {
 
   // RBAC kasar (verifikasi HMAC penuh di server):
   // /student/* -> student + admin penuh ; /admin|guru/* -> admin penuh
+  // /chat|/profil/* -> semua peran yang login.
   if (pathname.startsWith("/student")) {
     if (!session || !STUDENT_AREA_ROLES_EDGE.includes(parsed.role ?? "")) {
       const url = new URL("/masuk", request.url);
       url.searchParams.set("next", pathname);
       url.searchParams.set("need", "student");
+      const res = NextResponse.redirect(url);
+      return applySecurityHeaders(res);
+    }
+  }
+  if (pathname.startsWith("/chat") || pathname.startsWith("/profil")) {
+    if (!session || !parsed.role) {
+      const url = new URL("/masuk", request.url);
+      url.searchParams.set("next", pathname);
+      url.searchParams.set("need", "login");
       const res = NextResponse.redirect(url);
       return applySecurityHeaders(res);
     }
@@ -67,6 +77,8 @@ export const config = {
     "/student/:path*",
     "/admin/:path*",
     "/guru/:path*",
+    "/chat/:path*",
+    "/profil/:path*",
     "/daftar",
     "/masuk",
     "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|ico|css|js|woff2?)$).*)",

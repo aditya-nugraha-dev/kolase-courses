@@ -29,7 +29,7 @@ const ROLES: Array<{ id: Role; title: string; desc: string; idInfo: string; icon
   { id: "systems", title: "Systems", desc: "Head of Systems & Technology", idInfo: "ID ACT-XXXXXX otomatis", icon: Cpu },
 ];
 
-const DEFAULT_DEST: Record<Role, string> = { student: "/student", teacher: "/admin", founder: "/admin", academic: "/admin", systems: "/admin" };
+const DEFAULT_DEST: Record<Role, string> = { student: "/student", teacher: "/guru", founder: "/admin", academic: "/admin", systems: "/admin" };
 const AUTH_PATH: Record<Role, string> = {
   student: "/api/auth/student",
   teacher: "/api/auth/teacher",

@@ -168,3 +168,15 @@ export const trialDecisionServerSchema = z.object({
 export const materialDeleteServerSchema = z.object({
   id: z.coerce.number().int().positive(),
 });
+
+// Chat murid ↔ teacher/staff (1 thread per STU-XXXXXX).
+export const chatSendServerSchema = z.object({
+  student_id: z.string().trim().regex(/^STU-\d{6}$/, "Format STU-XXXXXX").optional().default(""),
+  text: z.string().trim().min(1).max(1000),
+});
+
+// Database staff: hapus data murid / guru.
+export const userDeleteServerSchema = z.object({
+  type: z.enum(["student", "teacher"]),
+  id: z.string().trim().min(3).max(64),
+});

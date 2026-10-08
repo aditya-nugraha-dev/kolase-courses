@@ -36,6 +36,9 @@ yarn-error.log*
 # uploaded photos per ID (local dev storage, jangan commit)
 public/uploads/
 
+# chat runtime storage (jangan commit)
+data/
+
 # vercel
 .vercel
 
