@@ -20,9 +20,61 @@ export async function GET() {
         const sb = supabaseServer();
         const { data: stu } = await sb.from("mst_students").select("*").eq("student_id", lookupId).single();
         if (stu) {
-          const classId = (stu as Record<string, unknown>).class_id ?? "CLS-000001";
-          const { data: cls } = await sb.from("classes").select("*").eq("id", String(classId)).limit(1).maybeSingle();
-          return NextResponse.json({ ok: true, source: "db", student: stu, class: cls ?? null });
+          const s = stu as Record<string, unknown>;
+          // Kelas via membership terbaru (ACTIVE/PENDING), fallback kolom lama.
+          let membership: Record<string, unknown> | null = null;
+          try {
+            const { data: mem } = await sb
+              .from("class_membership")
+              .select("enrollment_id,class_id,status,sisa,activated_at,expires_at")
+              .eq("student_id", lookupId)
+              .in("status", ["ACTIVE", "PENDING"])
+              .order("activated_at", { ascending: false, nullsFirst: false })
+              .limit(1)
+              .maybeSingle();
+            if (mem) membership = mem as Record<string, unknown>;
+          } catch { /* tanpa membership = belum checkout */ }
+          const classId =
+            String(membership?.class_id ?? s.class_id ?? s.pilot_class_id ?? "CLS-000001");
+          const { data: cls } = await sb.from("classes").select("*").eq("id", classId).limit(1).maybeSingle();
+          const activeClass = cls ?? null;
+
+          // Sesi mendatang (kanonikal class_sessions) untuk kalender + Upcoming.
+          let sessions: Record<string, unknown>[] = [];
+          try {
+            const { data: ses } = await sb
+              .from("class_sessions")
+              .select("session_id,seq,tanggal,status")
+              .eq("class_id", classId)
+              .order("seq", { ascending: true })
+              .limit(12);
+            sessions = (ses ?? []) as Record<string, unknown>[];
+          } catch { /* abaikan */ }
+
+          // Tugas turunan: placement / post-class / observasi sudah ada atau belum.
+          const tasks = { placement: false, postclass: false, observed: false };
+          try {
+            const { count: c1 } = await sb.from("pilot_placements").select("id", { count: "exact", head: true }).eq("student_id", lookupId);
+            tasks.placement = (c1 ?? 0) > 0;
+          } catch { /* abaikan */ }
+          try {
+            const { count: c2 } = await sb.from("pilot_postclass").select("id", { count: "exact", head: true }).eq("student_id", lookupId);
+            tasks.postclass = (c2 ?? 0) > 0;
+          } catch { /* abaikan */ }
+          try {
+            const { count: c3 } = await sb.from("pilot_observations").select("observation_id", { count: "exact", head: true }).eq("student_id", lookupId);
+            tasks.observed = (c3 ?? 0) > 0;
+          } catch { /* abaikan */ }
+
+          return NextResponse.json({
+            ok: true,
+            source: "db",
+            student: stu,
+            class: activeClass,
+            membership,
+            sessions,
+            tasks,
+          });
         }
       } catch (e) {
         logServerError("student-me-db", e);
