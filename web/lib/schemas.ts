@@ -115,3 +115,33 @@ export const rescheduleServerSchema = z.object({
   baru: z.string().trim().min(3).max(120),
   alasan: z.string().trim().max(200).optional().default(""),
 });
+
+// Kelas — CRUD dashboard (mirror tabel classes + kolom pilot hybrid).
+// Step 1 list, Step 2 tambah, Step 3 edit/detail, Step 4 hapus.
+export const classCreateServerSchema = z.object({
+  id: z.string().trim().regex(/^CLS-[A-Za-z0-9-]{1,24}$/, "Format CLS-XXXXXX").optional().default(""),
+  nama: z.string().trim().min(3).max(160),
+  level: z.enum(["A1", "A2", "B1", "PUB", "KIDS", "TEEN"]),
+  kategori: z.enum(["PUBLIC", "CORE"]).optional().default("PUBLIC"),
+  jadwal: z.string().trim().min(3).max(200),
+  guru: z.string().trim().min(2).max(100),
+  harga: z.coerce.number().int().min(0).max(100000000),
+  harga_coret: z.coerce.number().int().min(0).max(100000000).optional().default(0),
+  kuota: z.coerce.number().int().min(1).max(50),
+  min_students: z.coerce.number().int().min(1).max(5).optional().default(3),
+  sesi_count: z.coerce.number().int().min(1).max(45).optional().default(4),
+  class_status: z.enum(["DRAFT", "OPEN", "FULL", "COMING_SOON", "CLOSED"]).optional().default("DRAFT"),
+  deskripsi: z.string().trim().max(2000).optional().default(""),
+  meet_link: z.string().trim().max(500).optional().default(""),
+  teacher_name: z.string().trim().max(100).optional().default(""),
+  learning_objective: z.string().trim().max(2000).optional().default(""),
+  pilot_class_id: z.string().trim().max(32).optional().default(""),
+});
+
+export const classUpdateServerSchema = classCreateServerSchema.partial().extend({
+  id: z.string().trim().min(3).max(32),
+});
+
+export const classDeleteServerSchema = z.object({
+  id: z.string().trim().min(3).max(32),
+});
