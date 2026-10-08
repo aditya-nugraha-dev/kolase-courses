@@ -145,3 +145,26 @@ export const classUpdateServerSchema = classCreateServerSchema.partial().extend(
 export const classDeleteServerSchema = z.object({
   id: z.string().trim().min(3).max(32),
 });
+
+// Trial 7 sesi gratis: mulai → progres per sesi → keputusan lanjut/berhenti.
+// Lanjut = buatkan checkout kelas Kids (ENR + TXN PENDING) lalu ke /bayar.
+export const trialCreateServerSchema = z.object({
+  student_id: z.string().trim().regex(/^STU-\d{6}$/, "Format STU-XXXXXX").optional().default(""),
+  class_id: z.string().trim().min(3).max(32).optional().default(""),
+});
+
+export const trialProgressServerSchema = z.object({
+  trial_id: z.string().trim().regex(/^TRL-\d{6}$/, "Format TRL-XXXXXX"),
+  sessions_delivered: z.coerce.number().int().min(0).max(7),
+});
+
+export const trialDecisionServerSchema = z.object({
+  trial_id: z.string().trim().regex(/^TRL-\d{6}$/, "Format TRL-XXXXXX"),
+  action: z.enum(["lanjut", "berhenti"]),
+  method: z.enum(["QRIS", "Transfer Bank", "E-Wallet"]).optional().default("QRIS"),
+});
+
+// Materi kelas (diupload guru, dibaca murid sekelasnya).
+export const materialDeleteServerSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});

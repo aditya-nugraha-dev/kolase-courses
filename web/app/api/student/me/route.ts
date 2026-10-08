@@ -34,8 +34,21 @@ export async function GET() {
               .maybeSingle();
             if (mem) membership = mem as Record<string, unknown>;
           } catch { /* tanpa membership = belum checkout */ }
+          // Trial 7 sesi gratis terbaru (untuk banner progres + prompt lanjut).
+          let trial: Record<string, unknown> | null = null;
+          try {
+            const { data: tr } = await sb
+              .from("trials")
+              .select("trial_id,class_id,status,sessions_delivered,created_at,completed_at")
+              .eq("student_id", lookupId)
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            if (tr) trial = tr as Record<string, unknown>;
+          } catch { /* abaikan */ }
+
           const classId =
-            String(membership?.class_id ?? s.class_id ?? s.pilot_class_id ?? "CLS-000001");
+            String(membership?.class_id ?? trial?.class_id ?? s.class_id ?? s.pilot_class_id ?? "CLS-000001");
           const { data: cls } = await sb.from("classes").select("*").eq("id", classId).limit(1).maybeSingle();
           const activeClass = cls ?? null;
 
@@ -74,6 +87,7 @@ export async function GET() {
             membership,
             sessions,
             tasks,
+            trial,
           });
         }
       } catch (e) {

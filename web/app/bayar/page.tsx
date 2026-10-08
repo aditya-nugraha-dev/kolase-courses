@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Badge, Button, Card, Field, Input, Select, Toast } from "../components/ui";
 
@@ -18,7 +19,29 @@ async function getCsrf(): Promise<string> {
 }
 
 export default function BayarPage() {
-  const [form, setForm] = useState({ nama: "", studentId: "", program: PROGRAMS[1], method: "QRIS", tanggal: "", nominal: "", buktiUrl: "" });
+  return (
+    <Suspense fallback={<p className="px-4 py-8 text-center text-sm text-ink/60">Memuat form pembayaran…</p>}>
+      <BayarForm />
+    </Suspense>
+  );
+}
+
+function BayarForm() {
+  const params = useSearchParams();
+  // Prefill dari alur trial-lanjut: ?studentId=&program=&nominal=&method=
+  const [form, setForm] = useState(() => {
+    const prog = (params.get("program") ?? "").trim();
+    const meth = (params.get("method") ?? "").trim();
+    return {
+      nama: "",
+      studentId: (params.get("studentId") ?? "").trim(),
+      program: PROGRAMS.includes(prog) ? prog : PROGRAMS[1],
+      method: METHODS.includes(meth) ? meth : "QRIS",
+      tanggal: "",
+      nominal: (params.get("nominal") ?? "").replace(/[^0-9]/g, ""),
+      buktiUrl: "",
+    };
+  });
   const [done, setDone] = useState(false);
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState("");

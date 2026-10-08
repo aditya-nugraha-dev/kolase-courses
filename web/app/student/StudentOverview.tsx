@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   BookOpen,
@@ -12,18 +13,27 @@ import {
   CircleCheck,
   ClipboardList,
   FileText,
+  Gift,
   Search,
   TrendingUp,
   Video,
 } from "lucide-react";
+import { Button, Modal, Toast } from "../components/ui";
 
 // Portal murid ala referensi: Kelas Saya + Tugas Hari Ini + kalender + Upcoming.
-// Data live dari /api/student/me (student, class, membership, sessions, tasks).
+// Data live dari /api/student/me (student, class, membership, sessions, tasks, trial).
 interface SessionRow {
   session_id: string;
   seq: number;
   tanggal: string;
   status: string;
+}
+
+interface TrialRow {
+  trial_id: string;
+  class_id: string;
+  status: string;
+  sessions_delivered: number;
 }
 
 interface MeData {
@@ -34,6 +44,7 @@ interface MeData {
   membership?: Record<string, unknown> | null;
   sessions?: SessionRow[];
   tasks?: { placement: boolean; postclass: boolean; observed: boolean };
+  trial?: TrialRow | null;
 }
 
 const getStr = (o: Record<string, unknown>, ...keys: string[]): string => {
@@ -116,6 +127,80 @@ export default function StudentOverview() {
   const hasPlacement = flags.placement || placement > 0;
   const hasPre = pre > 0;
   const hasPost = flags.postclass || post != null;
+
+  // Trial 7 sesi gratis → prompt lanjut/berhenti setelah sesi 7.
+  const router = useRouter();
+  const trial = data?.trial ?? null;
+  const trialDone = Number(trial?.sessions_delivered ?? 0);
+  const [showDecision, setShowDecision] = useState(false);
+  const [deciding, setDeciding] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [toast, setToast] = useState("");
+  const [toastTone, setToastTone] = useState<"dark" | "green" | "red">("dark");
+  const show = (m: string, t: "dark" | "green" | "red" = "dark") => {
+    setToast(m);
+    setToastTone(t);
+    window.setTimeout(() => setToast(""), 3500);
+  };
+  const reloadMe = async () => {
+    try {
+      const r = await fetch("/api/student/me");
+      const j = await r.json();
+      if (j.ok) setData(j as MeData);
+    } catch { /* abaikan */ }
+  };
+  const startTrial = async () => {
+    setStarting(true);
+    try {
+      const r = await fetch("/api/trial", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+      const j = await r.json();
+      if (j.ok) {
+        show(j.existing ? "Trial aktif ditemukan — lanjutkan sesimu." : `Trial dimulai (${j.trial_id}). Selamat belajar!`, "green");
+        await reloadMe();
+      } else {
+        show("Gagal memulai trial.", "red");
+      }
+    } catch {
+      show("Jaringan gagal.", "red");
+    } finally {
+      setStarting(false);
+    }
+  };
+  const decide = async (action: "lanjut" | "berhenti") => {
+    if (!trial) return;
+    setDeciding(true);
+    try {
+      const r = await fetch("/api/trial", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trial_id: trial.trial_id, action, method: "QRIS" }),
+      });
+      const j = await r.json();
+      if (!j.ok) {
+        show(typeof j.error === "string" ? j.error : "Gagal menyimpan keputusan.", "red");
+        return;
+      }
+      if (action === "berhenti") {
+        show("Trial ditutup. Terima kasih sudah mencoba!", "dark");
+        setShowDecision(false);
+        await reloadMe();
+        return;
+      }
+      if (j.already === "active") {
+        show("Kamu sudah aktif di Kelas Kids — membuka kelas…", "green");
+        router.push("/student/kelas");
+        return;
+      }
+      const sidQ = encodeURIComponent(sid);
+      const progQ = encodeURIComponent(String(j.program ?? "Little Speakers (Kids)"));
+      const nomQ = encodeURIComponent(String(j.nominal ?? 50000));
+      router.push(`/bayar?studentId=${sidQ}&program=${progQ}&nominal=${nomQ}&method=QRIS`);
+    } catch {
+      show("Jaringan gagal.", "red");
+    } finally {
+      setDeciding(false);
+    }
+  };
 
   const tasks = useMemo(
     () => [
@@ -265,6 +350,72 @@ export default function StudentOverview() {
           {name.split(" ")[0]} <ChevronDown size={14} />
         </span>
       </div>
+
+      {/* Banner trial 7 sesi gratis */}
+      {(!trial || trial.status === "STARTED") && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-sand/40 bg-sand-soft p-4 sm:flex-row sm:items-center">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-sand-deep">
+            <Gift size={20} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-extrabold text-ink">
+              {trial ? `Trial gratis: sesi ${trialDone} dari 7 ${trial.trial_id ? `• ${trial.trial_id}` : ""}` : "Belum ikut trial? Coba 7 sesi gratis dulu."}
+            </p>
+            {trial ? (
+              <>
+                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/70">
+                  <div className="h-full rounded-full bg-sand-deep" style={{ width: `${Math.round((trialDone / 7) * 100)}%` }} />
+                </div>
+                <p className="mt-1 text-[11px] text-ink/60">6 sesi belajar + Sesi 7 Progress Test. Selesai 7/7 → pilih lanjut ke Kelas Kids atau berhenti.</p>
+              </>
+            ) : (
+              <p className="mt-1 text-[11px] text-ink/60">6 sesi belajar + 1 Progress Test, Rp 0. Guru menandai tiap sesi selesai.</p>
+            )}
+          </div>
+          {!trial ? (
+            <Button onClick={() => void startTrial()} disabled={starting} className="shrink-0">
+              {starting ? "Memulai…" : "Mulai Trial Gratis"}
+            </Button>
+          ) : trial.status === "STARTED" && trialDone >= 7 ? (
+            <Button onClick={() => setShowDecision(true)} className="shrink-0">
+              Lihat Hasil Trial
+            </Button>
+          ) : (
+            <Link href="/student/kelas" className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-xl bg-ink px-5 py-3 text-sm font-bold text-ivory hover:bg-navy">
+              Buka Kelasku
+            </Link>
+          )}
+        </div>
+      )}
+      {trial?.status === "COMPLETED" && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 sm:flex-row sm:items-center">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-600">
+            <Gift size={20} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-extrabold text-ink">Selamat! 7 sesi gratis selesai 🎉</p>
+            <p className="mt-1 text-[11px] text-ink/60">Mau lanjut ke Kelas Kids berbayar atau berhenti di sini?</p>
+          </div>
+          <Button onClick={() => setShowDecision(true)} className="shrink-0">
+            Pilih: Lanjut / Berhenti
+          </Button>
+        </div>
+      )}
+
+      <Modal open={showDecision} onClose={() => setShowDecision(false)} title="Lanjut ke Kelas Kids?">
+        <p className="text-sm leading-relaxed text-ink/70">
+          Trial 7 sesi (<b>{trial?.trial_id}</b>) selesai. Kalau lanjut, sistem buatkan tagihan Kelas Kids
+          (<b>Little Speakers</b>) dan kamu diarahkan ke halaman pembayaran. Kalau berhenti, trial ditutup.
+        </p>
+        <div className="mt-4 grid gap-2">
+          <Button onClick={() => void decide("lanjut")} disabled={deciding}>
+            {deciding ? "Memproses…" : "Ya, Lanjut → Bayar Kelas Kids"}
+          </Button>
+          <Button variant="secondary" onClick={() => void decide("berhenti")} disabled={deciding}>
+            Tidak, Berhenti
+          </Button>
+        </div>
+      </Modal>
 
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         {/* Kolom utama */}
@@ -468,6 +619,7 @@ export default function StudentOverview() {
           </Link>
         </div>
       </div>
+      <Toast message={toast} tone={toastTone} />
     </div>
   );
 }
