@@ -35,8 +35,8 @@ function nextTxnId(list) {
    • ACT-000003 Head of Systems & Technology. */
 const FULL_POWER_IDS = ["ACT-000001", "ACT-000002", "ACT-000003"];
 const FULL_POWER_SEED = [
-  { staff_id: "ACT-000001", nama: "Ahrenz Galang", email: "", wa: "", role: "founder", password: "" },
-  { staff_id: "ACT-000002", nama: "Hilal Ibrahim", email: "", wa: "", role: "academic", password: "" },
+  { staff_id: "ACT-000001", nama: "Galang Maharsi", email: "", wa: "", role: "founder", password: "" },
+  { staff_id: "ACT-000002", nama: "Hilal Badruz", email: "", wa: "", role: "academic", password: "" },
   { staff_id: "ACT-000003", nama: "Aditya Nugraha", email: "", wa: "", role: "systems", password: "" },
 ];
 function seed() {
