@@ -42,15 +42,15 @@
       <p class="small">Hanya keluar dari akun — data pendaftaran, transaksi & sesi tetap tersimpan di browser ini.</p>
     </div></div>
     <div class="section" id="dangerZone" style="display:none"><h2>Zona Berbahaya</h2><button class="btn btn-ghost btn-sm" id="logout">Hapus Semua Data Demo</button>
-    <p class="small">Menghapus seluruh data pendaftaran, transaksi, sesi, dan antrean Sheets di browser ini (localStorage), lalu kembali ke akun demo awal. Khusus Founder & Head of Systems.</p></div>
+    <p class="small">Menghapus seluruh data pendaftaran, transaksi, sesi, dan antrean Sheets di browser ini (localStorage), lalu kembali ke akun demo awal. Khusus 3 ID penuh (ACT-000001/002/003).</p></div>
   </div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html" class="active">Profil</a></nav>
-<script src="js/store.js?v=6"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=6"></script>
+<script src="js/store.js?v=7"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=7"></script>
 <script>
 const db = KolaseStore.loadDB();
-// Zona Berbahaya HANYA untuk Founder & Business Lead + Head of Systems & Technology.
-var DANGER_ROLES = ["founder", "systems"];
+// Zona Berbahaya HANYA untuk 3 ID penuh: Founder, Academic, Systems.
+var DANGER_ROLES = ["founder", "academic", "systems"];
 var canDanger = !!(db.sessionUser && DANGER_ROLES.indexOf(db.sessionUser.role) !== -1);
 if (canDanger) document.getElementById("dangerZone").style.display = "";
 function masterRow(u) {

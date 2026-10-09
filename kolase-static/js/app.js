@@ -145,10 +145,25 @@ document.addEventListener("click", function (e) {
   e.preventDefault();
   handleTrialCta(b.getAttribute("data-trial"));
 });
+/* Penanda link aktif (satu-satunya hal yang boleh beda antar halaman). */
+function markActiveNav() {
+  var path = (location.pathname.split("/").pop() || "home.html").split("?")[0];
+  document.querySelectorAll("[data-nav] a").forEach(function (a) {
+    if (a.getAttribute("href") === path) a.classList.add("active");
+  });
+  document.querySelectorAll(".mobile-tabs a").forEach(function (a) {
+    var h = (a.getAttribute("href") || "").split("?")[0];
+    if (h === path) a.classList.add("active");
+  });
+}
+/* Header STAY: render sinkron saat script dibaca (akhir body, DOM sudah ada),
+   BUKAN menunggu DOMContentLoaded — jadi navbar tidak berubah-ubah/flash
+   tiap pindah page. Yang bergerak hanya penanda aktif (markActiveNav). */
+try { renderRoleNav(); } catch (e) {}
+try { refreshNavAvatar(); } catch (e) {}
+try { markActiveNav(); } catch (e) {}
 document.addEventListener("DOMContentLoaded", () => {
-  try { renderRoleNav(); } catch (e) {}
   try { renderKolaseFooter(); } catch (e) {}
-  try { refreshNavAvatar(); } catch (e) {}
   // RBAC route guard — workflow box 1 Strict Segregation.
   // Halaman yang dijaga memakai <body data-guard="student,teacher"> dst.
   const need = (document.body.getAttribute("data-guard") || "").split(",").map((s) => s.trim()).filter(Boolean);
@@ -201,12 +216,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-
-  // active nav
-  const path = location.pathname.split("/").pop() || "home.html";
-  document.querySelectorAll("[data-nav] a").forEach((a) => {
-    if (a.getAttribute("href") === path) a.classList.add("active");
-  });
 
   // copy buttons
   document.querySelectorAll("[data-copy]").forEach((btn) => {

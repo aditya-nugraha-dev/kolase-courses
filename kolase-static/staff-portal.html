@@ -53,7 +53,7 @@
   </div>
 </main>
 <nav class="mobile-tabs"><a href="home.html">Home</a><a href="staff-portal.html" class="active">Portal</a><a href="profile.html">Profil</a></nav>
-<script src="js/store.js?v=6"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=6"></script>
+<script src="js/store.js?v=7"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=7"></script>
 <script>
 const db = KolaseStore.loadDB();
 document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "";
@@ -68,8 +68,10 @@ document.getElementById("pendingList").innerHTML = pend.length ? pend.map(t=>
   <div style="margin-top:8px"><button class="btn btn-brand btn-sm" data-ver="${t.trx_id}">Verifikasi (+4 sesi)</button></div></div>`
 ).join("") : `<div class="card small">Tidak ada pembayaran pending. Uji via checkout.html sebagai student.</div>`;
 document.querySelectorAll("[data-ver]").forEach(b=>b.onclick=()=>{
-  KolaseStore.verifyPayment(b.getAttribute("data-ver"));
-  alert("VERIFIED: 4 sesi + ledger +4 dibuat, tersinkron ke Sheets."); location.reload();
+  try {
+    KolaseStore.verifyPayment(b.getAttribute("data-ver"));
+    alert("VERIFIED: 4 sesi + ledger +4 dibuat, tersinkron ke Sheets."); location.reload();
+  } catch(e){ alert(e.message); }
 });
 document.getElementById("payT").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td class="small">${t.method}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
 document.getElementById("ledT").innerHTML = db.TXN_ENTITLEMENT_LEDGER.slice(-10).reverse().map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;

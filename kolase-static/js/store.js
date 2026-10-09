@@ -30,11 +30,20 @@ function nextTxnId(list) {
   return `${prefix}${String(max + 1).padStart(4, "0")}`;
 }
 
+/* Hak penuh website HANYA 3 ID ini (tidak bisa didaftarkan, hanya login):
+   ACT-000001 Founder & Business Lead • ACT-000002 Co-Founder & Academic Lead
+   • ACT-000003 Head of Systems & Technology. */
+const FULL_POWER_IDS = ["ACT-000001", "ACT-000002", "ACT-000003"];
+const FULL_POWER_SEED = [
+  { staff_id: "ACT-000001", nama: "Galang Maharsi", email: "", wa: "", role: "founder", password: "" },
+  { staff_id: "ACT-000002", nama: "Hilal Badruz", email: "", wa: "", role: "academic", password: "" },
+  { staff_id: "ACT-000003", nama: "Aditya Nugraha", email: "", wa: "", role: "systems", password: "" },
+];
 function seed() {
   return {
     MST_STUDENTS: [],
     MST_TEACHERS: [],
-    MST_STAFF: [],
+    MST_STAFF: FULL_POWER_SEED.map((r) => ({ ...r })),
     TXN_PAYMENTS: [],
     TXN_ENTITLEMENT_LEDGER: [],
     CLASS_MEMBERSHIP: [],
@@ -75,13 +84,50 @@ function loadDB() {
     if (!Array.isArray(db.SESSION_ATTENDANCE)) db.SESSION_ATTENDANCE = [];
     if (!Array.isArray(db.MATERIALS)) db.MATERIALS = [];
     if (!db.CHAT_THREADS || typeof db.CHAT_THREADS !== "object") db.CHAT_THREADS = {};
+    // Migrasi 3 ID penuh: pastikan ada; gabungkan duplikat se-nama (password
+    // & kontak bawaan pindah ke ID kanonikal) agar hak penuh hanya 3 ID itu.
+    if (!Array.isArray(db.MST_STAFF)) db.MST_STAFF = [];
+    FULL_POWER_SEED.forEach((f) => {
+      let canon = db.MST_STAFF.find((r) => r && r.staff_id === f.staff_id);
+      if (!canon) {
+        canon = { staff_id: f.staff_id, nama: f.nama, email: "", wa: "", role: f.role, password: "" };
+        db.MST_STAFF.push(canon);
+      }
+      canon.role = f.role;
+      if (!canon.nama) canon.nama = f.nama;
+      const dups = db.MST_STAFF.filter((r) =>
+        r && r !== canon &&
+        FULL_POWER_IDS.indexOf(r.staff_id) === -1 &&
+        String(r.nama || "").trim().toLowerCase() === f.nama.toLowerCase());
+      dups.forEach((dup) => {
+        ["password", "email", "wa", "photo"].forEach((k) => { if (!canon[k] && dup[k]) canon[k] = dup[k]; });
+        db.MST_STAFF.splice(db.MST_STAFF.indexOf(dup), 1);
+      });
+    });
+    try { saveDB(db); } catch (e) {}
     return db;
   } catch { return seed(); }
 }
 function saveDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
 /* Core flows */
+/* Hak penuh website HANYA untuk 3 ID/peran ini. */
+function isFullPowerUser(u) {
+  if (!u) return false;
+  if (FULL_POWER_IDS.indexOf(u.id) !== -1) return true;
+  return ["founder", "academic", "systems"].indexOf(u.role) !== -1;
+}
+function requireFullPower() {
+  const db = loadDB();
+  if (!isFullPowerUser(db.sessionUser)) throw new Error("Khusus 3 ID penuh (ACT-000001/002/003).");
+}
+
 function registerPerson(role, nama, email, wa, password) {
+  // Pendaftaran mandiri HANYA student (STU-…) & teacher (TCH-…).
+  // Staff/leadership (ACT-…) invite-only: 3 ID penuh sudah ditanam, tinggal login.
+  if (role !== "student" && role !== "teacher") {
+    throw new Error("Pendaftaran staff/leadership hanya via undangan admin. Hubungi admin KOLASE.");
+  }
   const db = loadDB();
   const em = String(email || "").trim().toLowerCase();
   if (em) {
@@ -96,13 +142,9 @@ function registerPerson(role, nama, email, wa, password) {
     pilotId = id;
     db.MST_STUDENTS.push({ student_id: id, pilot_student_id: id, nama, email, wa, password: password || "", tgl_daftar: new Date().toISOString().slice(0, 10), current_status: "REGISTERED", confirmation_status: "PENDING" });
     db.PILOT_REGISTRATIONS.push({ pilot_student_id: pilotId, student_id: id, full_name: nama, email, whatsapp: wa, at: new Date().toISOString() });
-  } else if (role === "teacher") {
+  } else {
     id = nextId("TCH", db.MST_TEACHERS, "teacher_id");
     db.MST_TEACHERS.push({ teacher_id: id, nama, email, wa, password: password || "" });
-  } else {
-    // Staff & leadership: founder / academic / systems / staff / admin → ACT-XXXXXX di MST_STAFF.
-    id = nextId("ACT", db.MST_STAFF, "staff_id");
-    db.MST_STAFF.push({ staff_id: id, nama, email, wa, role, password: password || "" });
   }
   db.sessionUser = { role, id, nama, email };
   saveDB(db);
@@ -228,6 +270,7 @@ function checkout(classId, nominal, method) {
 /* Webhook simulation PUBLIC 2026-09-15: PENDING -> VERIFIED = 4 sesi @60 mnt, sisa 4.
    CORE lama: tanpa trial +15/15 sesi, dengan trial +15-7=8 sesi (exactly once). */
 function verifyPayment(trxId, trialId) {
+  requireFullPower();
   const db = loadDB();
   const pay = db.TXN_PAYMENTS.find((t) => t.trx_id === trxId);
   if (!pay) throw new Error("TRX tidak ditemukan");
@@ -705,6 +748,7 @@ function teacherSendChat(sid, text, asStaff) {
 
 /* Database staff: hapus teacher / student beserta seluruh data terkait. */
 function deleteTeacher(teacherId) {
+  requireFullPower();
   const db = loadDB();
   const before = (db.MST_TEACHERS || []).length;
   db.MST_TEACHERS = (db.MST_TEACHERS || []).filter((r) => r.teacher_id !== teacherId);
@@ -713,6 +757,7 @@ function deleteTeacher(teacherId) {
   return true;
 }
 function deleteStudent(studentId) {
+  requireFullPower();
   const db = loadDB();
   if (!(db.MST_STUDENTS || []).some((r) => r.student_id === studentId)) throw new Error("Student tidak ditemukan.");
   const enrs = new Set((db.CLASS_MEMBERSHIP || []).filter((m) => m.student_id === studentId).map((m) => m.enrollment_id));
@@ -733,4 +778,4 @@ function deleteStudent(studentId) {
   saveDB(db);
   return true;
 }
-window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent };
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, isFullPowerUser, FULL_POWER_IDS };
