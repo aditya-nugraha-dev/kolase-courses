@@ -21,22 +21,23 @@
   function ext(href) {
     return /^https?:\/\//i.test(href) ? ' target="_blank" rel="noopener"' : "";
   }
-  function showcaseCard(v) {
-    return `<div class="card video-card"><div class="video-frame">`
-      + `<iframe data-src="https://drive.google.com/file/d/${v.id}/preview" title="${v.t}" allow="autoplay; fullscreen" loading="lazy"></iframe></div>`
-      + `<b>${v.t}</b><p class="small" style="margin:4px 0 0">${v.d}</p></div>`;
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   }
-  // Muat iframe saat di-scroll mendekati layar (hemat kuota + siap diputar).
-  // Catatan: browser melarang play otomatis bersuara, jadi tetap perlu 1x klik play.
-  function armAutoplay(scope) {
-    const frames = (scope || document).querySelectorAll(".video-frame iframe[data-src]");
-    if (!frames.length) return;
-    const load = (f) => { try { if (!f.src) f.src = f.getAttribute("data-src"); } catch (e) {} f.removeAttribute("data-src"); };
-    if (!("IntersectionObserver" in window)) { frames.forEach(load); return; }
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((en) => { if (en.isIntersecting) { load(en.target); io.unobserve(en.target); } });
-    }, { rootMargin: "200px 0px" });
-    frames.forEach((f) => io.observe(f));
+  // Kartu video anti-error: thumbnail Drive + tonton di tab Drive (iframe
+  // preview sering diblokir sehingga menampilkan "Terjadi error saat memutar").
+  // Bila thumbnail gagal (file belum publik), tampil placeholder + tombol tonton.
+  function showcaseCard(v) {
+    const view = `https://drive.google.com/file/d/${v.id}/view`;
+    const thumb = `https://drive.google.com/thumbnail?id=${v.id}&sz=w1000`;
+    return `<div class="card video-card"><a href="${view}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">`
+      + `<div class="video-frame" style="position:relative">`
+      + `<img src="${thumb}" alt="${esc(v.t)}" loading="lazy" style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`
+      + `<span style="display:none;align-items:center;justify-content:center;aspect-ratio:16/9;background:#203248;color:#fff;font-weight:800;font-size:15px">▶ ${esc(v.t)}</span>`
+      + `<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none"><span style="width:56px;height:56px;border-radius:50%;background:#b29e84ee;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center">▶</span></span>`
+      + `</div></a>`
+      + `<b>${esc(v.t)}</b><p class="small" style="margin:4px 0 8px">${esc(v.d)}</p>`
+      + `<a class="btn btn-brand btn-sm" href="${view}" target="_blank" rel="noopener">▶ Tonton di Drive</a></div>`;
   }
   function docCard(x) {
     return `<div class="card"><h3>${x.t}</h3><p class="small">${x.d}</p>`
@@ -44,7 +45,7 @@
   }
   document.addEventListener("DOMContentLoaded", () => {
     const sc = document.querySelector("[data-drive-showcase]");
-    if (sc) { sc.innerHTML = SHOWCASE.map(showcaseCard).join(""); armAutoplay(sc); }
+    if (sc) { sc.innerHTML = SHOWCASE.map(showcaseCard).join(""); }
     const mm = document.querySelector("[data-drive-materi]");
     if (mm) mm.innerHTML = MATERI.map(docCard).join("");
     const ii = document.querySelector("[data-drive-info]");

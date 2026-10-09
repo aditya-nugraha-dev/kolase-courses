@@ -13,31 +13,31 @@
   <button class="burger" data-burger>☰</button>
 </div></header>
 <main class="wrap">
-  <div class="section"><h2 id="title">Dashboard E-Learning</h2><div class="small" id="who"></div></div>
+  <div class="section"><h2 id="title" data-i18n="dash.title">Dashboard E-Learning</h2><div class="small" id="who"></div></div>
   <div class="section"><div class="kpi">
     <div class="card"><div class="small">Sisa Sesi</div><b id="kSisa" style="font-size:26px">-</b></div>
     <div class="card"><div class="small">Progres</div><b id="kProg">-</b><div class="progress" style="margin-top:6px"><i id="kBar" style="width:0%"></i></div></div>
-    <div class="card"><div class="small">Jadwal Terdekat</div><b id="kNext" style="font-size:14px">-</b><div><a class="btn btn-ghost btn-sm" href="schedule.html">Kalender</a></div></div>
+    <div class="card"><div class="small">Jadwal Terdekat</div><b id="kNext" style="font-size:14px">-</b><div><a class="btn btn-ghost btn-sm" href="schedule.html" data-i18n="dash.kalender">Kalender</a></div></div>
   </div></div>
-  <div class="section"><div class="card" id="trialCard"><b>Trial Gratis 7 Sesi</b><div id="trialInfo" class="small" style="margin-top:4px"></div><div id="trialBtns" style="margin-top:8px"></div></div></div>
-  <div class="section"><div class="card" id="pkgReviewCard"><b>Ulasan 1 Paket ★</b><div id="pkgReviewInfo" class="small" style="margin-top:4px"></div><div id="pkgReviewBtns" style="margin-top:8px"></div></div></div>
+  <div class="section"><div class="card" id="trialCard"><b data-i18n="dash.trial">Trial Gratis 7 Sesi</b><div id="trialInfo" class="small" style="margin-top:4px"></div><div id="trialBtns" style="margin-top:8px"></div></div></div>
+  <div class="section"><div class="card" id="pkgReviewCard"><b data-i18n="dash.review">Ulasan 1 Paket ★</b><div id="pkgReviewInfo" class="small" style="margin-top:4px"></div><div id="pkgReviewBtns" style="margin-top:8px"></div></div></div>
   <div class="section"><div class="card" id="placementCard">
-    <b>Placement Test A2 (Pre-Check)</b>
-    <div class="small" style="margin-top:4px">Honesty declaration + Language Use + Vocabulary + Listening. Skor otomatis <b>Placement_Total /50</b> + status <span class="id-mono">A2_CONFIRMED</span> / <span class="id-mono">PLACEMENT_PENDING</span>.</div>
+    <b data-i18n="dash.placement">Placement Test A2 (Pre-Check)</b>
+    <div class="small" style="margin-top:4px" data-i18n="dash.placement.d">Honesty declaration + Language Use + Vocabulary + Listening. Skor otomatis <b>Placement_Total /50</b> + status <span class="id-mono">A2_CONFIRMED</span> / <span class="id-mono">PLACEMENT_PENDING</span>.</div>
     <div id="pqAttempts" class="small" style="margin-top:8px"></div>
-    <div style="margin-top:8px"><button class="btn btn-brand btn-sm" id="pqOpen">Ikuti Placement Test →</button></div>
+    <div style="margin-top:8px"><button class="btn btn-brand btn-sm" id="pqOpen" data-i18n="dash.placement.btn">Ikuti Placement Test →</button></div>
   </div></div>
   <div class="section"><div class="card" id="feedbackCard">
-    <b>Teacher Evaluation &amp; Feedback</b>
-    <div class="small" style="margin-top:4px">Nilai sesi terakhir dari guru + progres Pre-Check vs Post-Check.</div>
+    <b data-i18n="dash.feedback">Teacher Evaluation &amp; Feedback</b>
+    <div class="small" style="margin-top:4px" data-i18n="dash.feedback.d">Nilai sesi terakhir dari guru + progres Pre-Check vs Post-Check.</div>
     <div id="feedbackBody" style="margin-top:8px"><div class="small">Belum ada evaluasi guru.</div></div>
   </div></div>
-  <div class="section"><h2>Class Area</h2><div id="enrollList" class="grid cols-2"></div></div>
-  <div class="section"><h2>Materi E-Learning per Sesi</h2>
-    <p class="small">Tiap sesi: link GMeet + file materi. Kuis GForm hanya muncul di sesi terakhir. Link terkunci (<span class="pill p-locked">🔒 Butuh VERIFIED</span>) sampai pembayaran enrollment berstatus VERIFIED.</p>
+  <div class="section"><h2 data-i18n="dash.classarea">Class Area</h2><div id="enrollList" class="grid cols-2"></div></div>
+  <div class="section"><h2 data-i18n="dash.materi">Materi E-Learning per Sesi</h2>
+    <p class="small" data-i18n="dash.materi.d">Tiap sesi: link GMeet + file materi. Kuis GForm hanya muncul di sesi terakhir. Link terkunci (<span class="pill p-locked">🔒 Butuh VERIFIED</span>) sampai pembayaran enrollment berstatus VERIFIED.</p>
     <div id="learnList" class="cal-list"></div>
   </div>
-  <div class="section"><a class="btn btn-brand" href="teacher-chat.html">Buka Teacher Chat →</a></div>
+  <div class="section"><a class="btn btn-brand" href="teacher-chat.html" data-i18n="dash.chat">Buka Teacher Chat →</a></div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html" class="active">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html">Profil</a></nav>
 
@@ -61,7 +61,7 @@
   </div>
 </div>
 
-<script src="js/store.js?v=6"></script><script src="js/app.js?v=6"></script>
+<script src="js/store.js?v=6"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=6"></script>
 <script>
 const db = KolaseStore.loadDB();
 document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "Belum login — buka login.html";

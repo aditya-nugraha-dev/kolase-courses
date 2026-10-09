@@ -20,21 +20,21 @@
 <main class="wrap">
   <div class="hero"><div class="hero-grid">
     <div class="hero-card">
-      <h1>Belajar Bahasa Inggris 4 Sesi, Terjadwal & Terukur.</h1>
-      <p>1 paket = 4 sesi (1x/minggu). ID permanen <span class="id-mono">STU-XXXXXX</span>, kuota ledger otomatis, sinkron Google Sheets + Calendar.</p>
-      <div class="badges"><span class="badge">Kids & Beginner</span><span class="badge">Google Meet</span><span class="badge">Chat Guru</span><span class="badge">QRIS / VA / E-Wallet</span></div>
+      <h1 data-i18n="hero.title">Belajar Bahasa Inggris 4 Sesi, Terjadwal & Terukur.</h1>
+      <p data-i18n="hero.desc">1 paket = 4 sesi (1x/minggu). ID permanen <span class="id-mono">STU-XXXXXX</span>, kuota ledger otomatis, sinkron Google Sheets + Calendar.</p>
+      <div class="badges"><span class="badge" data-i18n="hero.badge1">Kids & Beginner</span><span class="badge">Google Meet</span><span class="badge" data-i18n="hero.badge3">Chat Guru</span><span class="badge">QRIS / VA / E-Wallet</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <a class="btn btn-brand" href="catalog.html">Lihat Katalog</a>
-        <a class="btn btn-ghost" data-guest-only href="login.html">Daftar Gratis</a>
+        <a class="btn btn-brand" href="catalog.html" data-i18n="hero.catalog">Lihat Katalog</a>
+        <a class="btn btn-ghost" data-guest-only href="login.html" data-i18n="hero.register">Daftar Gratis</a>
       </div>
       <div class="stats">
-        <div class="stat"><b>4</b><span class="small">sesi/paket</span></div>
-        <div class="stat"><b>50rb+</b><span class="small">mulai</span></div>
-        <div class="stat"><b>1</b><span class="small">ID permanen</span></div>
+        <div class="stat"><b>4</b><span class="small" data-i18n="hero.sesi">sesi/paket</span></div>
+        <div class="stat"><b>50rb+</b><span class="small" data-i18n="hero.mulai">mulai</span></div>
+        <div class="stat"><b>1</b><span class="small" data-i18n="hero.idperm">ID permanen</span></div>
       </div>
       <div class="card" style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-style:dashed">
-        <div style="flex:1;min-width:200px"><b>🎁 Coba 7 Sesi Gratis</b><div class="small">Tanpa bayar — 6 sesi belajar + 1 progress test. Selesai? Pilih lanjut ke Kelas Kids atau berhenti.</div></div>
-        <button class="btn btn-brand" data-trial="CLS-PUB-KIDS-01">Mulai Trial Gratis</button>
+        <div style="flex:1;min-width:200px"><b data-i18n="trial.title">🎁 Coba 7 Sesi Gratis</b><div class="small" data-i18n="trial.desc">Tanpa bayar — 6 sesi belajar + 1 progress test. Selesai? Pilih lanjut ke Kelas Kids atau berhenti.</div></div>
+        <button class="btn btn-brand" data-trial="CLS-PUB-KIDS-01" data-i18n="trial.btn">Mulai Trial Gratis</button>
       </div>
     </div>
     <div class="hero-card hero-media">
@@ -42,14 +42,13 @@
     </div>
   </div></div>
 
-  <div class="section"><h2>Kelas Populer</h2>
+  <div class="section"><h2 data-i18n="sec.populer">Kelas Populer</h2>
     <div class="swipe-row" data-catalog></div>
-    <p class="small">Geser ke samping di HP • Grid 3 kolom di desktop.</p>
+    <p class="small" data-i18n="sec.populer.hint">Geser ke samping di HP • Grid 3 kolom di desktop.</p>
   </div>
 
-  <div class="section" id="galeri"><h2>Poster KOLASE</h2>
-    <p class="small">Ketuk gambar untuk buka ukuran penuh.</p>
-    <h3 class="poster-sub">Cara Kami Mengajar (6 poster)</h3>
+  <div class="section" id="galeri"><h2 data-i18n="sec.cara">Cara Kami Mengajar</h2>
+    <p class="small" data-i18n="sec.galeri.hint">Ketuk gambar untuk buka ukuran penuh.</p>
     <div class="poster-grid">
       <a href="assets/poster/metode-scaffolding.jpeg"><img src="assets/poster/metode-scaffolding.jpeg" alt="Cara kami mengajar" loading="lazy"></a>
       <a href="assets/poster/bahasa-dipakai.jpeg"><img src="assets/poster/bahasa-dipakai.jpeg" alt="Bahasa dipakai, bukan cuma dipelajari" loading="lazy"></a>
@@ -58,7 +57,10 @@
       <a href="assets/poster/cerita-awal.jpeg"><img src="assets/poster/cerita-awal.jpeg" alt="Cerita sederhana bisa jadi awal" loading="lazy"></a>
       <a href="assets/poster/ruang-menjawab.jpeg"><img src="assets/poster/ruang-menjawab.jpeg" alt="Ruang menjawab dan bertanya" loading="lazy"></a>
     </div>
-    <h3 class="poster-sub" id="visi-misi">Visi & Misi (01–06)</h3>
+  </div>
+
+  <div class="section" id="visi-misi"><h2 data-i18n="sec.visi">Visi & Misi</h2>
+    <p class="small" data-i18n="sec.visi.desc">Tujuan dan harapan kami dalam membangun peradaban berbasis ilmu pengetahuan. Ketuk gambar untuk buka ukuran penuh.</p>
     <div class="poster-grid">
       <a href="assets/poster/visi-misi-cover.jpeg"><img src="assets/poster/visi-misi-cover.jpeg" alt="01/06 KOLASE in Vision and Mission" loading="lazy"></a>
       <a href="assets/poster/visi-generasi-unggul.jpeg"><img src="assets/poster/visi-generasi-unggul.jpeg" alt="02/06 Visi generasi unggul" loading="lazy"></a>
@@ -70,33 +72,33 @@
   </div>
   </div>
 
-  <div class="section" id="ulasan"><h2>Ulasan Siswa</h2>
-    <p class="small">Ditulis siswa yang menyelesaikan 1 paket (semua sesi). Selesaikan paketmu untuk ikut mengulas — nilai Kelas, Guru, Pembelajaran & Materi.</p>
+  <div class="section" id="ulasan"><h2 data-i18n="sec.ulasan">Ulasan Siswa</h2>
+    <p class="small" data-i18n="sec.ulasan.desc">Ditulis siswa yang menyelesaikan 1 paket (semua sesi). Selesaikan paketmu untuk ikut mengulas — nilai Kelas, Guru, Pembelajaran & Materi.</p>
     <div class="grid cols-3" id="reviewGrid"></div>
   </div>
 
-  <div class="section" id="pembelajaran"><h2>Persembahan Pembelajaran</h2>
-    <p class="small">Intip suasana belajar dari layanan KOLASE — Public Class, Stages Kids, hingga Teens Pathway.</p>
+  <div class="section" id="pembelajaran"><h2 data-i18n="sec.showcase">Persembahan Pembelajaran</h2>
+    <p class="small" data-i18n="sec.showcase.desc">Intip suasana belajar dari layanan KOLASE — Public Class, Stages Kids, hingga Teens Pathway.</p>
     <div class="video-grid" data-drive-showcase></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-      <a class="btn btn-brand btn-sm" href="catalog.html">Lihat Katalog</a>
-      <a class="btn btn-ghost btn-sm" href="public-class.html">Ikut Public Class</a>
+      <a class="btn btn-brand btn-sm" href="catalog.html" data-i18n="sec.showcase.katalog">Lihat Katalog</a>
+      <a class="btn btn-ghost btn-sm" href="public-class.html" data-i18n="sec.showcase.public">Ikut Public Class</a>
     </div>
   </div>
 
-  <div class="section" id="materi"><h2>Materi Akademik</h2>
-    <p class="small">Kebijakan kurikulum, buku referensi & konten publikasi (terbuka di Drive).</p>
+  <div class="section" id="materi"><h2 data-i18n="sec.materi">Materi Akademik</h2>
+    <p class="small" data-i18n="sec.materi.desc">Kebijakan kurikulum, buku referensi & konten publikasi (terbuka di Drive).</p>
     <div class="grid cols-3" data-drive-materi></div>
   </div>
 
-  <div class="section" id="info"><h2>Info Operasional</h2>
-    <p class="small">SOP pendaftaran, pelaksanaan kelas & jalur mulai belajar.</p>
+  <div class="section" id="info"><h2 data-i18n="sec.info">Info Operasional</h2>
+    <p class="small" data-i18n="sec.info.desc">SOP pendaftaran, pelaksanaan kelas & jalur mulai belajar.</p>
     <div class="grid cols-3" data-drive-info></div>
   </div>
 
   <div class="section" data-guest-only><div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-    <div style="flex:1"><b>Siap mulai?</b><div class="small">Daftar 1 menit, ID permanen langsung jadi.</div></div>
-    <a class="btn btn-brand" href="login.html">Daftar Sekarang</a>
+    <div style="flex:1"><b data-i18n="sec.siap">Siap mulai?</b><div class="small" data-i18n="sec.siap.desc">Daftar 1 menit, ID permanen langsung jadi.</div></div>
+    <a class="btn btn-brand" href="login.html" data-i18n="sec.siap.btn">Daftar Sekarang</a>
   </div></div>
 </main>
 
@@ -105,7 +107,7 @@
   <a href="dashboard.html">Kelas</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a>
 </nav>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/store.js?v=6"></script><script src="js/app.js?v=6"></script><script src="js/drive-content.js?v=5"></script>
+<script src="js/store.js?v=6"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=6"></script><script src="js/drive-content.js?v=5"></script>
 <script>
 // Ulasan dinamis: dari localStorage (termasuk ulasan 1 paket yang baru dikirim).
 // Mendukung format baru (4 aspek bintang) + format lama (rating tunggal trial).

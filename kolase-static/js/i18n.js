@@ -1,0 +1,216 @@
+/* KOLASE i18n — alih bahasa Indonesia ↔ English (v1).
+   Pakai: <span data-i18n="nav.home"></span> (HTML), placeholder via
+   data-i18n-ph="key", aria-label via data-i18n-aria="key".
+   Bahasa tersimpan di localStorage "kolase_lang". Kamus bertambah tinggal
+   tambah key di bawah + atribut data-i18n di HTML. */
+(function () {
+  var DICT = {
+    id: {
+      "nav.home": "Home", "nav.katalog": "Katalog", "nav.kalender": "Kalender",
+      "nav.masuk": "Masuk", "nav.dashboard": "Dashboard", "nav.chat": "Chat",
+      "nav.chatTeacher": "Chat Teacher", "nav.profil": "Profil", "nav.portal": "Portal",
+      "nav.materi": "Materi", "nav.jadwal": "Jadwal", "nav.kelas": "Kelas",
+      "nav.teacher": "Teacher", "nav.staff": "Staff",
+      "hero.title": "Belajar Bahasa Inggris 4 Sesi, Terjadwal & Terukur.",
+      "hero.desc": '1 paket = 4 sesi (1x/minggu). ID permanen <span class="id-mono">STU-XXXXXX</span>, kuota ledger otomatis, sinkron Google Sheets + Calendar.',
+      "hero.badge1": "Kids & Beginner", "hero.badge2": "Google Meet",
+      "hero.badge3": "Chat Guru", "hero.badge4": "QRIS / VA / E-Wallet",
+      "hero.catalog": "Lihat Katalog", "hero.register": "Daftar Gratis",
+      "hero.sesi": "sesi/paket", "hero.mulai": "mulai", "hero.idperm": "ID permanen",
+      "trial.title": "🎁 Coba 7 Sesi Gratis",
+      "trial.desc": "Tanpa bayar — 6 sesi belajar + 1 progress test. Selesai? Pilih lanjut ke Kelas Kids atau berhenti.",
+      "trial.btn": "Mulai Trial Gratis",
+      "sec.populer": "Kelas Populer",
+      "sec.populer.hint": "Geser ke samping di HP • Grid 3 kolom di desktop.",
+      "sec.cara": "Cara Kami Mengajar",
+      "sec.galeri.hint": "Ketuk gambar untuk buka ukuran penuh.",
+      "sec.visi": "Visi & Misi",
+      "sec.visi.desc": "Tujuan dan harapan kami dalam membangun peradaban berbasis ilmu pengetahuan. Ketuk gambar untuk buka ukuran penuh.",
+      "sec.ulasan": "Ulasan Siswa",
+      "sec.ulasan.desc": "Ditulis siswa yang menyelesaikan 1 paket (semua sesi). Selesaikan paketmu untuk ikut mengulas — nilai Kelas, Guru, Pembelajaran & Materi.",
+      "sec.showcase": "Persembahan Pembelajaran",
+      "sec.showcase.desc": "Intip suasana belajar dari layanan KOLASE — Public Class, Stages Kids, hingga Teens Pathway.",
+      "sec.showcase.katalog": "Lihat Katalog", "sec.showcase.public": "Ikut Public Class",
+      "sec.materi": "Materi Akademik",
+      "sec.materi.desc": "Kebijakan kurikulum, buku referensi & konten publikasi (terbuka di Drive).",
+      "sec.info": "Info Operasional",
+      "sec.info.desc": "SOP pendaftaran, pelaksanaan kelas & jalur mulai belajar.",
+      "sec.siap": "Siap mulai?",
+      "sec.siap.desc": "Daftar 1 menit, ID permanen langsung jadi.",
+      "sec.siap.btn": "Daftar Sekarang",
+      "card.detail": "Lihat Detail", "card.checkout": "Checkout",
+      "card.trial": "🎁 Trial 7 Sesi", "card.soon": "COMING SOON",
+      "cat.title": "Katalog Kelas",
+      "cat.desc": "Desktop: filter sidebar • Mobile: filter bottom-sheet.",
+      "cat.filter": "Filter", "cat.level": "Level", "cat.all": "Semua",
+      "cat.maxprice": "Harga maks", "cat.apply": "Terapkan",
+      "cat.filterm": "Filter Kelas", "cat.show": "Tampilkan",
+      "detail.structure": "Struktur Paket",
+      "detail.sesi4": "4 Sesi", "detail.sesi4.d": "1 sesi/minggu, 4 minggu @60 menit, Google Meet.",
+      "detail.ledger": "Ledger Otomatis", "detail.ledger.d": "Hadir → −1 sesi, sisa live di dashboard.",
+      "detail.chatcal": "Chat + Kalender", "detail.chatcal.d": "Terbuka setelah pembayaran VERIFIED.",
+      "detail.syllabus": "Silabus 4 Sesi (SES-000001 s/d SES-000004)",
+      "detail.syllabus.d": "Proyeksi mingguan 1 sesi/minggu @60 menit. Session ID resmi dibuat saat pembayaran VERIFIED (format: SES-XXXXXX-ENR-XXXXXX).",
+      "detail.th.sesi": "Sesi", "detail.th.tanggal": "Tanggal (proyeksi)",
+      "detail.th.topik": "Topik", "detail.th.status": "Status",
+      "detail.enroll": "Daftar Kelas Sekarang", "detail.trial": "Coba 7 Trial Gratis",
+      "detail.back": "← Katalog", "detail.soonmsg": "COMING SOON — pendaftaran belum dibuka",
+      "login.title": "Welcome to KOLASE!",
+      "login.tab.in": "Masuk", "login.tab.up": "Register",
+      "login.desc.in": 'Masuk untuk lanjutkan kelas, lihat jadwal & chat guru. ID permanen <span class="id-mono">STU-XXXXXX</span> berlaku seumur hidup.',
+      "login.desc.up": 'Daftar 1 menit, ID permanen langsung jadi: <span class="id-mono">STU-XXXXXX</span> / <span class="id-mono">TCH-XXXXXX</span>.',
+      "login.user": "User name", "login.pass": "Password",
+      "login.user.ph": "Enter your User name / Email",
+      "login.pass.ph": "Enter your Password",
+      "login.remember": " Remember me", "login.forgot": "Forgot Password?",
+      "login.btn": "Login", "login.noacc": "Belum punya akun?",
+      "login.reg": "Register", "login.email": "Email Address",
+      "login.email.ph": "Enter your Email Address",
+      "login.uname": "User name", "login.uname.ph": "Enter your User name",
+      "login.newpass.ph": "Enter your Password (min. 4 karakter)",
+      "login.wa": "No. WA", "login.role": "Peran",
+      "login.haveacc": "Sudah punya akun?",
+      "login.loginlink": "Login",
+      "co.title": "Checkout & Payment",
+      "co.steps": "<span>1. Ringkasan</span>→<span>2. Bayar (PENDING)</span>→<span>3. Webhook VERIFIED</span>",
+      "co.soon.t": "COMING SOON",
+      "co.soon.d": 'Pendaftaran kelas ini belum dibuka. Silakan pilih kelas lain di <a href="catalog.html">katalog</a>.',
+      "co.method": "Metode bayar", "co.pay": "Buat Enrollment + Bayar",
+      "co.pay.d": "Membuat <span class=\"id-mono\">ENR-XXXXXX</span> yang mengikat Student ID ↔ Class ID. Status awal PENDING.",
+      "co.instr": "Instruksi Pembayaran",
+      "co.simulate": "Simulasi Webhook VERIFIED",
+      "co.simnote": "Di production: callback Midtrans/Xendit → verifyPayment().",
+      "dash.title": "Dashboard E-Learning",
+      "dash.trial": "Trial Gratis 7 Sesi",
+      "dash.review": "Ulasan 1 Paket ★",
+      "dash.placement": "Placement Test A2 (Pre-Check)",
+      "dash.placement.d": "Honesty declaration + Language Use + Vocabulary + Listening. Skor otomatis <b>Placement_Total /50</b> + status.",
+      "dash.placement.btn": "Ikuti Placement Test →",
+      "dash.feedback": "Teacher Evaluation & Feedback",
+      "dash.feedback.d": "Nilai sesi terakhir dari guru + progres Pre-Check vs Post-Check.",
+      "dash.classarea": "Class Area",
+      "dash.materi": "Materi E-Learning per Sesi",
+      "dash.materi.d": "Tiap sesi: link GMeet + file materi. Kuis GForm hanya muncul di sesi terakhir.",
+      "dash.chat": "Buka Teacher Chat →",
+      "dash.kalender": "Kalender"
+    },
+    en: {
+      "nav.home": "Home", "nav.katalog": "Catalog", "nav.kalender": "Calendar",
+      "nav.masuk": "Sign in", "nav.dashboard": "Dashboard", "nav.chat": "Chat",
+      "nav.chatTeacher": "Chat Teacher", "nav.profil": "Profile", "nav.portal": "Portal",
+      "nav.materi": "Materials", "nav.jadwal": "Schedule", "nav.kelas": "Classes",
+      "nav.teacher": "Teacher", "nav.staff": "Staff",
+      "hero.title": "Learn English in 4 Sessions — Scheduled & Measurable.",
+      "hero.desc": '1 package = 4 sessions (1x/week). Permanent ID <span class="id-mono">STU-XXXXXX</span>, automatic quota ledger, synced with Google Sheets + Calendar.',
+      "hero.badge1": "Kids & Beginner", "hero.badge2": "Google Meet",
+      "hero.badge3": "Chat Teacher", "hero.badge4": "QRIS / VA / E-Wallet",
+      "hero.catalog": "View Catalog", "hero.register": "Sign Up Free",
+      "hero.sesi": "sessions/package", "hero.mulai": "starting from", "hero.idperm": "permanent ID",
+      "trial.title": "🎁 Try 7 Free Sessions",
+      "trial.desc": "No payment — 6 learning sessions + 1 progress test. Finished? Continue to Kids Class or stop.",
+      "trial.btn": "Start Free Trial",
+      "sec.populer": "Popular Classes",
+      "sec.populer.hint": "Swipe sideways on mobile • 3-column grid on desktop.",
+      "sec.cara": "How We Teach",
+      "sec.galeri.hint": "Tap an image to open full size.",
+      "sec.visi": "Vision & Mission",
+      "sec.visi.desc": "Our goals and hopes in building a knowledge-based civilization. Tap an image to open full size.",
+      "sec.ulasan": "Student Reviews",
+      "sec.ulasan.desc": "Written by students who finished 1 package (all sessions). Finish your package to join in — rate Class, Teacher, Learning & Materials.",
+      "sec.showcase": "Learning Showcase",
+      "sec.showcase.desc": "Peek into learning vibes from KOLASE services — Public Class, Kids Stages, to Teens Pathway.",
+      "sec.showcase.katalog": "View Catalog", "sec.showcase.public": "Join Public Class",
+      "sec.materi": "Academic Materials",
+      "sec.materi.desc": "Curriculum policy, reference books & publication content (open in Drive).",
+      "sec.info": "Operational Info",
+      "sec.info.desc": "Registration SOP, class delivery & learning paths.",
+      "sec.siap": "Ready to start?",
+      "sec.siap.desc": "1-minute signup, permanent ID issued instantly.",
+      "sec.siap.btn": "Sign Up Now",
+      "card.detail": "View Details", "card.checkout": "Checkout",
+      "card.trial": "🎁 7-Session Trial", "card.soon": "COMING SOON",
+      "cat.title": "Class Catalog",
+      "cat.desc": "Desktop: sidebar filter • Mobile: bottom-sheet filter.",
+      "cat.filter": "Filter", "cat.level": "Level", "cat.all": "All",
+      "cat.maxprice": "Max price", "cat.apply": "Apply",
+      "cat.filterm": "Filter Classes", "cat.show": "Show",
+      "detail.structure": "Package Structure",
+      "detail.sesi4": "4 Sessions", "detail.sesi4.d": "1 session/week, 4 weeks @60 minutes, Google Meet.",
+      "detail.ledger": "Automatic Ledger", "detail.ledger.d": "Attendance → −1 session, live balance on dashboard.",
+      "detail.chatcal": "Chat + Calendar", "detail.chatcal.d": "Unlocked after VERIFIED payment.",
+      "detail.syllabus": "4-Session Syllabus (SES-000001 to SES-000004)",
+      "detail.syllabus.d": "Weekly projection, 1 session/week @60 minutes. Official Session IDs are created at VERIFIED payment (format: SES-XXXXXX-ENR-XXXXXX).",
+      "detail.th.sesi": "Session", "detail.th.tanggal": "Date (projection)",
+      "detail.th.topik": "Topic", "detail.th.status": "Status",
+      "detail.enroll": "Enroll Now", "detail.trial": "Try 7 Free Sessions",
+      "detail.back": "← Catalog", "detail.soonmsg": "COMING SOON — enrollment not open yet",
+      "login.title": "Welcome to KOLASE!",
+      "login.tab.in": "Sign in", "login.tab.up": "Register",
+      "login.desc.in": 'Sign in to continue your class, view schedule & chat with teachers. Permanent ID <span class="id-mono">STU-XXXXXX</span> lasts a lifetime.',
+      "login.desc.up": '1-minute signup, permanent ID issued instantly: <span class="id-mono">STU-XXXXXX</span> / <span class="id-mono">TCH-XXXXXX</span>.',
+      "login.user": "User name", "login.pass": "Password",
+      "login.user.ph": "Enter your User name / Email",
+      "login.pass.ph": "Enter your Password",
+      "login.remember": " Remember me", "login.forgot": "Forgot Password?",
+      "login.btn": "Sign in", "login.noacc": "No account yet?",
+      "login.reg": "Register", "login.email": "Email Address",
+      "login.email.ph": "Enter your Email Address",
+      "login.uname": "User name", "login.uname.ph": "Enter your User name",
+      "login.newpass.ph": "Enter your Password (min. 4 characters)",
+      "login.wa": "WA Number", "login.role": "Role",
+      "login.haveacc": "Already have an account?",
+      "login.loginlink": "Sign in",
+      "co.title": "Checkout & Payment",
+      "co.steps": "<span>1. Summary</span>→<span>2. Pay (PENDING)</span>→<span>3. VERIFIED Webhook</span>",
+      "co.soon.t": "COMING SOON",
+      "co.soon.d": 'Enrollment for this class is not open yet. Please pick another class in the <a href="catalog.html">catalog</a>.',
+      "co.method": "Payment method", "co.pay": "Create Enrollment + Pay",
+      "co.pay.d": "Creates an <span class=\"id-mono\">ENR-XXXXXX</span> binding Student ID ↔ Class ID. Initial status PENDING.",
+      "co.instr": "Payment Instructions",
+      "co.simulate": "Simulate VERIFIED Webhook",
+      "co.simnote": "In production: Midtrans/Xendit callback → verifyPayment().",
+      "dash.title": "E-Learning Dashboard",
+      "dash.trial": "Free 7-Session Trial",
+      "dash.review": "1-Package Review ★",
+      "dash.placement": "A2 Placement Test (Pre-Check)",
+      "dash.placement.d": "Honesty declaration + Language Use + Vocabulary + Listening. Automatic score <b>Placement_Total /50</b> + status.",
+      "dash.placement.btn": "Take Placement Test →",
+      "dash.feedback": "Teacher Evaluation & Feedback",
+      "dash.feedback.d": "Latest session score from teacher + Pre-Check vs Post-Check progress.",
+      "dash.classarea": "Class Area",
+      "dash.materi": "E-Learning Materials per Session",
+      "dash.materi.d": "Each session: GMeet link + material files. GForm quiz appears only in the last session.",
+      "dash.chat": "Open Teacher Chat →",
+      "dash.kalender": "Calendar"
+    }
+  };
+  var KEY = "kolase_lang";
+  function getLang() {
+    try { var v = localStorage.getItem(KEY); return v === "en" ? "en" : "id"; }
+    catch (e) { return "id"; }
+  }
+  function setLang(v) {
+    try { localStorage.setItem(KEY, v === "en" ? "en" : "id"); } catch (e) {}
+  }
+  function t(k) {
+    var L = DICT[getLang()] || DICT.id;
+    if (k in L) return L[k];
+    return DICT.id[k] !== undefined ? DICT.id[k] : k;
+  }
+  function applyI18n() {
+    try { document.documentElement.setAttribute("lang", getLang()); } catch (e) {}
+    try {
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        el.innerHTML = t(el.getAttribute("data-i18n"));
+      });
+      document.querySelectorAll("[data-i18n-ph]").forEach(function (el) {
+        el.setAttribute("placeholder", t(el.getAttribute("data-i18n-ph")));
+      });
+      document.querySelectorAll("[data-i18n-aria]").forEach(function (el) {
+        el.setAttribute("aria-label", t(el.getAttribute("data-i18n-aria")));
+      });
+    } catch (e) {}
+  }
+  document.addEventListener("DOMContentLoaded", applyI18n);
+  window.KolaseI18n = { getLang: getLang, setLang: setLang, t: t, apply: applyI18n };
+})();

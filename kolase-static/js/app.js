@@ -63,23 +63,23 @@ window.KolaseNavAvatar = { refresh: refreshNavAvatar };
 var ROLE_NAVS = {
   guest: {
     brand: "home.html",
-    links: [["home.html", "Home"], ["catalog.html", "Katalog"], ["schedule.html", "Kalender"], ["login.html", "Masuk"]],
-    tabs: [["home.html", "Home"], ["catalog.html", "Katalog"], ["schedule.html", "Kalender"], ["login.html", "Masuk"]]
+    links: [["home.html", "nav.home"], ["catalog.html", "nav.katalog"], ["schedule.html", "nav.kalender"], ["login.html", "nav.masuk"]],
+    tabs: [["home.html", "nav.home"], ["catalog.html", "nav.katalog"], ["schedule.html", "nav.kalender"], ["login.html", "nav.masuk"]]
   },
   student: {
     brand: "dashboard.html",
-    links: [["dashboard.html", "Dashboard"], ["schedule.html", "Kalender"], ["teacher-chat.html", "Chat Teacher"], ["profile.html", "Profil"]],
-    tabs: [["dashboard.html", "Materi"], ["teacher-chat.html", "Chat"], ["schedule.html", "Jadwal"], ["profile.html", "Profil"]]
+    links: [["dashboard.html", "nav.dashboard"], ["schedule.html", "nav.kalender"], ["teacher-chat.html", "nav.chatTeacher"], ["profile.html", "nav.profil"]],
+    tabs: [["dashboard.html", "nav.materi"], ["teacher-chat.html", "nav.chat"], ["schedule.html", "nav.jadwal"], ["profile.html", "nav.profil"]]
   },
   teacher: {
     brand: "teacher-portal.html",
-    links: [["teacher-portal.html", "Dashboard"], ["teacher-chat.html", "Chat"], ["profile.html", "Profil"]],
-    tabs: [["teacher-portal.html", "Kelas"], ["teacher-chat.html", "Chat"], ["schedule.html", "Jadwal"], ["profile.html", "Profil"]]
+    links: [["teacher-portal.html", "nav.dashboard"], ["teacher-chat.html", "nav.chat"], ["profile.html", "nav.profil"]],
+    tabs: [["teacher-portal.html", "nav.kelas"], ["teacher-chat.html", "nav.chat"], ["schedule.html", "nav.jadwal"], ["profile.html", "nav.profil"]]
   },
   staff: {
     brand: "home.html",
-    links: [["home.html", "Home"], ["catalog.html", "Katalog"], ["dashboard.html", "Dashboard"], ["schedule.html", "Kalender"], ["teacher-portal.html", "Teacher"], ["staff-portal.html", "Staff"], ["teacher-chat.html", "Chat"], ["profile.html", "Profil"]],
-    tabs: [["home.html", "Home"], ["staff-portal.html", "Portal"], ["profile.html", "Profil"]]
+    links: [["home.html", "nav.home"], ["catalog.html", "nav.katalog"], ["dashboard.html", "nav.dashboard"], ["schedule.html", "nav.kalender"], ["teacher-portal.html", "nav.teacher"], ["staff-portal.html", "nav.staff"], ["teacher-chat.html", "nav.chat"], ["profile.html", "nav.profil"]],
+    tabs: [["home.html", "nav.home"], ["staff-portal.html", "nav.portal"], ["profile.html", "nav.profil"]]
   }
 };
 var STAFF_GROUP = ["staff", "admin", "owner", "author", "founder", "academic", "systems"];
@@ -89,6 +89,10 @@ function roleNavKey(role) {
   if (role === "teacher") return "teacher";
   return "staff";
 }
+function navT(k) {
+  try { if (window.KolaseI18n) return KolaseI18n.t(k); } catch (e) {}
+  return k;
+}
 function renderRoleNav() {
   try {
     var db = JSON.parse(localStorage.getItem("kolase_db_v1") || "null");
@@ -97,10 +101,32 @@ function renderRoleNav() {
     var brand = document.querySelector(".topbar .brand");
     if (brand) brand.setAttribute("href", nav.brand);
     var navEl = document.querySelector("[data-nav]");
-    if (navEl) navEl.innerHTML = nav.links.map(function (l) { return '<a href="' + l[0] + '">' + l[1] + "</a>"; }).join("");
+    if (navEl) navEl.innerHTML = nav.links.map(function (l) { return '<a href="' + l[0] + '">' + navT(l[1]) + "</a>"; }).join("");
     var tabs = document.querySelector(".mobile-tabs");
-    if (tabs) tabs.innerHTML = nav.tabs.map(function (l) { return '<a href="' + l[0] + '">' + l[1] + "</a>"; }).join("");
+    if (tabs) tabs.innerHTML = nav.tabs.map(function (l) { return '<a href="' + l[0] + '">' + navT(l[1]) + "</a>"; }).join("");
   } catch (e) {}
+  try { renderLangToggle(); } catch (e) {}
+}
+/* Tombol alih bahasa ID ⇄ EN di topbar (semua halaman). */
+function renderLangToggle() {
+  var wrap = document.querySelector(".topbar .wrap");
+  if (!wrap || document.getElementById("langToggle")) return;
+  var cur = "id";
+  try { if (window.KolaseI18n) cur = KolaseI18n.getLang(); } catch (e) {}
+  var b = document.createElement("button");
+  b.id = "langToggle";
+  b.type = "button";
+  b.className = "btn btn-ghost btn-sm";
+  b.style.marginLeft = "8px";
+  b.textContent = cur === "id" ? "EN" : "ID";
+  b.title = cur === "id" ? "Switch to English" : "Ganti ke Bahasa Indonesia";
+  b.setAttribute("aria-label", cur === "id" ? "Switch language to English" : "Ganti bahasa ke Indonesia");
+  b.onclick = function () {
+    try { if (window.KolaseI18n) KolaseI18n.setLang(cur === "id" ? "en" : "id"); } catch (e) {}
+    location.reload();
+  };
+  var burger = wrap.querySelector("[data-burger]");
+  wrap.insertBefore(b, burger);
 }
 /* CTA global "Trial 7 Sesi Gratis" ([data-trial="CLS-ID"]): student → mulai
    trial lalu ke dashboard; tamu/peran lain → login/register dulu. */
@@ -220,16 +246,16 @@ function cardHTML(c) {
   const coret = Number(c.harga_coret || 0) > 0 ? `<s>Rp ${Number(c.harga_coret).toLocaleString("id-ID")}</s>` : ``;
   const open = (c.class_status || "OPEN") === "OPEN";
   const cta = open
-    ? `<a class="btn btn-ghost btn-sm" href="checkout.html?id=${c.id}">Checkout</a>`
-    : `<span class="pill p-pending">COMING SOON</span>`;
-  const trial = open ? `<button class="btn btn-ghost btn-sm" data-trial="${c.id}">🎁 Trial 7 Sesi</button>` : ``;
+    ? `<a class="btn btn-ghost btn-sm" href="checkout.html?id=${c.id}">${navT("card.checkout")}</a>`
+    : `<span class="pill p-pending">${navT("card.soon")}</span>`;
+  const trial = open ? `<button class="btn btn-ghost btn-sm" data-trial="${c.id}">${navT("card.trial")}</button>` : ``;
   return `<div class="card">
-    <div class="meta"><span class="pill p-verified">${c.level}</span><span>${c.jadwal}</span>${open ? `` : `<span class="pill p-pending">COMING SOON</span>`}</div>
+    <div class="meta"><span class="pill p-verified">${c.level}</span><span>${c.jadwal}</span>${open ? `` : `<span class="pill p-pending">${navT("card.soon")}</span>`}</div>
     <h3>${c.nama}</h3>
     <div class="small">${c.guru} • ${c.kuota} kursi • ${sesi} sesi</div>
     <div style="margin:8px 0"><span class="price">Rp ${Number(c.harga).toLocaleString("id-ID")}</span>${coret}</div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <a class="btn btn-brand btn-sm" href="class-details.html?id=${c.id}">Lihat Detail</a>
+      <a class="btn btn-brand btn-sm" href="class-details.html?id=${c.id}">${navT("card.detail")}</a>
       ${cta}
       ${trial}
     </div>

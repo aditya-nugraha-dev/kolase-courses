@@ -13,29 +13,29 @@
   <button class="burger" data-burger>☰</button>
 </div></header>
 <main class="wrap">
-  <div class="section"><h2>Checkout & Payment</h2>
-    <div class="steps"><span>1. Ringkasan</span>→<span>2. Bayar (PENDING)</span>→<span>3. Webhook VERIFIED</span></div>
+  <div class="section"><h2 data-i18n="co.title">Checkout & Payment</h2>
+    <div class="steps" data-i18n="co.steps"><span>1. Ringkasan</span>→<span>2. Bayar (PENDING)</span>→<span>3. Webhook VERIFIED</span></div>
     <div class="card" id="summary">Memuat...</div>
-    <div class="card" id="comingSoon" style="display:none"><b>COMING SOON</b><div class="small">Pendaftaran kelas ini belum dibuka. Silakan pilih kelas lain di <a href="catalog.html">katalog</a>.</div></div>
+    <div class="card" id="comingSoon" style="display:none"><b data-i18n="co.soon.t">COMING SOON</b><div class="small" data-i18n="co.soon.d">Pendaftaran kelas ini belum dibuka. Silakan pilih kelas lain di <a href="catalog.html">katalog</a>.</div></div>
     <div class="card" id="payCard">
-      <div class="field"><label>Metode bayar</label><select id="method"><option>QRIS</option><option>Bank Transfer (VA)</option><option>E-Wallet</option></select></div>
-      <button class="btn btn-brand" id="payBtn">Buat Enrollment + Bayar</button>
-      <p class="small">Membuat <span class="id-mono">ENR-XXXXXX</span> yang mengikat Student ID ↔ Class ID. Status awal PENDING.</p>
+      <div class="field"><label data-i18n="co.method">Metode bayar</label><select id="method"><option>QRIS</option><option>Bank Transfer (VA)</option><option>E-Wallet</option></select></div>
+      <button class="btn btn-brand" id="payBtn" data-i18n="co.pay">Buat Enrollment + Bayar</button>
+      <p class="small" data-i18n="co.pay.d">Membuat <span class="id-mono">ENR-XXXXXX</span> yang mengikat Student ID ↔ Class ID. Status awal PENDING.</p>
     </div>
     <div class="card" id="payBox" style="display:none">
-      <b id="payTitle">Instruksi Pembayaran</b>
+      <b id="payTitle" data-i18n="co.instr">Instruksi Pembayaran</b>
       <div class="pay-box"><div class="qr" id="qrText">QRIS</div>
         <div class="copy-row"><code id="payCode">-</code><button class="btn btn-ghost btn-sm" data-copy="-" id="copyBtn">Salin Kode</button></div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-        <button class="btn btn-brand btn-sm" id="simulateWebhook">Simulasi Webhook VERIFIED</button>
-        <span class="small">Di production: callback Midtrans/Xendit → verifyPayment().</span>
+        <button class="btn btn-brand btn-sm" id="simulateWebhook" data-i18n="co.simulate">Simulasi Webhook VERIFIED</button>
+        <span class="small" data-i18n="co.simnote">Di production: callback Midtrans/Xendit → verifyPayment().</span>
       </div>
       <div id="verifyResult" class="small"></div>
     </div>
   </div>
 </main>
-<script src="js/store.js?v=6"></script><script src="js/app.js?v=6"></script>
+<script src="js/store.js?v=6"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=6"></script>
 <script>
 let CLS=null, TRX=null;
 const qs = new URLSearchParams(location.search);

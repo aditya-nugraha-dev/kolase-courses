@@ -23,49 +23,49 @@
         </div>
       </div>
       <div class="auth-body">
-        <div class="auth-title" id="authTitle">Welcome to KOLASE!</div>
+        <div class="auth-title" id="authTitle" data-i18n="login.title">Welcome to KOLASE!</div>
         <div class="auth-tabs" role="tablist" aria-label="Pilih mode">
-          <button type="button" id="tabLogin" class="active" role="tab" aria-selected="true">Login</button>
-          <button type="button" id="tabRegister" role="tab" aria-selected="false">Register</button>
+          <button type="button" id="tabLogin" class="active" role="tab" aria-selected="true" data-i18n="login.tab.in">Login</button>
+          <button type="button" id="tabRegister" role="tab" aria-selected="false" data-i18n="login.reg">Register</button>
         </div>
         <p class="auth-desc" id="authDesc">Masuk untuk lanjutkan kelas, lihat jadwal & chat guru. ID permanen <span class="id-mono">STU-XXXXXX</span> berlaku seumur hidup.</p>
 
         <!-- LOGIN -->
         <form id="loginPane" autocomplete="on">
-          <label class="auth-label" for="loginId">User name</label>
-          <div class="auth-input"><input id="loginId" name="username" autocomplete="username email" placeholder="Enter your User name / Email"></div>
-          <label class="auth-label" for="loginPass">Password</label>
+          <label class="auth-label" for="loginId" data-i18n="login.user">User name</label>
+          <div class="auth-input"><input id="loginId" name="username" autocomplete="username email" placeholder="Enter your User name / Email" data-i18n-ph="login.user.ph"></div>
+          <label class="auth-label" for="loginPass" data-i18n="login.pass">Password</label>
           <div class="auth-input">
-            <input id="loginPass" name="current-password" type="password" autocomplete="current-password" placeholder="Enter your Password">
+            <input id="loginPass" name="current-password" type="password" autocomplete="current-password" placeholder="Enter your Password" data-i18n-ph="login.pass.ph">
             <button type="button" class="auth-eye" data-eye="loginPass" aria-label="Tampilkan password">👁</button>
           </div>
           <div class="auth-row">
-            <label><input type="checkbox" id="remember" checked> Remember me</label>
-            <button type="button" class="auth-link" id="forgotBtn">Forgot Password?</button>
+            <label><input type="checkbox" id="remember" checked><span data-i18n="login.remember"> Remember me</span></label>
+            <button type="button" class="auth-link" id="forgotBtn" data-i18n="login.forgot">Forgot Password?</button>
           </div>
-          <button class="auth-btn" type="submit" id="loginBtn">Login</button>
+          <button class="auth-btn" type="submit" id="loginBtn" data-i18n="login.btn">Login</button>
           <div class="auth-out" id="loginOut" role="status" aria-live="polite"></div>
-          <div class="auth-switch">Belum punya akun? <button type="button" class="auth-link" id="goRegister">Register</button></div>
+          <div class="auth-switch"><span data-i18n="login.noacc">Belum punya akun?</span> <button type="button" class="auth-link" id="goRegister" data-i18n="login.reg">Register</button></div>
         </form>
 
         <!-- REGISTER -->
         <form id="registerPane" hidden autocomplete="on">
-          <label class="auth-label" for="regEmail">Email Address</label>
-          <div class="auth-input"><input id="regEmail" type="email" autocomplete="email" placeholder="Enter your Email Address"></div>
-          <label class="auth-label" for="regNama">User name</label>
-          <div class="auth-input"><input id="regNama" autocomplete="name" placeholder="Enter your User name"></div>
-          <label class="auth-label" for="regPass">Password</label>
+          <label class="auth-label" for="regEmail" data-i18n="login.email">Email Address</label>
+          <div class="auth-input"><input id="regEmail" type="email" autocomplete="email" placeholder="Enter your Email Address" data-i18n-ph="login.email.ph"></div>
+          <label class="auth-label" for="regNama" data-i18n="login.uname">User name</label>
+          <div class="auth-input"><input id="regNama" autocomplete="name" placeholder="Enter your User name" data-i18n-ph="login.uname.ph"></div>
+          <label class="auth-label" for="regPass" data-i18n="login.pass">Password</label>
           <div class="auth-input">
-            <input id="regPass" type="password" autocomplete="new-password" placeholder="Enter your Password (min. 4 karakter)">
+            <input id="regPass" type="password" autocomplete="new-password" placeholder="Enter your Password (min. 4 karakter)" data-i18n-ph="login.newpass.ph">
             <button type="button" class="auth-eye" data-eye="regPass" aria-label="Tampilkan password">👁</button>
           </div>
           <div class="field-inline" style="margin-top:12px">
             <div>
-              <label class="auth-label" for="regWa" style="margin-top:0">No. WA</label>
+              <label class="auth-label" for="regWa" style="margin-top:0" data-i18n="login.wa">No. WA</label>
               <div class="auth-input"><input id="regWa" inputmode="tel" autocomplete="tel" placeholder="08xx"></div>
             </div>
             <div>
-              <label class="auth-label" for="regRole" style="margin-top:0">Peran</label>
+              <label class="auth-label" for="regRole" style="margin-top:0" data-i18n="login.role">Peran</label>
               <div class="auth-input"><select id="regRole"><option value="student">Student</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select></div>
             </div>
           </div>
@@ -76,14 +76,14 @@
           <div id="roleHint" class="small" style="display:none;margin:8px 2px 0"></div>
           <button class="auth-btn" type="submit" id="regBtn">Register</button>
           <div class="auth-out" id="regOut" role="status" aria-live="polite"></div>
-          <div class="auth-switch">Sudah punya akun? <button type="button" class="auth-link" id="goLogin">Login</button></div>
+          <div class="auth-switch"><span data-i18n="login.haveacc">Sudah punya akun?</span> <button type="button" class="auth-link" id="goLogin" data-i18n="login.loginlink">Login</button></div>
         </form>
       </div>
     </div>
   </div>
 </main>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/sheets-config.js"></script><script src="js/store.js?v=6"></script><script src="js/app.js?v=6"></script>
+<script src="js/sheets-config.js"></script><script src="js/store.js?v=6"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=6"></script>
 <script>
 // Sudah masuk? Langsung ke portal.
 try {
@@ -107,9 +107,8 @@ function setMode(mode){
   tabLogin.setAttribute("aria-selected", String(isLogin));
   tabRegister.setAttribute("aria-selected", String(!isLogin));
   authTitle.textContent = "Welcome to KOLASE!";
-  authDesc.innerHTML = isLogin
-    ? 'Masuk untuk lanjutkan kelas, lihat jadwal & chat guru. ID permanen <span class="id-mono">STU-XXXXXX</span> berlaku seumur hidup.'
-    : 'Daftar 1 menit, ID permanen langsung jadi: <span class="id-mono">STU-XXXXXX</span> / <span class="id-mono">TCH-XXXXXX</span>.';
+  const lt = (k) => (window.KolaseI18n ? KolaseI18n.t(k) : k);
+  authDesc.innerHTML = isLogin ? lt("login.desc.in") : lt("login.desc.up");
   try { history.replaceState(null, "", mode === "register" ? "login.html?mode=register" : "login.html"); } catch(e){}
 }
 tabLogin.onclick = () => setMode("login");
