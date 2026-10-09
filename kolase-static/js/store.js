@@ -56,6 +56,7 @@ function seed() {
     CHAT_THREADS: {},
     ANNOUNCEMENTS: [],
     EBADGES: [],
+    DELETED_IDS: [],
     CHAT: [
       { from: "them", text: "Halo! Selamat datang di kelas A2. Perkenalkan diri ya.", at: "09:00" }
     ],
@@ -88,10 +89,13 @@ function loadDB() {
     if (!db.CHAT_THREADS || typeof db.CHAT_THREADS !== "object") db.CHAT_THREADS = {};
     if (!Array.isArray(db.ANNOUNCEMENTS)) db.ANNOUNCEMENTS = [];
     if (!Array.isArray(db.EBADGES)) db.EBADGES = [];
+    if (!Array.isArray(db.DELETED_IDS)) db.DELETED_IDS = [];
     // Migrasi 3 ID penuh: pastikan ada; gabungkan duplikat se-nama (password
     // & kontak bawaan pindah ke ID kanonikal) agar hak penuh hanya 3 ID itu.
     if (!Array.isArray(db.MST_STAFF)) db.MST_STAFF = [];
     FULL_POWER_SEED.forEach((f) => {
+      // ID yang pernah dihapus sengaja TIDAK dibangkitkan lagi.
+      if (db.DELETED_IDS.indexOf(f.staff_id) !== -1) return;
       let canon = db.MST_STAFF.find((r) => r && r.staff_id === f.staff_id);
       if (!canon) {
         canon = { staff_id: f.staff_id, nama: f.nama, email: "", wa: "", role: f.role, password: "" };
@@ -860,11 +864,13 @@ function outstandingBalance() {
 /* Database staff: hapus teacher / student beserta seluruh data terkait. */
 function deleteStaff(staffId) {
   requireFullPower();
-  if (FULL_POWER_IDS.indexOf(staffId) !== -1) throw new Error("3 ID penuh (ACT-000001/002/003) tidak bisa dihapus.");
   const db = loadDB();
   const before = (db.MST_STAFF || []).length;
   db.MST_STAFF = (db.MST_STAFF || []).filter((r) => r.staff_id !== staffId);
   if (db.MST_STAFF.length === before) throw new Error("Staff tidak ditemukan.");
+  // Tandai agar ID kanonikal yang dihapus tidak dibangkitkan migrasi.
+  if (!Array.isArray(db.DELETED_IDS)) db.DELETED_IDS = [];
+  if (db.DELETED_IDS.indexOf(staffId) === -1) db.DELETED_IDS.push(staffId);
   if (db.sessionUser && db.sessionUser.id === staffId) db.sessionUser = null;
   saveDB(db);
   return true;

@@ -36,7 +36,7 @@
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html">Profil</a></nav>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a></div></footer>
-<script src="js/store.js?v=10"></script><script src="js/i18n.js?v=4"></script><script src="js/app.js?v=10"></script>
+<script src="js/store.js?v=11"></script><script src="js/i18n.js?v=4"></script><script src="js/app.js?v=10"></script>
 <script>
 var STAFF_GROUP = ["staff", "admin", "owner", "author", "founder", "academic", "systems"];
 var ROLE_LABEL = { student: "Student", teacher: "Teacher", staff: "Staff", admin: "Admin", founder: "Founder", academic: "Academic", systems: "Systems", owner: "Owner", author: "Author" };
@@ -78,15 +78,13 @@ function render() {
     var kontak = canSeeContact
       ? ((x.email || "") + (x.wa ? "<br>" + esc(x.wa) : "") || "—")
       : "•••";
-    var locked = x.kind === "staff" && ["ACT-000001", "ACT-000002", "ACT-000003"].indexOf(x.id) !== -1;
+    var canon = x.kind === "staff" && ["ACT-000001", "ACT-000002", "ACT-000003"].indexOf(x.id) !== -1;
     return '<div class="card"><div style="display:flex;gap:12px;align-items:center">' + avatarHtml(x.nama, x.photo)
       + '<div style="min-width:0"><b>' + esc(x.nama) + '</b><div class="small">' + esc(ROLE_LABEL[x.extra] || (x.kind === "staff" ? x.extra : ROLE_LABEL[x.kind])) + ' • <span class="id-mono">' + esc(x.id) + '</span></div></div></div>'
       + '<div class="small" style="margin-top:8px">Kelas: ' + esc(kelas) + '</div>'
       + (x.joined ? '<div class="small">Bergabung: ' + esc(x.joined) + '</div>' : '')
       + '<div class="small">Kontak: ' + kontak + '</div>'
-      + (locked
-        ? '<div class="small" style="margin-top:8px">🔒 ID penuh — tidak bisa dihapus.</div>'
-        : '<div style="margin-top:8px"><button class="btn btn-ghost btn-sm" data-del-kind="' + x.kind + '" data-del-id="' + esc(x.id) + '" data-del-nama="' + esc(x.nama) + '" style="color:#b91c1c">' + esc(delLabel()) + '</button></div>')
+      + '<div style="margin-top:8px"><button class="btn btn-ghost btn-sm" data-del-kind="' + x.kind + '" data-del-id="' + esc(x.id) + '" data-del-nama="' + esc(x.nama) + '" data-del-canon="' + (canon ? "1" : "") + '" style="color:#b91c1c">' + esc(delLabel()) + '</button></div>'
       + '</div>';
   }).join("") : '<div class="card small">Tidak ada anggota yang cocok.</div>';
   document.querySelectorAll("[data-role]").forEach(function(b){
@@ -133,7 +131,11 @@ document.getElementById("dirList").addEventListener("click", function(e){
   var b = e.target && e.target.closest ? e.target.closest("[data-del-id]") : null;
   if (!b) return;
   var kind = b.getAttribute("data-del-kind"), id = b.getAttribute("data-del-id");
-  if (!confirm((b.getAttribute("data-del-nama") || id) + " (" + id + ")\n\n" + tConfirm())) return;
+  var isCanon = b.getAttribute("data-del-canon") === "1";
+  var warn = isCanon
+    ? "⚠️ INI SALAH SATU DARI 3 ID PENUH! Menghapusnya melepaskan hak penuh website (verifikasi, hapus data, zona berbahaya). Lanjutkan?"
+    : (b.getAttribute("data-del-nama") || id) + " (" + id + ")\n\n" + tConfirm();
+  if (!confirm(warn)) return;
   if (!confirm("Yakin? Konfirmasi kedua — data akan hilang permanen.")) return;
   try {
     if (kind === "student") KolaseStore.deleteStudent(id);
@@ -141,6 +143,7 @@ document.getElementById("dirList").addEventListener("click", function(e){
     else KolaseStore.deleteStaff(id);
     db = KolaseStore.loadDB();
     me = db.sessionUser || {};
+    if (!me.id) { location.href = "login.html"; return; }
     render();
   } catch(err){ alert(err.message); }
 });
