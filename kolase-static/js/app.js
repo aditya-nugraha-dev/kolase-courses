@@ -11,7 +11,7 @@ function renderKolaseFooter() {
     + `</ul></div>`
     + `<nav class="kf-col" aria-label="Home"><h4>Home</h4><ul><li><a href="#">Features</a></li><li><a href="#">Our Testimonials</a></li><li><a href="#">FAQ</a></li></ul></nav>`
     + `<nav class="kf-col" aria-label="About Us"><h4>About Us</h4><ul><li><a href="#">Our Mission</a></li><li><a href="#">Our Vision</a></li><li><a href="#">Awards and Recognitions</a></li><li><a href="#">History</a></li><li><a href="#">Teachers</a></li></ul></nav>`
-    + `<nav class="kf-col" aria-label="Academics"><h4>Academics</h4><ul><li><a href="#">Special Features</a></li><li><a href="#">Gallery</a></li></ul></nav>`
+    + `<nav class="kf-col" aria-label="Academics"><h4>Academics</h4><ul><li><a href="#">Special Features</a></li><li><a href="#">Gallery</a></li><li><a href="direktori.html">Direktori Anggota</a></li></ul></nav>`
     + `<nav class="kf-col" aria-label="Contact Us"><h4>Contact Us</h4><ul><li><a href="mailto:kolaseenglish@gmail.com">Information</a></li><li><a href="https://maps.google.com/?q=Tangerang,Indonesia" target="_blank" rel="noopener">Map &amp; Direction</a></li></ul></nav>`
     + `</div><div class="kf-bottom"><div class="kf-legal"><a href="trust-legal.html">Terms of Service</a><span>|</span><a href="trust-legal.html">Privacy Policy</a><span>|</span><a href="trust-legal.html">Cookie Policy</a></div>`
     + `</div>`
@@ -73,12 +73,12 @@ var ROLE_NAVS = {
   },
   teacher: {
     brand: "teacher-portal.html",
-    links: [["teacher-portal.html", "nav.dashboard"], ["teacher-chat.html", "nav.chat"], ["profile.html", "nav.profil"]],
+    links: [["teacher-portal.html", "nav.dashboard"], ["teacher-chat.html", "nav.chat"], ["direktori.html", "nav.direktori"], ["profile.html", "nav.profil"]],
     tabs: [["teacher-portal.html", "nav.kelas"], ["teacher-chat.html", "nav.chat"], ["schedule.html", "nav.jadwal"], ["profile.html", "nav.profil"]]
   },
   staff: {
     brand: "home.html",
-    links: [["home.html", "nav.home"], ["catalog.html", "nav.katalog"], ["dashboard.html", "nav.dashboard"], ["schedule.html", "nav.kalender"], ["teacher-portal.html", "nav.teacher"], ["staff-portal.html", "nav.staff"], ["teacher-chat.html", "nav.chat"], ["profile.html", "nav.profil"]],
+    links: [["home.html", "nav.home"], ["catalog.html", "nav.katalog"], ["dashboard.html", "nav.dashboard"], ["schedule.html", "nav.kalender"], ["teacher-portal.html", "nav.teacher"], ["staff-portal.html", "nav.staff"], ["teacher-chat.html", "nav.chat"], ["direktori.html", "nav.direktori"], ["profile.html", "nav.profil"]],
     tabs: [["home.html", "nav.home"], ["staff-portal.html", "nav.portal"], ["profile.html", "nav.profil"]]
   }
 };

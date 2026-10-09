@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KOLASE — Direktori Anggota</title>
+<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="icon" href="assets/kolase-logo.png">
+</head>
+<body data-guard="student,teacher,staff,admin,founder,academic,systems,author,owner">
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
+  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
+  <button class="burger" data-burger>☰</button>
+</div></header>
+<main class="wrap">
+  <div class="section"><h2 data-i18n="dir.title">Direktori Anggota</h2>
+    <p class="small" data-i18n="dir.desc">Student, teacher, dan peran lain yang terdaftar di website. Kontak (email/WA) hanya terlihat untuk staff.</p>
+    <div class="kpi">
+      <div class="card"><div class="small" data-i18n="dir.c.student">Student</div><b id="cS" style="font-size:26px">-</b></div>
+      <div class="card"><div class="small" data-i18n="dir.c.teacher">Teacher</div><b id="cT" style="font-size:26px">-</b></div>
+      <div class="card"><div class="small" data-i18n="dir.c.staff">Staff & Pimpinan</div><b id="cF" style="font-size:26px">-</b></div>
+    </div>
+  </div>
+  <div class="section"><div class="card">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="dirQ" placeholder="Cari nama / ID…" data-i18n-ph="dir.search" style="flex:1;min-width:180px;padding:12px;border:1px solid #CBD5E1;border-radius:10px;font-size:15px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap" role="tablist" aria-label="Filter peran">
+        <button class="btn btn-ghost btn-sm" data-role="" data-i18n="dir.all">Semua</button>
+        <button class="btn btn-ghost btn-sm" data-role="student">Student</button>
+        <button class="btn btn-ghost btn-sm" data-role="teacher">Teacher</button>
+        <button class="btn btn-ghost btn-sm" data-role="staff" data-i18n="dir.staff">Staff</button>
+      </div>
+    </div>
+  </div></div>
+  <div class="section"><div id="dirList" class="grid cols-2"></div></div>
+</main>
+<nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html">Profil</a></nav>
+<footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a></div></footer>
+<script src="js/store.js?v=9"></script><script src="js/i18n.js?v=3"></script><script src="js/app.js?v=9"></script>
+<script>
+var STAFF_GROUP = ["staff", "admin", "owner", "author", "founder", "academic", "systems"];
+var ROLE_LABEL = { student: "Student", teacher: "Teacher", staff: "Staff", admin: "Admin", founder: "Founder", academic: "Academic", systems: "Systems", owner: "Owner", author: "Author" };
+var db = KolaseStore.loadDB();
+var me = db.sessionUser || {};
+var canSeeContact = STAFF_GROUP.indexOf(me.role) !== -1;
+var filterRole = "";
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
+function avatarHtml(name, photo) {
+  var initial = (String(name || "?").trim().charAt(0) || "?").toUpperCase();
+  return photo
+    ? '<img src="' + photo + '" alt="Foto" style="width:48px;height:48px;border-radius:12px;object-fit:cover;flex-shrink:0">'
+    : '<span style="display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:12px;background:var(--navy);color:#fff;font-weight:800;font-size:18px;flex-shrink:0">' + esc(initial) + '</span>';
+}
+function collect() {
+  var out = [];
+  (db.MST_STUDENTS || []).forEach(function(r){ out.push({ kind: "student", id: r.student_id, nama: r.nama, email: r.email, wa: r.wa, photo: r.photo || "", joined: r.tgl_daftar || "", extra: "" }); });
+  (db.MST_TEACHERS || []).forEach(function(r){ out.push({ kind: "teacher", id: r.teacher_id, nama: r.nama, email: r.email, wa: r.wa, photo: r.photo || "", joined: "", extra: "" }); });
+  (db.MST_STAFF || []).forEach(function(r){ out.push({ kind: "staff", id: r.staff_id, nama: r.nama, email: r.email, wa: r.wa, photo: r.photo || "", joined: "", extra: ROLE_LABEL[r.role] || r.role }); });
+  return out;
+}
+function render() {
+  var q = (document.getElementById("dirQ").value || "").trim().toLowerCase();
+  var all = collect();
+  document.getElementById("cS").textContent = all.filter(function(x){ return x.kind === "student"; }).length;
+  document.getElementById("cT").textContent = all.filter(function(x){ return x.kind === "teacher"; }).length;
+  document.getElementById("cF").textContent = all.filter(function(x){ return x.kind === "staff"; }).length;
+  var memByStudent = {};
+  (db.CLASS_MEMBERSHIP || []).forEach(function(m){ (memByStudent[m.student_id] = memByStudent[m.student_id] || []).push(m.class_id + " (" + m.status + ")"); });
+  var rows = all.filter(function(x){
+    if (filterRole === "staff" ? x.kind !== "staff" : filterRole && x.kind !== filterRole) return false;
+    if (!q) return true;
+    return String(x.nama || "").toLowerCase().indexOf(q) !== -1 || String(x.id || "").toLowerCase().indexOf(q) !== -1;
+  });
+  document.getElementById("dirList").innerHTML = rows.length ? rows.map(function(x){
+    var kelas = x.kind === "student"
+      ? ((memByStudent[x.id] || []).join(", ") || "—")
+      : (x._taught || "—");
+    var kontak = canSeeContact
+      ? ((x.email || "") + (x.wa ? "<br>" + esc(x.wa) : "") || "—")
+      : "•••";
+    return '<div class="card"><div style="display:flex;gap:12px;align-items:center">' + avatarHtml(x.nama, x.photo)
+      + '<div style="min-width:0"><b>' + esc(x.nama) + '</b><div class="small">' + esc(ROLE_LABEL[x.extra] || (x.kind === "staff" ? x.extra : ROLE_LABEL[x.kind])) + ' • <span class="id-mono">' + esc(x.id) + '</span></div></div></div>'
+      + '<div class="small" style="margin-top:8px">Kelas: ' + esc(kelas) + '</div>'
+      + (x.joined ? '<div class="small">Bergabung: ' + esc(x.joined) + '</div>' : '')
+      + '<div class="small">Kontak: ' + kontak + '</div></div>';
+  }).join("") : '<div class="card small">Tidak ada anggota yang cocok.</div>';
+  document.querySelectorAll("[data-role]").forEach(function(b){
+    var on = (b.getAttribute("data-role") || "") === filterRole;
+    b.style.borderColor = on ? "var(--navy)" : "";
+    b.style.background = on ? "var(--navy)" : "";
+    b.style.color = on ? "#fff" : "";
+  });
+}
+// Kelas yang diajar tiap teacher (cocok nama) — lalu render.
+fetch("data/classes.json").then(function(r){ return r.json(); }).then(function(classes){
+  var byTeacher = {};
+  (db.MST_TEACHERS || []).forEach(function(t){
+    var hit = classes.filter(function(c){
+      var g = ((c.guru || "") + " " + (c.teacher_name || "")).toLowerCase();
+      return t.nama && g.indexOf(String(t.nama).toLowerCase()) !== -1;
+    }).map(function(c){ return c.id; });
+    byTeacher[t.teacher_id] = hit.join(", ");
+  });
+  var _collect = collect;
+  collect = function(){
+    return _collect().map(function(x){
+      if (x.kind === "teacher" && byTeacher[x.id]) x._taught = byTeacher[x.id];
+      return x;
+    });
+  };
+  render();
+}).catch(render);
+document.getElementById("dirQ").addEventListener("input", render);
+document.querySelectorAll("[data-role]").forEach(function(b){
+  b.onclick = function(){ filterRole = b.getAttribute("data-role") || ""; render(); };
+});
+render();
+</script>
+</body>
+</html>
