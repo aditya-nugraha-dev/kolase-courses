@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="css/style.css?v=6">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
-<body data-guard="student,teacher,staff,admin,founder,academic,systems,author,owner">
+<body data-guard="founder,academic,systems">
 <header class="topbar"><div class="wrap">
   <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
   <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
@@ -14,7 +14,7 @@
 </div></header>
 <main class="wrap">
   <div class="section"><h2 data-i18n="dir.title">Direktori Anggota</h2>
-    <p class="small" data-i18n="dir.desc">Student, teacher, dan peran lain yang terdaftar di website. Kontak (email/WA) hanya terlihat untuk staff.</p>
+    <p class="small" data-i18n="dir.desc">Student, teacher, dan peran lain yang terdaftar di website. Khusus 3 ID penuh — kelola & hapus data langsung dari sini.</p>
     <div class="kpi">
       <div class="card"><div class="small" data-i18n="dir.c.student">Student</div><b id="cS" style="font-size:26px">-</b></div>
       <div class="card"><div class="small" data-i18n="dir.c.teacher">Teacher</div><b id="cT" style="font-size:26px">-</b></div>
@@ -36,7 +36,7 @@
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html">Profil</a></nav>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a></div></footer>
-<script src="js/store.js?v=9"></script><script src="js/i18n.js?v=3"></script><script src="js/app.js?v=9"></script>
+<script src="js/store.js?v=10"></script><script src="js/i18n.js?v=4"></script><script src="js/app.js?v=10"></script>
 <script>
 var STAFF_GROUP = ["staff", "admin", "owner", "author", "founder", "academic", "systems"];
 var ROLE_LABEL = { student: "Student", teacher: "Teacher", staff: "Staff", admin: "Admin", founder: "Founder", academic: "Academic", systems: "Systems", owner: "Owner", author: "Author" };
@@ -78,11 +78,16 @@ function render() {
     var kontak = canSeeContact
       ? ((x.email || "") + (x.wa ? "<br>" + esc(x.wa) : "") || "—")
       : "•••";
+    var locked = x.kind === "staff" && ["ACT-000001", "ACT-000002", "ACT-000003"].indexOf(x.id) !== -1;
     return '<div class="card"><div style="display:flex;gap:12px;align-items:center">' + avatarHtml(x.nama, x.photo)
       + '<div style="min-width:0"><b>' + esc(x.nama) + '</b><div class="small">' + esc(ROLE_LABEL[x.extra] || (x.kind === "staff" ? x.extra : ROLE_LABEL[x.kind])) + ' • <span class="id-mono">' + esc(x.id) + '</span></div></div></div>'
       + '<div class="small" style="margin-top:8px">Kelas: ' + esc(kelas) + '</div>'
       + (x.joined ? '<div class="small">Bergabung: ' + esc(x.joined) + '</div>' : '')
-      + '<div class="small">Kontak: ' + kontak + '</div></div>';
+      + '<div class="small">Kontak: ' + kontak + '</div>'
+      + (locked
+        ? '<div class="small" style="margin-top:8px">🔒 ID penuh — tidak bisa dihapus.</div>'
+        : '<div style="margin-top:8px"><button class="btn btn-ghost btn-sm" data-del-kind="' + x.kind + '" data-del-id="' + esc(x.id) + '" data-del-nama="' + esc(x.nama) + '" style="color:#b91c1c">' + esc(delLabel()) + '</button></div>')
+      + '</div>';
   }).join("") : '<div class="card small">Tidak ada anggota yang cocok.</div>';
   document.querySelectorAll("[data-role]").forEach(function(b){
     var on = (b.getAttribute("data-role") || "") === filterRole;
@@ -110,9 +115,34 @@ fetch("data/classes.json").then(function(r){ return r.json(); }).then(function(c
   };
   render();
 }).catch(render);
+function delLabel(){
+  try { if (window.KolaseI18n) return KolaseI18n.t("dir.delete"); } catch(e){}
+  return "Hapus";
+}
+function tConfirm(){
+  try {
+    if (window.KolaseI18n) return KolaseI18n.t("dir.del.confirm");
+  } catch(e){}
+  return "Hapus permanen beserta seluruh datanya? Tindakan ini tidak bisa dibatalkan.";
+}
 document.getElementById("dirQ").addEventListener("input", render);
 document.querySelectorAll("[data-role]").forEach(function(b){
   b.onclick = function(){ filterRole = b.getAttribute("data-role") || ""; render(); };
+});
+document.getElementById("dirList").addEventListener("click", function(e){
+  var b = e.target && e.target.closest ? e.target.closest("[data-del-id]") : null;
+  if (!b) return;
+  var kind = b.getAttribute("data-del-kind"), id = b.getAttribute("data-del-id");
+  if (!confirm((b.getAttribute("data-del-nama") || id) + " (" + id + ")\n\n" + tConfirm())) return;
+  if (!confirm("Yakin? Konfirmasi kedua — data akan hilang permanen.")) return;
+  try {
+    if (kind === "student") KolaseStore.deleteStudent(id);
+    else if (kind === "teacher") KolaseStore.deleteTeacher(id);
+    else KolaseStore.deleteStaff(id);
+    db = KolaseStore.loadDB();
+    me = db.sessionUser || {};
+    render();
+  } catch(err){ alert(err.message); }
 });
 render();
 </script>

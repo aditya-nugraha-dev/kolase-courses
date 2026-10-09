@@ -11,7 +11,7 @@ function renderKolaseFooter() {
     + `</ul></div>`
     + `<nav class="kf-col" aria-label="Home"><h4>Home</h4><ul><li><a href="#">Features</a></li><li><a href="#">Our Testimonials</a></li><li><a href="#">FAQ</a></li></ul></nav>`
     + `<nav class="kf-col" aria-label="About Us"><h4>About Us</h4><ul><li><a href="#">Our Mission</a></li><li><a href="#">Our Vision</a></li><li><a href="#">Awards and Recognitions</a></li><li><a href="#">History</a></li><li><a href="#">Teachers</a></li></ul></nav>`
-    + `<nav class="kf-col" aria-label="Academics"><h4>Academics</h4><ul><li><a href="#">Special Features</a></li><li><a href="#">Gallery</a></li><li><a href="direktori.html">Direktori Anggota</a></li></ul></nav>`
+    + `<nav class="kf-col" aria-label="Academics"><h4>Academics</h4><ul><li><a href="#">Special Features</a></li><li><a href="#">Gallery</a></li><li data-fullpower-only><a href="direktori.html">Direktori Anggota</a></li></ul></nav>`
     + `<nav class="kf-col" aria-label="Contact Us"><h4>Contact Us</h4><ul><li><a href="mailto:kolaseenglish@gmail.com">Information</a></li><li><a href="https://maps.google.com/?q=Tangerang,Indonesia" target="_blank" rel="noopener">Map &amp; Direction</a></li></ul></nav>`
     + `</div><div class="kf-bottom"><div class="kf-legal"><a href="trust-legal.html">Terms of Service</a><span>|</span><a href="trust-legal.html">Privacy Policy</a><span>|</span><a href="trust-legal.html">Cookie Policy</a></div>`
     + `</div>`
@@ -27,6 +27,15 @@ function renderKolaseFooter() {
     f.classList.add("kolase-footer");
     f.innerHTML = html;
   });
+  // Footer: link khusus 3 ID penuh disembunyikan dari peran lain.
+  try {
+    var raw = localStorage.getItem("kolase_db_v1");
+    var su = (raw && JSON.parse(raw).sessionUser) || null;
+    var ok = su && ["founder", "academic", "systems"].indexOf(su.role) !== -1;
+    document.querySelectorAll("footer [data-fullpower-only]").forEach(function (el) {
+      el.style.display = ok ? "" : "none";
+    });
+  } catch (e) {}
 }
 /* Navbar: ganti link "Profil" jadi foto profil saat sudah login.
    Foto dibaca dari sessionUser.photo (diisi halaman Profil) atau baris master. */
@@ -73,7 +82,7 @@ var ROLE_NAVS = {
   },
   teacher: {
     brand: "teacher-portal.html",
-    links: [["teacher-portal.html", "nav.dashboard"], ["teacher-chat.html", "nav.chat"], ["direktori.html", "nav.direktori"], ["profile.html", "nav.profil"]],
+    links: [["teacher-portal.html", "nav.dashboard"], ["teacher-chat.html", "nav.chat"], ["profile.html", "nav.profil"]],
     tabs: [["teacher-portal.html", "nav.kelas"], ["teacher-chat.html", "nav.chat"], ["schedule.html", "nav.jadwal"], ["profile.html", "nav.profil"]]
   },
   staff: {
@@ -126,6 +135,19 @@ function renderRoleNav() {
     var u = (db && db.sessionUser) || null;
     var rk = roleNavKey(u && u.role);
     var nav = ROLE_NAVS[rk];
+    // Direktori hanya untuk 3 ID penuh (founder/academic/systems).
+    var FULL_ROLES = ["founder", "academic", "systems"];
+    if (!u || FULL_ROLES.indexOf(u.role) === -1) {
+      nav = {
+        brand: nav.brand,
+        links: nav.links.filter(function (l) { return l[0] !== "direktori.html"; }),
+        tabs: nav.tabs
+      };
+    }
+    // Tautan footer bertanda khusus ikut disembunyikan dari selain 3 ID penuh.
+    document.querySelectorAll("[data-fullpower-only]").forEach(function (el) {
+      el.style.display = (!u || FULL_ROLES.indexOf(u.role) === -1) ? "none" : "";
+    });
     var brand = document.querySelector(".topbar .brand");
     if (brand) brand.setAttribute("href", nav.brand);
     var navEl = document.querySelector("[data-nav]");

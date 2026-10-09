@@ -858,6 +858,17 @@ function outstandingBalance() {
 }
 
 /* Database staff: hapus teacher / student beserta seluruh data terkait. */
+function deleteStaff(staffId) {
+  requireFullPower();
+  if (FULL_POWER_IDS.indexOf(staffId) !== -1) throw new Error("3 ID penuh (ACT-000001/002/003) tidak bisa dihapus.");
+  const db = loadDB();
+  const before = (db.MST_STAFF || []).length;
+  db.MST_STAFF = (db.MST_STAFF || []).filter((r) => r.staff_id !== staffId);
+  if (db.MST_STAFF.length === before) throw new Error("Staff tidak ditemukan.");
+  if (db.sessionUser && db.sessionUser.id === staffId) db.sessionUser = null;
+  saveDB(db);
+  return true;
+}
 function deleteTeacher(teacherId) {
   requireFullPower();
   const db = loadDB();
@@ -889,4 +900,4 @@ function deleteStudent(studentId) {
   saveDB(db);
   return true;
 }
-window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance };
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, deleteStaff, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance };
