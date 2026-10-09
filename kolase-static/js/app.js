@@ -109,6 +109,10 @@ function navBadgeFor(role, href) {
     if (!raw) return 0;
     var db = JSON.parse(raw);
     if (STAFF_GROUP.indexOf(role) !== -1 && href === "staff-portal.html") {
+      if (role === "systems") {
+        try { if (window.KolaseStore) return KolaseStore.pendingStaffRequestCount(); } catch (e) {}
+        return (db.STAFF_REQUESTS || []).filter(function (r) { return r.status === "PENDING"; }).length;
+      }
       return (db.TXN_PAYMENTS || []).filter(function (t) { return t.status === "PENDING"; }).length;
     }
     if (role === "student" && href === "teacher-chat.html" && db.sessionUser) {

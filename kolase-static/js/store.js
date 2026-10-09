@@ -57,6 +57,7 @@ function seed() {
     ANNOUNCEMENTS: [],
     EBADGES: [],
     DELETED_IDS: [],
+    STAFF_REQUESTS: [],
     CHAT: [
       { from: "them", text: "Halo! Selamat datang di kelas A2. Perkenalkan diri ya.", at: "09:00" }
     ],
@@ -90,6 +91,7 @@ function loadDB() {
     if (!Array.isArray(db.ANNOUNCEMENTS)) db.ANNOUNCEMENTS = [];
     if (!Array.isArray(db.EBADGES)) db.EBADGES = [];
     if (!Array.isArray(db.DELETED_IDS)) db.DELETED_IDS = [];
+    if (!Array.isArray(db.STAFF_REQUESTS)) db.STAFF_REQUESTS = [];
     // Migrasi 3 ID penuh: pastikan ada; gabungkan duplikat se-nama (password
     // & kontak bawaan pindah ke ID kanonikal) agar hak penuh hanya 3 ID itu.
     if (!Array.isArray(db.MST_STAFF)) db.MST_STAFF = [];
@@ -130,11 +132,17 @@ function requireFullPower() {
   if (!isFullPowerUser(db.sessionUser)) throw new Error("Khusus 3 ID penuh (ACT-000001/002/003).");
 }
 
-function registerPerson(role, nama, email, wa, password) {
-  // Pendaftaran mandiri HANYA student (STU-…) & teacher (TCH-…).
-  // Staff/leadership (ACT-…) invite-only: 3 ID penuh sudah ditanam, tinggal login.
-  if (role !== "student" && role !== "teacher") {
-    throw new Error("Pendaftaran staff/leadership hanya via undangan admin. Hubungi admin KOLASE.");
+/* PIN khusus pendaftaran Head of Systems & Technology.
+   CATATAN: prototype browser — PIN terlihat di source. Penegakan asli di backend. */
+const SYSTEMS_PIN = "190604";
+
+function registerPerson(role, nama, email, wa, password, pin) {
+  // Student (STU-…) & teacher (TCH-…) langsung jadi.
+  // Systems (Head of Systems & Technology): wajib PIN.
+  // ACT lain (founder/academic/…): jadi PERMINTAAN, disetujui Systems.
+  if (role !== "student" && role !== "teacher" && role !== "systems" &&
+      ["founder", "academic", "staff", "admin"].indexOf(role) === -1) {
+    throw new Error("Peran tidak dikenal.");
   }
   const db = loadDB();
   const em = String(email || "").trim().toLowerCase();
@@ -142,6 +150,40 @@ function registerPerson(role, nama, email, wa, password) {
     const dup = [...(db.MST_STUDENTS || []), ...(db.MST_TEACHERS || []), ...(db.MST_STAFF || [])]
       .some((r) => String(r.email || "").trim().toLowerCase() === em);
     if (dup) throw new Error("Email sudah terdaftar. Silakan Login.");
+  }
+  if (role === "systems") {
+    if (String(pin || "") !== SYSTEMS_PIN) throw new Error("PIN salah. Khusus Head of Systems & Technology.");
+    const sid = nextId("ACT", db.MST_STAFF, "staff_id");
+    db.MST_STAFF.push({ staff_id: sid, nama, email, wa, role, password: password || "" });
+    db.sessionUser = { role, id: sid, nama, email };
+    saveDB(db);
+    postSheets({ action: "register", role, row: { staff_id: sid, nama, email, wa, role } });
+    postSheets({ action: "login", login: { at: new Date().toISOString(), user_id: sid, nama, email, role } });
+    return sid;
+  }
+  if (["founder", "academic", "staff", "admin"].indexOf(role) !== -1) {
+    if (!em) throw new Error("Email wajib diisi untuk permintaan akun.");
+    const existing = (db.STAFF_REQUESTS || []).find((r) =>
+      String(r.email || "").toLowerCase() === em && r.status === "PENDING");
+    if (existing) throw new Error("Permintaanmu masih menunggu persetujuan Head of Systems & Technology.");
+    const old = (db.STAFF_REQUESTS || []).find((r) =>
+      String(r.email || "").toLowerCase() === em && r.status === "REJECTED");
+    if (old) {
+      old.status = "PENDING";
+      old.nama = nama; old.wa = wa; old.password = password || "";
+      old.role = role; old.at = new Date().toISOString();
+      delete old.decided_by; delete old.decided_at;
+      saveDB(db);
+      return { request: true, reqId: old.id };
+    }
+    const reqId = nextId("REQ", db.STAFF_REQUESTS, "id");
+    db.STAFF_REQUESTS.unshift({
+      id: reqId, nama, email, wa, role, password: password || "",
+      status: "PENDING", at: new Date().toISOString(),
+    });
+    saveDB(db);
+    postSheets({ action: "staff_request", request: { id: reqId, nama, email, role, at: new Date().toISOString() } });
+    return { request: true, reqId };
   }
   let id;
   let pilotId = null;
@@ -176,6 +218,42 @@ function registerPerson(role, nama, email, wa, password) {
     });
   }
   return id;
+}
+
+/* Persetujuan akun ACT oleh Head of Systems & Technology (role systems).
+   Notif = badge angka + section di staff-portal. */
+function requireSystems() {
+  const db = loadDB();
+  if (!db.sessionUser || db.sessionUser.role !== "systems") {
+    throw new Error("Khusus Head of Systems & Technology.");
+  }
+  return db;
+}
+function listStaffRequests() {
+  const db = requireSystems();
+  return (db.STAFF_REQUESTS || []).slice(0, 100);
+}
+function pendingStaffRequestCount() {
+  const db = loadDB();
+  return (db.STAFF_REQUESTS || []).filter((r) => r.status === "PENDING").length;
+}
+function decideStaffRequest(reqId, approve) {
+  const db = requireSystems();
+  const r = (db.STAFF_REQUESTS || []).find((x) => x.id === reqId);
+  if (!r) throw new Error("Permintaan tidak ditemukan.");
+  if (r.status !== "PENDING") throw new Error("Permintaan sudah diputuskan (" + r.status + ").");
+  const me = db.sessionUser;
+  r.status = approve ? "APPROVED" : "REJECTED";
+  r.decided_by = me.id;
+  r.decided_at = new Date().toISOString();
+  let newId = null;
+  if (approve) {
+    newId = nextId("ACT", db.MST_STAFF, "staff_id");
+    db.MST_STAFF.push({ staff_id: newId, nama: r.nama, email: r.email, wa: r.wa, role: r.role, password: r.password || "" });
+    postSheets({ action: "register", role: r.role, row: { staff_id: newId, nama: r.nama, email: r.email, wa: r.wa, role: r.role } });
+  }
+  saveDB(db);
+  return { status: r.status, staff_id: newId };
 }
 
 function portalFor(role) {
@@ -906,4 +984,4 @@ function deleteStudent(studentId) {
   saveDB(db);
   return true;
 }
-window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, deleteStaff, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance };
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, deleteStaff, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance, listStaffRequests, pendingStaffRequestCount, decideStaffRequest, SYSTEMS_PIN };

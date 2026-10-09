@@ -21,6 +21,10 @@
     <div class="card"><div class="small" data-i18n="staff.badges">Badge Menunggu</div><b id="kG" style="font-size:26px">-</b></div>
     <div class="card"><div class="small">Omzet Verified</div><b id="kO" style="font-size:16px">-</b></div>
   </div></div>
+  <div class="section" id="persetujuan" style="display:none"><h2>Persetujuan Akun</h2>
+    <p class="small">Khusus Head of Systems & Technology — permintaan pembuatan akun Founder/Academic. Setujui untuk menerbitkan ID ACT-XXXXXX, tolak bila tidak sah.</p>
+    <div id="reqList"></div>
+  </div>
   <div class="section" id="pengumuman"><h2 data-i18n="staff.ann">Pengumuman</h2>
     <p class="small" data-i18n="staff.ann.d">Tampil di home untuk semua pengunjung. Maks 50 terbaru.</p>
     <div class="card">
@@ -69,7 +73,7 @@
   </div>
 </main>
 <nav class="mobile-tabs"><a href="home.html">Home</a><a href="staff-portal.html" class="active">Portal</a><a href="profile.html">Profil</a></nav>
-<script src="js/store.js?v=11"></script><script src="js/i18n.js?v=4"></script><script src="js/app.js?v=10"></script>
+<script src="js/store.js?v=12"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script>
 <script>
 const db = KolaseStore.loadDB();
 document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "";
@@ -124,6 +128,38 @@ document.getElementById("annSend").onclick = () => {
     renderAnn();
   } catch(e){ msg.textContent = e.message; }
 };
+// Persetujuan akun ACT — hanya tampil untuk role systems.
+(function(){
+  const u = (KolaseStore.loadDB().sessionUser) || {};
+  if (u.role !== "systems") return;
+  document.getElementById("persetujuan").style.display = "";
+  const render = () => {
+    let rows = [];
+    try { rows = KolaseStore.listStaffRequests(); } catch(e){ rows = []; }
+    const pend = rows.filter(r => r.status === "PENDING");
+    const done = rows.filter(r => r.status !== "PENDING");
+    const item = (r) => `<div class="cal-item"><div style="flex:1"><b>${r.nama}</b> <span class="pill p-pending">${r.role}</span><div class="small">${r.email || ""}${r.wa ? " • " + r.wa : ""} • ${String(r.at || "").slice(0, 10)} • <span class="id-mono">${r.id}</span></div>`
+      + (r.status !== "PENDING" ? `<div class="small">→ ${r.status} oleh ${r.decided_by || ""}</div>` : "") + `</div>`
+      + (r.status === "PENDING" ? `<div style="display:flex;gap:6px"><button class="btn btn-brand btn-sm" data-approve="${r.id}">Setujui</button><button class="btn btn-ghost btn-sm" data-reject="${r.id}">Tolak</button></div>` : `<span class="pill ${r.status === "APPROVED" ? "p-verified" : "p-absent"}">${r.status}</span>`)
+      + `</div>`;
+    document.getElementById("reqList").innerHTML =
+      (pend.length ? `<b class="small">Menunggu (${pend.length})</b>` + pend.map(item).join("") : `<div class="card small">Tidak ada permintaan menunggu.</div>`)
+      + (done.length ? `<b class="small" style="display:block;margin-top:10px">Riwayat</b>` + done.map(item).join("") : "");
+    document.querySelectorAll("[data-approve]").forEach(b => b.onclick = () => {
+      try {
+        const r = KolaseStore.decideStaffRequest(b.getAttribute("data-approve"), true);
+        alert("Disetujui — ID baru: " + r.staff_id);
+        location.reload();
+      } catch(e){ alert(e.message); }
+    });
+    document.querySelectorAll("[data-reject]").forEach(b => b.onclick = () => {
+      if (!confirm("Tolak permintaan akun ini?")) return;
+      try { KolaseStore.decideStaffRequest(b.getAttribute("data-reject"), false); location.reload(); }
+      catch(e){ alert(e.message); }
+    });
+  };
+  render();
+})();
 // Database Pengguna: teacher (+kelas diajar) & student (+kelas/trial) + hapus permanen.
 function escDb(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
 function renderDatabase(){

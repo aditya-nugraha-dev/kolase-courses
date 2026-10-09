@@ -73,6 +73,12 @@
             <label class="auth-label" for="regStaffType">Staff sebagai</label>
             <div class="auth-input"><select id="regStaffType"><option value="founder">Founder & Business Lead</option><option value="academic">Co-Founder & Academic Lead</option><option value="systems">Head of Systems & Technology</option></select></div>
           </div>
+          <div id="pinWrap" style="display:none">
+            <label class="auth-label" for="regPin" style="margin-top:12px" data-i18n="login.pin">PIN Khusus Systems</label>
+            <div class="auth-input"><input id="regPin" inputmode="numeric" autocomplete="off" placeholder="••••••" data-i18n-ph="login.pin.ph" maxlength="20"></div>
+            <p class="small" style="margin:6px 2px 0" data-i18n="login.pin.hint">Tanpa PIN yang benar, akun Systems tidak dibuat.</p>
+          </div>
+          <div id="approvalInfo" class="small" style="display:none;margin:8px 2px 0" data-i18n="login.needapproval">Peran ini butuh persetujuan Head of Systems & Technology — permintaanmu akan muncul sebagai notif untuk disetujui/ditolak.</div>
           <div id="roleHint" class="small" style="display:none;margin:8px 2px 0"></div>
           <button class="auth-btn" type="submit" id="regBtn">Register</button>
           <div class="auth-out" id="regOut" role="status" aria-live="polite"></div>
@@ -83,7 +89,7 @@
   </div>
 </main>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/sheets-config.js"></script><script src="js/store.js?v=11"></script><script src="js/i18n.js?v=4"></script><script src="js/app.js?v=10"></script>
+<script src="js/sheets-config.js"></script><script src="js/store.js?v=12"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script>
 <script>
 // Sudah masuk? Langsung ke portal.
 try {
@@ -138,18 +144,27 @@ function detectStaffRole(nama) {
   if (n.indexOf("aditya nugraha") !== -1 || n.indexOf("adit nugraha") !== -1 || n.indexOf("aditya") !== -1 || n.indexOf("nugraha") !== -1) return "systems";
   return null;
 }
+function selectedStaffRole() {
+  if (document.getElementById("regRole").value !== "staff") return null;
+  return document.getElementById("regStaffType").value;
+}
 function refreshStaffUI() {
   var role = document.getElementById("regRole").value;
   var wrap = document.getElementById("staffTypeWrap");
   var hint = document.getElementById("roleHint");
   var nama = document.getElementById("regNama").value;
   var suggest = detectStaffRole(nama);
+  var srole = selectedStaffRole();
   wrap.style.display = role === "staff" ? "" : "none";
+  document.getElementById("pinWrap").style.display = srole === "systems" ? "" : "none";
+  document.getElementById("approvalInfo").style.display = (srole === "founder" || srole === "academic") ? "" : "none";
   if (!suggest) { hint.style.display = "none"; hint.textContent = ""; return; }
   var label = STAFF_LABEL[suggest];
   if (role === "staff" && document.getElementById("regStaffType").value === suggest) {
     hint.style.display = "";
-    hint.textContent = "Terdeteksi sebagai " + label + " — akun dibuat via undangan admin (pendaftaran mandiri dinonaktifkan).";
+    hint.textContent = suggest === "systems"
+      ? "Terdeteksi sebagai " + label + " — masukkan PIN khusus untuk membuat akun."
+      : "Terdeteksi sebagai " + label + " — permintaanmu butuh persetujuan Head of Systems & Technology.";
   } else {
     hint.style.display = "";
     hint.innerHTML = "";
@@ -203,20 +218,23 @@ registerPane.addEventListener("submit", (e) => {
   e.preventDefault();
   const out = document.getElementById("regOut");
   out.className = "auth-out"; out.textContent = "";
-  const peran = document.getElementById("regRole").value;
-  if (peran === "staff") {
-    out.classList.add("err");
-    out.textContent = "Pendaftaran " + STAFF_LABEL[document.getElementById("regStaffType").value] + " hanya via undangan admin. Silakan hubungi admin.";
-    return;
-  }
+  let peran = document.getElementById("regRole").value;
+  if (peran === "staff") peran = selectedStaffRole() || "staff";
   const nama = document.getElementById("regNama").value.trim() || "Pengguna Baru";
   const email = document.getElementById("regEmail").value.trim();
   const wa = document.getElementById("regWa").value.trim();
   const pass = document.getElementById("regPass").value;
+  const pin = (document.getElementById("regPin") || {}).value || "";
   if (!email || !wa) { out.classList.add("err"); out.textContent = "Email dan No. WA wajib diisi."; return; }
   if (!pass || pass.length < 4) { out.classList.add("err"); out.textContent = "Password min. 4 karakter."; return; }
   try {
-    const id = KolaseStore.registerPerson(peran, nama, email, wa, pass);
+    const res = KolaseStore.registerPerson(peran, nama, email, wa, pass, pin);
+    if (res && res.request) {
+      out.classList.add("ok");
+      out.textContent = "Permintaan terkirim (" + res.reqId + ") — menunggu persetujuan Head of Systems & Technology. Cek lagi nanti setelah disetujui.";
+      return;
+    }
+    const id = res;
     const dest = peran === "student" ? "catalog.html" : peran === "teacher" ? "teacher-portal.html" : "staff-portal.html";
     out.classList.add("ok");
     out.innerHTML = "";
