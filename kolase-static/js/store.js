@@ -35,8 +35,8 @@ function nextTxnId(list) {
    • ACT-000003 Head of Systems & Technology. */
 const FULL_POWER_IDS = ["ACT-000001", "ACT-000002", "ACT-000003"];
 const FULL_POWER_SEED = [
-  { staff_id: "ACT-000001", nama: "Galang Maharsi", email: "", wa: "", role: "founder", password: "" },
-  { staff_id: "ACT-000002", nama: "Hilal Badruz", email: "", wa: "", role: "academic", password: "" },
+  { staff_id: "ACT-000001", nama: "Ahrenz Galang", email: "", wa: "", role: "founder", password: "" },
+  { staff_id: "ACT-000002", nama: "Hilal Ibrahim", email: "", wa: "", role: "academic", password: "" },
   { staff_id: "ACT-000003", nama: "Aditya Nugraha", email: "", wa: "", role: "systems", password: "" },
 ];
 function seed() {
@@ -54,6 +54,8 @@ function seed() {
     REVIEWS: [],
     MATERIALS: [],
     CHAT_THREADS: {},
+    ANNOUNCEMENTS: [],
+    EBADGES: [],
     CHAT: [
       { from: "them", text: "Halo! Selamat datang di kelas A2. Perkenalkan diri ya.", at: "09:00" }
     ],
@@ -84,6 +86,8 @@ function loadDB() {
     if (!Array.isArray(db.SESSION_ATTENDANCE)) db.SESSION_ATTENDANCE = [];
     if (!Array.isArray(db.MATERIALS)) db.MATERIALS = [];
     if (!db.CHAT_THREADS || typeof db.CHAT_THREADS !== "object") db.CHAT_THREADS = {};
+    if (!Array.isArray(db.ANNOUNCEMENTS)) db.ANNOUNCEMENTS = [];
+    if (!Array.isArray(db.EBADGES)) db.EBADGES = [];
     // Migrasi 3 ID penuh: pastikan ada; gabungkan duplikat se-nama (password
     // & kontak bawaan pindah ke ID kanonikal) agar hak penuh hanya 3 ID itu.
     if (!Array.isArray(db.MST_STAFF)) db.MST_STAFF = [];
@@ -436,6 +440,10 @@ function recordTrialAttendance(trialId, seq, hadir) {
   t.done = trialProgress(t).complete;
   if (t.done) t.status = "COMPLETED";
   saveDB(db);
+  // issueBadge SETELAH save agar tidak tertimpa (baca-tulis ulang dari storage).
+  if (t.done) {
+    try { issueBadge("TRIAL", t.trial_id, t.student_id, "7 Sesi Trial Gratis — " + t.class_id); } catch (e) {}
+  }
   return t.done;
 }
 
@@ -543,6 +551,8 @@ function submitPackageReview(enrollmentId, ratings, teks) {
   db.REVIEWS.unshift(rev);
   saveDB(db);
   postSheets({ tab: "REVIEWS", payload: rev });
+  // Badge SETELAH save agar tidak tertimpa (baca-tulis ulang dari storage).
+  try { issueBadge("PAKET", m.enrollment_id, m.student_id, "1 Paket Selesai — " + m.class_id); } catch (e) {}
   return rev;
 }
 
@@ -746,6 +756,107 @@ function teacherSendChat(sid, text, asStaff) {
   return true;
 }
 
+/* Pengumuman (announcement): tulis oleh teacher/staff, dibaca semua di home.
+   eBadge: terbit otomatis saat trial 7/7 & saat ulasan 1 paket dikirim
+   (cermin kolom "Pending badge issuance" di Master Database V2.0). */
+function addAnnouncement(title, body) {
+  const db = loadDB();
+  const u = db.sessionUser;
+  const PRIV = ["staff", "admin", "owner", "author", "teacher", "founder", "academic", "systems"];
+  if (!u || PRIV.indexOf(u.role) === -1) throw new Error("Khusus teacher/staff.");
+  const t = String(title || "").trim();
+  const b = String(body || "").trim();
+  if (!t || !b) throw new Error("Judul dan isi wajib diisi.");
+  if (t.length > 120 || b.length > 1000) throw new Error("Judul maks 120, isi maks 1000 karakter.");
+  const row = { id: nextId("ANN", db.ANNOUNCEMENTS, "id"), title: t, body: b, by: u.nama + " • " + u.id, at: new Date().toISOString() };
+  db.ANNOUNCEMENTS.unshift(row);
+  if (db.ANNOUNCEMENTS.length > 50) db.ANNOUNCEMENTS = db.ANNOUNCEMENTS.slice(0, 50);
+  saveDB(db);
+  return row;
+}
+function listAnnouncements() {
+  const db = loadDB();
+  return (db.ANNOUNCEMENTS || []).slice(0, 20);
+}
+function deleteAnnouncement(id) {
+  const db = loadDB();
+  const u = db.sessionUser;
+  const PRIV = ["staff", "admin", "owner", "author", "founder", "academic", "systems"];
+  if (!u || PRIV.indexOf(u.role) === -1) throw new Error("Khusus staff.");
+  db.ANNOUNCEMENTS = (db.ANNOUNCEMENTS || []).filter((a) => a.id !== id);
+  saveDB(db);
+  return true;
+}
+function studentNameOf(studentId) {
+  const db = loadDB();
+  const s = (db.MST_STUDENTS || []).find((x) => x.student_id === studentId);
+  return s ? s.nama : studentId;
+}
+function issueBadge(kind, refId, studentId, label) {
+  const db = loadDB();
+  if ((db.EBADGES || []).some((b) => b.kind === kind && b.ref_id === refId)) {
+    return (db.EBADGES || []).find((b) => b.kind === kind && b.ref_id === refId);
+  }
+  const row = {
+    id: nextId("BDG", db.EBADGES, "id"),
+    kind, ref_id: refId, student_id: studentId,
+    student_name: studentNameOf(studentId),
+    label: label || (kind === "TRIAL" ? "7 Sesi Trial Gratis" : "1 Paket Selesai"),
+    at: new Date().toISOString().slice(0, 10),
+  };
+  db.EBADGES.unshift(row);
+  saveDB(db);
+  return row;
+}
+function badgesFor(studentId) {
+  const db = loadDB();
+  return (db.EBADGES || []).filter((b) => b.student_id === studentId);
+}
+function pendingBadgeCount() {
+  const db = loadDB();
+  const issued = new Set((db.EBADGES || []).map((b) => b.kind + "|" + b.ref_id));
+  let trial = 0, paket = 0;
+  (db.TRIALS || []).forEach((t) => {
+    if (trialProgress(t).complete && !issued.has("TRIAL|" + t.trial_id)) trial++;
+  });
+  (db.CLASS_MEMBERSHIP || []).forEach((m) => {
+    if (packageProgress(m.enrollment_id).complete && !issued.has("PAKET|" + m.enrollment_id)) paket++;
+  });
+  return { trial, paket, total: trial + paket };
+}
+/* Pemeriksaan ringan ala 99_AUDIT: peringatan sebelum pelaporan. */
+function auditWarnings() {
+  const db = loadDB();
+  const out = [];
+  const today = new Date().toISOString().slice(0, 10);
+  (db.TXN_PAYMENTS || []).forEach((t) => {
+    if (t.status === "PENDING") {
+      const age = Math.floor(((Date.now() - new Date(t.tgl || Date.now()).getTime()) / 86400000));
+      if (age >= 7) out.push({ level: "WARN", text: `TRX ${t.trx_id} PENDING ${age} hari (ENR ${t.enrollment_id}, Rp ${Number(t.nominal || 0).toLocaleString("id-ID")})` });
+    }
+  });
+  (db.CLASS_MEMBERSHIP || []).forEach((m) => {
+    if (m.status === "ACTIVE" && Number(m.sisa || 0) < 0) out.push({ level: "ERROR", text: `Sisa negatif ${m.enrollment_id} (${m.sisa}) — rekonsiliasi ledger (BP-011).` });
+  });
+  (db.CLASS_SESSIONS || []).forEach((s) => {
+    if (s.status === "SCHEDULED" && String(s.tanggal || "") < today) out.push({ level: "WARN", text: `Sesi lewat belum dicatat: ${s.session_id} (${s.class_id} • ${s.tanggal})` });
+  });
+  (db.TRIALS || []).forEach((t) => {
+    if (t.status === "STARTED") {
+      const n = (t.sessions || []).filter((x) => x.hadir === "PRESENT" || x.hadir === "LATE").length;
+      if (n === 0) {
+        const age = Math.floor((Date.now() - new Date(t.sessions && t.sessions[0] ? t.sessions[0].tanggal : Date.now()).getTime()) / 86400000);
+        if (age > 30) out.push({ level: "WARN", text: `Trial macet ${t.trial_id} (${t.student_id}, 0/7, >30 hari)` });
+      }
+    }
+  });
+  return out.slice(0, 30);
+}
+function outstandingBalance() {
+  const db = loadDB();
+  return (db.TXN_PAYMENTS || []).filter((t) => t.status === "PENDING").reduce((a, t) => a + Number(t.nominal || 0), 0);
+}
+
 /* Database staff: hapus teacher / student beserta seluruh data terkait. */
 function deleteTeacher(teacherId) {
   requireFullPower();
@@ -778,4 +889,4 @@ function deleteStudent(studentId) {
   saveDB(db);
   return true;
 }
-window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, isFullPowerUser, FULL_POWER_IDS };
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance };

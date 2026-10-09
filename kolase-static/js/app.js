@@ -93,15 +93,46 @@ function navT(k) {
   try { if (window.KolaseI18n) return KolaseI18n.t(k); } catch (e) {}
   return k;
 }
+function navBadgeFor(role, href) {
+  // Badge angka: staff → pembayaran PENDING; murid/guru → chat belum dibaca.
+  try {
+    var raw = localStorage.getItem("kolase_db_v1");
+    if (!raw) return 0;
+    var db = JSON.parse(raw);
+    if (STAFF_GROUP.indexOf(role) !== -1 && href === "staff-portal.html") {
+      return (db.TXN_PAYMENTS || []).filter(function (t) { return t.status === "PENDING"; }).length;
+    }
+    if (role === "student" && href === "teacher-chat.html" && db.sessionUser) {
+      var t = (db.CHAT_THREADS || {})[db.sessionUser.id];
+      if (!t) return 0;
+      var seen = 0;
+      try { seen = Number(localStorage.getItem("kolase_chat_seen_" + db.sessionUser.id) || 0); } catch (e) {}
+      var fromStaff = t.messages.filter(function (m) { return m.from !== "student"; }).length;
+      return Math.max(0, fromStaff - seen);
+    }
+    if ((role === "teacher" || STAFF_GROUP.indexOf(role) !== -1) && href === "teacher-chat.html") {
+      var threads = Object.values(db.CHAT_THREADS || {});
+      return threads.filter(function (th) {
+        var last = th.messages[th.messages.length - 1];
+        return last && last.from === "student";
+      }).length;
+    }
+  } catch (e) {}
+  return 0;
+}
 function renderRoleNav() {
   try {
     var db = JSON.parse(localStorage.getItem("kolase_db_v1") || "null");
     var u = (db && db.sessionUser) || null;
-    var nav = ROLE_NAVS[roleNavKey(u && u.role)];
+    var rk = roleNavKey(u && u.role);
+    var nav = ROLE_NAVS[rk];
     var brand = document.querySelector(".topbar .brand");
     if (brand) brand.setAttribute("href", nav.brand);
     var navEl = document.querySelector("[data-nav]");
-    if (navEl) navEl.innerHTML = nav.links.map(function (l) { return '<a href="' + l[0] + '">' + navT(l[1]) + "</a>"; }).join("");
+    if (navEl) navEl.innerHTML = nav.links.map(function (l) {
+      var n = navBadgeFor(u && u.role, l[0]);
+      return '<a href="' + l[0] + '">' + navT(l[1]) + (n > 0 ? ' <span class="nav-badge">' + (n > 99 ? "99+" : n) + "</span>" : "") + "</a>";
+    }).join("");
     var tabs = document.querySelector(".mobile-tabs");
     if (tabs) tabs.innerHTML = nav.tabs.map(function (l) { return '<a href="' + l[0] + '">' + navT(l[1]) + "</a>"; }).join("");
   } catch (e) {}

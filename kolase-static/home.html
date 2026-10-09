@@ -18,6 +18,10 @@
 </div></header>
 
 <main class="wrap">
+  <div class="section" id="annStrip" style="display:none"><div class="card" style="border-left:4px solid var(--amber)">
+    <div class="meta"><span class="pill p-pending">📢 <span data-i18n="ann.label">Pengumuman</span></span><span class="small" id="annDate"></span></div>
+    <b id="annTitle"></b><p class="small" id="annBody" style="margin:4px 0 0"></p>
+  </div></div>
   <div class="hero"><div class="hero-grid">
     <div class="hero-card">
       <h1 data-i18n="hero.title">Belajar Bahasa Inggris 4 Sesi, Terjadwal & Terukur.</h1>
@@ -107,8 +111,21 @@
   <a href="dashboard.html">Kelas</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a>
 </nav>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/store.js?v=7"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=7"></script><script src="js/drive-content.js?v=5"></script>
+<script src="js/store.js?v=8"></script><script src="js/i18n.js?v=2"></script><script src="js/app.js?v=8"></script><script src="js/drive-content.js?v=5"></script>
 <script>
+// Pengumuman terbaru dari teacher/staff.
+(function(){
+  try {
+    const list = KolaseStore.listAnnouncements();
+    if (list.length) {
+      const a = list[0];
+      document.getElementById("annTitle").textContent = a.title;
+      document.getElementById("annBody").textContent = a.body;
+      document.getElementById("annDate").textContent = String(a.at || "").slice(0, 10) + " • " + (a.by || "");
+      document.getElementById("annStrip").style.display = "";
+    }
+  } catch(e){}
+})();
 // Ulasan dinamis: dari localStorage (termasuk ulasan 1 paket yang baru dikirim).
 // Mendukung format baru (4 aspek bintang) + format lama (rating tunggal trial).
 (function(){

@@ -21,6 +21,7 @@
   </div></div>
   <div class="section"><div class="card" id="trialCard"><b data-i18n="dash.trial">Trial Gratis 7 Sesi</b><div id="trialInfo" class="small" style="margin-top:4px"></div><div id="trialBtns" style="margin-top:8px"></div></div></div>
   <div class="section"><div class="card" id="pkgReviewCard"><b data-i18n="dash.review">Ulasan 1 Paket ★</b><div id="pkgReviewInfo" class="small" style="margin-top:4px"></div><div id="pkgReviewBtns" style="margin-top:8px"></div></div></div>
+  <div class="section"><div class="card" id="badgeCard"><b data-i18n="dash.badges">Badge & Sertifikat Saya</b><div id="badgeList" class="small" style="margin-top:6px"></div></div></div>
   <div class="section"><div class="card" id="placementCard">
     <b data-i18n="dash.placement">Placement Test A2 (Pre-Check)</b>
     <div class="small" style="margin-top:4px" data-i18n="dash.placement.d">Honesty declaration + Language Use + Vocabulary + Listening. Skor otomatis <b>Placement_Total /50</b> + status <span class="id-mono">A2_CONFIRMED</span> / <span class="id-mono">PLACEMENT_PENDING</span>.</div>
@@ -61,7 +62,7 @@
   </div>
 </div>
 
-<script src="js/store.js?v=7"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=7"></script>
+<script src="js/store.js?v=8"></script><script src="js/i18n.js?v=2"></script><script src="js/app.js?v=8"></script>
 <script>
 const db = KolaseStore.loadDB();
 document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "Belum login — buka login.html";
@@ -103,6 +104,14 @@ const isVerifiedEnr = (m) => m && m.status === "ACTIVE";
     info.textContent = "Belum ikut trial. Gratis 7 sesi sebelum beli paket.";
     btns.innerHTML = `<a class="btn btn-brand btn-sm" href="catalog.html">Mulai Trial Gratis →</a>`;
   }
+})();
+// Badge & sertifikat saya (terbit otomatis: trial 7/7 + ulasan 1 paket).
+(function(){
+  const el = document.getElementById("badgeList");
+  if (!db.sessionUser) { el.textContent = "Login untuk melihat badge."; return; }
+  const rows = KolaseStore.badgesFor(db.sessionUser.id);
+  el.innerHTML = rows.length ? rows.map(b=>`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><span class="pill p-verified">🏅 ${b.id}</span><span><b>${b.label}</b><br><span class="small">${b.at} • kode verifikasi ${b.id}</span></span><a class="btn btn-ghost btn-sm" style="margin-left:auto" href="certificate.html?code=${encodeURIComponent(b.id)}">Lihat & Cetak</a></div>`).join("")
+    : `<span data-i18n="dash.badges.empty">Belum ada badge. Selesaikan trial 7 sesi atau 1 paket + ulasan untuk menerbitkan badge.</span>`;
 })();
 // Ulasan 1 paket: terbuka setelah semua sesi 1 enrollment selesai (4/4).
 (function(){

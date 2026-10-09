@@ -92,7 +92,24 @@
       "dash.materi": "Materi E-Learning per Sesi",
       "dash.materi.d": "Tiap sesi: link GMeet + file materi. Kuis GForm hanya muncul di sesi terakhir.",
       "dash.chat": "Buka Teacher Chat →",
-      "dash.kalender": "Kalender"
+      "dash.kalender": "Kalender",
+      "dash.badges": "Badge & Sertifikat Saya",
+      "dash.badges.empty": "Belum ada badge. Selesaikan trial 7 sesi atau 1 paket + ulasan untuk menerbitkan badge.",
+      "ann.label": "Pengumuman",
+      "sched.real": "Jadwal Batch (Sumber: Sheets)",
+      "sched.real.d": "Jadwal mengajar resmi per batch dari spreadsheet KOLASE. Perubahan jadwal hanya oleh admin.",
+      "tp.mysched": "Jadwal Mengajar Saya (Sumber: Sheets)",
+      "tp.mysched.d": "Sesi batch yang diampu akun ini. Perubahan jadwal hanya oleh admin.",
+      "cert.title": "Sertifikat KOLASE",
+      "cert.given": "Diberikan dengan bangga kepada",
+      "cert.verify.note": "Verifikasi: cocokkan kode di atas dengan daftar badge di dashboard.",
+      "cert.notfound.t": "Sertifikat tidak ditemukan",
+      "cert.notfound.d": "Kode tidak cocok dengan badge di browser ini. Buka dari tombol “Lihat & Cetak” di dashboard.",
+      "staff.ann": "Pengumuman",
+      "staff.ann.d": "Tampil di home untuk semua pengunjung. Maks 50 terbaru.",
+      "staff.audit": "Pemeriksaan (Audit)",
+      "staff.balance": "Outstanding Balance",
+      "staff.badges": "Badge Menunggu"
     },
     en: {
       "nav.home": "Home", "nav.katalog": "Catalog", "nav.kalender": "Calendar",
@@ -181,7 +198,24 @@
       "dash.materi": "E-Learning Materials per Session",
       "dash.materi.d": "Each session: GMeet link + material files. GForm quiz appears only in the last session.",
       "dash.chat": "Open Teacher Chat →",
-      "dash.kalender": "Calendar"
+      "dash.kalender": "Calendar",
+      "dash.badges": "My Badges & Certificates",
+      "dash.badges.empty": "No badges yet. Finish the 7-session trial or 1 package + review to earn a badge.",
+      "ann.label": "Announcements",
+      "sched.real": "Batch Schedule (Source: Sheets)",
+      "sched.real.d": "Official per-batch teaching schedule from the KOLASE spreadsheet. Changes by admin only.",
+      "tp.mysched": "My Teaching Schedule (Source: Sheets)",
+      "tp.mysched.d": "Batch sessions taught by this account. Changes by admin only.",
+      "cert.title": "KOLASE Certificate",
+      "cert.given": "Proudly presented to",
+      "cert.verify.note": "Verify: match the code above with the badge list on the dashboard.",
+      "cert.notfound.t": "Certificate not found",
+      "cert.notfound.d": "Code does not match any badge in this browser. Open it via “View & Print” on the dashboard.",
+      "staff.ann": "Announcements",
+      "staff.ann.d": "Shown on home for all visitors. Latest 50 kept.",
+      "staff.audit": "Audit Checks",
+      "staff.balance": "Outstanding Balance",
+      "staff.badges": "Pending Badges"
     }
   };
   var KEY = "kolase_lang";

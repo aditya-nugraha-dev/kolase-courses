@@ -40,6 +40,8 @@ h1{line-height:1.2}
 .nav a.nav-avatar img{width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #FFFFFF;background:#FFFFFF}
 .nav-initial{width:30px;height:30px;flex:none;border-radius:50%;background:#ffffff33;border:2px solid #FFFFFF;color:#FFFFFF;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
 .nav-uname{max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--amber);color:#0F172A;font-size:11px;font-weight:800;margin-left:4px}
+@media(min-width:860px){.mobile-only{display:none!important}}
 .btn{display:inline-block;border:1px solid var(--navy);border-radius:10px;padding:12px 18px;font-weight:400;font-family:var(--serif);cursor:pointer;text-decoration:none;letter-spacing:.04em}
 .btn-brand{background:var(--navy);color:#FFFFFF;border-color:var(--navy)}
 .btn-brand:hover{background:var(--navy-d)}

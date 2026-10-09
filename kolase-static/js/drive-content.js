@@ -10,6 +10,8 @@
   const MATERI = [
     { t: "Kebijakan Akademik", d: "Master policy Kids & Adult/Teen.", href: "https://drive.google.com/drive/folders/1jcmyEXSeqxvtVR5ABrfgmrtUkEZ0wcLK" },
     { t: "Books & Reference", d: "English for Everyone Level 1–2.", href: "https://drive.google.com/drive/folders/1CMSCIZ-DwgSYzGl0ahGLwVdSnbStBS_-" },
+    { t: "Teaching Resources", d: "Perangkat & sumber mengajar guru.", href: "https://drive.google.com/drive/folders/1Hv_1Lv8nbRBlR46JKWOqDj-ArGjXe5vh" },
+    { t: "Media Assets", d: "Aset media & visual KOLASE.", href: "https://drive.google.com/drive/folders/1mBGXZGps5loyQfllEFi_9adOoWbN2pjG" },
     { t: "Konten Publikasi", d: "Carousel & CNT terbaru.", href: "https://drive.google.com/drive/folders/1TTGcJUAuRCXEu60q1pwCo2eBZ9pBH7df" }
   ];
   const INFO = [

@@ -17,8 +17,24 @@
   <div class="section"><div class="kpi">
     <div class="card"><div class="small">Siswa</div><b id="kS" style="font-size:26px">-</b></div>
     <div class="card"><div class="small">Pending</div><b id="kP" style="font-size:26px;color:var(--gold)">-</b></div>
+    <div class="card"><div class="small" data-i18n="staff.balance">Outstanding Balance</div><b id="kB" style="font-size:16px">-</b></div>
+    <div class="card"><div class="small" data-i18n="staff.badges">Badge Menunggu</div><b id="kG" style="font-size:26px">-</b></div>
     <div class="card"><div class="small">Omzet Verified</div><b id="kO" style="font-size:16px">-</b></div>
   </div></div>
+  <div class="section" id="pengumuman"><h2 data-i18n="staff.ann">Pengumuman</h2>
+    <p class="small" data-i18n="staff.ann.d">Tampil di home untuk semua pengunjung. Maks 50 terbaru.</p>
+    <div class="card">
+      <div class="field"><label>Judul (maks 120)</label><input id="annTitle" placeholder="cth. Batch 04 dibuka!"></div>
+      <div class="field"><label>Isi (maks 1000)</label><textarea id="annBody" rows="3" placeholder="Tulis pengumuman…"></textarea></div>
+      <button class="btn btn-brand btn-sm" id="annSend">Kirim Pengumuman</button>
+      <div class="small" id="annMsg" style="margin-top:6px"></div>
+    </div>
+    <div id="annList" style="margin-top:10px"></div>
+  </div>
+  <div class="section" id="audit"><h2 data-i18n="staff.audit">Pemeriksaan (Audit)</h2>
+    <p class="small">Peringatan ringan ala 99_AUDIT — selesaikan sebelum pelaporan.</p>
+    <div id="auditList"></div>
+  </div>
   <div class="section"><h2>Verifikasi Pembayaran (ganti Webhook asli di production)</h2>
     <div id="pendingList" class="grid cols-2"></div>
   </div>
@@ -53,7 +69,7 @@
   </div>
 </main>
 <nav class="mobile-tabs"><a href="home.html">Home</a><a href="staff-portal.html" class="active">Portal</a><a href="profile.html">Profil</a></nav>
-<script src="js/store.js?v=7"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=7"></script>
+<script src="js/store.js?v=8"></script><script src="js/i18n.js?v=2"></script><script src="js/app.js?v=8"></script>
 <script>
 const db = KolaseStore.loadDB();
 document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "";
@@ -75,6 +91,39 @@ document.querySelectorAll("[data-ver]").forEach(b=>b.onclick=()=>{
 });
 document.getElementById("payT").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td class="small">${t.method}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
 document.getElementById("ledT").innerHTML = db.TXN_ENTITLEMENT_LEDGER.slice(-10).reverse().map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
+document.getElementById("kB").textContent = "Rp " + KolaseStore.outstandingBalance().toLocaleString("id-ID");
+(function(){
+  const p = KolaseStore.pendingBadgeCount();
+  document.getElementById("kG").textContent = p.total + (p.total ? ` (trial ${p.trial} + paket ${p.paket})` : "");
+})();
+(function(){
+  const warns = KolaseStore.auditWarnings();
+  document.getElementById("auditList").innerHTML = warns.length
+    ? warns.map(w=>`<div class="card" style="margin-bottom:8px"><span class="pill ${w.level==="ERROR"?"p-absent":"p-pending"}">${w.level}</span> <span class="small">${w.text}</span></div>`).join("")
+    : `<div class="card small">Bersih — tidak ada peringatan.</div>`;
+})();
+function renderAnn(){
+  const rows = KolaseStore.listAnnouncements();
+  const escA = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  document.getElementById("annList").innerHTML = rows.length ? rows.map(a=>`<div class="cal-item"><div style="flex:1"><b>${escA(a.title)}</b><div class="small">${escA(a.body)}</div><div class="small">${String(a.at||"").slice(0,10)} • ${escA(a.by||"")}</div></div><button class="btn btn-ghost btn-sm" data-anndel="${a.id}">Hapus</button></div>`).join("")
+    : `<div class="card small">Belum ada pengumuman.</div>`;
+  document.querySelectorAll("[data-anndel]").forEach(b=>b.onclick=()=>{
+    if (!confirm("Hapus pengumuman ini?")) return;
+    try { KolaseStore.deleteAnnouncement(b.getAttribute("data-anndel")); renderAnn(); }
+    catch(e){ alert(e.message); }
+  });
+}
+renderAnn();
+document.getElementById("annSend").onclick = () => {
+  const msg = document.getElementById("annMsg");
+  try {
+    KolaseStore.addAnnouncement(document.getElementById("annTitle").value, document.getElementById("annBody").value);
+    document.getElementById("annTitle").value = "";
+    document.getElementById("annBody").value = "";
+    msg.textContent = "Pengumuman tampil di home.";
+    renderAnn();
+  } catch(e){ msg.textContent = e.message; }
+};
 // Database Pengguna: teacher (+kelas diajar) & student (+kelas/trial) + hapus permanen.
 function escDb(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
 function renderDatabase(){

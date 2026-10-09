@@ -28,9 +28,13 @@
     <div class="cal-legend small"><span><span class="pill p-pending">●</span> ada sesi (angka = jumlah)</span><span>Klik tanggal untuk filter agenda di bawah.</span></div>
   </div>
   <div class="cal-list" id="cal"></div></div>
+  <div class="section"><h2 data-i18n="sched.real">Jadwal Batch (Sumber: Sheets)</h2>
+    <p class="small" data-i18n="sched.real.d">Jadwal mengajar resmi per batch dari spreadsheet KOLASE. Perubahan jadwal hanya oleh admin.</p>
+    <div id="batchList"></div>
+  </div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html" class="active">Jadwal</a><a href="profile.html">Profil</a></nav>
-<script src="js/store.js?v=7"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=7"></script>
+<script src="js/store.js?v=8"></script><script src="js/i18n.js?v=2"></script><script src="js/app.js?v=8"></script>
 <script>
 var TZ = "Asia/Jakarta"; // Tangerang, Banten = WIB (GMT+7, tanpa DST)
 var MONTHS = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -116,6 +120,22 @@ document.getElementById("calYear").onchange = function(e){ viewY = Number(e.targ
 document.getElementById("calToday").onclick = function(){ nowJ = jakartaToday(); viewY = nowJ.y; viewM = nowJ.m; selected = ymd(nowJ.y,nowJ.m,nowJ.d); renderGrid(); renderAgenda(); };
 document.getElementById("calAll").onclick = function(){ selected = null; renderGrid(); renderAgenda(); };
 renderGrid(); renderAgenda();
+// Jadwal batch resmi dari data/teacher-schedule.json (cerminan Sheets guru).
+fetch("data/teacher-schedule.json").then(r=>r.json()).then(rows=>{
+  const groups = {};
+  rows.forEach(s=>{ (groups[s.batch] = groups[s.batch] || []).push(s); });
+  document.getElementById("batchList").innerHTML = Object.keys(groups).sort().map(batch=>{
+    const list = groups[batch].slice().sort((a,b)=>String(a.tanggal).localeCompare(String(b.tanggal)));
+    const t0 = list[0] || {};
+    return `<div class="card" style="margin-bottom:10px"><b>${batch}</b><div class="small">${t0.teacher || ""}${t0.teacher_id ? " (" + t0.teacher_id + ")" : ""}</div>`
+      + list.map(s=>`<div class="cal-item" style="margin-top:6px"><div class="date-box"><b>S${s.seq}</b><span class="small">${String(s.tanggal||"").slice(5)}</span></div>`
+        + `<div style="flex:1"><b class="small">${s.session_id} • ${s.tanggal} • ${s.mulai||""}–${s.selesai||""} WIB</b>`
+        + (s.materi ? `<div class="small">Materi: ${s.materi}</div>` : "")
+        + (s.meet ? `<div style="margin-top:4px"><a class="btn btn-ghost btn-sm" href="${s.meet}" target="_blank" rel="noopener">Join Meet</a></div>` : "")
+        + `</div><span class="pill ${s.status==="COMPLETED"?"p-verified":s.status==="CANCELLED"?"p-absent":"p-pending"}">${s.status}</span></div>`).join("")
+      + `</div>`;
+  }).join("");
+}).catch(()=>{ document.getElementById("batchList").innerHTML = `<div class="card small">Gagal memuat jadwal batch.</div>`; });
 </script>
 </body>
 </html>

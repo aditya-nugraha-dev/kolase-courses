@@ -37,7 +37,7 @@
   </div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html" class="active">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html">Profil</a></nav>
-<script src="js/store.js?v=7"></script><script src="js/i18n.js?v=1"></script><script src="js/app.js?v=7"></script>
+<script src="js/store.js?v=8"></script><script src="js/i18n.js?v=2"></script><script src="js/app.js?v=8"></script>
 <script>
 var db = KolaseStore.loadDB();
 var me = db.sessionUser;
@@ -62,6 +62,10 @@ if (isTeacher) {
 function renderMine(){
   var t = me ? KolaseStore.chatThread(me.id) : null;
   var msgs = t ? t.messages : [];
+  try {
+    var n = msgs.filter(function(m){ return m.from !== "student"; }).length;
+    localStorage.setItem("kolase_chat_seen_" + me.id, String(n));
+  } catch(e){}
   document.getElementById("box").innerHTML = msgs.length
     ? msgs.map(m=>`<div class="msg ${m.from==="student"?"me":"them"}">${esc(m.text)}<div class="small">${esc(m.at||"")}</div></div>`).join("")
     : `<div class="small" style="text-align:center;padding:12px">Belum ada pesan. Sapa teachermu — contoh: “Halo, kapan sesi berikutnya?”</div>`;

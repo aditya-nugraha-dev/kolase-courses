@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KOLASE — Sertifikat</title>
+<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="icon" href="assets/kolase-logo.png">
+<style>
+.cert-frame{max-width:760px;margin:24px auto;background:#fff;border:2px solid var(--navy);border-radius:18px;padding:40px 32px;text-align:center;box-shadow:var(--shadow-sm)}
+.cert-frame .cbrand{font-family:var(--serif);letter-spacing:.2em;font-size:22px;color:var(--navy)}
+.cert-frame h1{font-size:34px;margin:10px 0}
+.cert-name{font-family:var(--serif);font-size:28px;margin:12px 0 4px}
+.cert-code{font-family:ui-monospace,Menlo,Consolas,monospace;background:#F1F5F9;border:1px solid var(--line);border-radius:8px;padding:4px 10px;display:inline-block;margin-top:10px}
+@media print{
+  .topbar,.mobile-tabs,footer,.no-print{display:none!important}
+  body{background:#fff}
+  .cert-frame{box-shadow:none;margin:0;max-width:none}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
+  <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
+  <button class="burger" data-burger>☰</button>
+</div></header>
+<main class="wrap">
+  <div class="section" id="certWrap"><div class="card small">Memuat sertifikat…</div></div>
+  <div class="section no-print" style="text-align:center">
+    <button class="btn btn-brand" onclick="window.print()">Cetak / Simpan PDF</button>
+    <a class="btn btn-ghost" href="dashboard.html" style="margin-left:8px">Kembali ke Dashboard</a>
+  </div>
+</main>
+<nav class="mobile-tabs"><a href="home.html">Home</a><a href="dashboard.html">Kelas</a><a href="profile.html">Profil</a></nav>
+<footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a></div></footer>
+<script src="js/store.js?v=8"></script><script src="js/i18n.js?v=2"></script><script src="js/app.js?v=8"></script>
+<script>
+(function(){
+  const code = (new URLSearchParams(location.search).get("code") || "").trim();
+  const wrap = document.getElementById("certWrap");
+  const db = KolaseStore.loadDB();
+  const b = (db.EBADGES || []).find(x => x.id === code);
+  if (!code || !b) {
+    wrap.innerHTML = `<div class="card"><b data-i18n="cert.notfound.t">Sertifikat tidak ditemukan</b><p class="small" data-i18n="cert.notfound.d">Kode tidak cocok dengan badge di browser ini. Buka dari tombol “Lihat & Cetak” di dashboard.</p></div>`;
+    return;
+  }
+  const t = (k) => (window.KolaseI18n ? KolaseI18n.t(k) : k);
+  wrap.innerHTML = `<div class="cert-frame">
+    <div class="cbrand">KOLASE • ENGLISH COURSE</div>
+    <h1>${t("cert.title")}</h1>
+    <p class="small">${t("cert.given")}</p>
+    <div class="cert-name">${b.student_name || b.student_id}</div>
+    <p><b>${b.label}</b><br><span class="small">${b.at} • ${b.ref_id}</span></p>
+    <div><span class="cert-code">${b.id}</span></div>
+    <p class="small" style="margin-top:12px">${t("cert.verify.note")}</p>
+  </div>`;
+})();
+</script>
+</body>
+</html>
