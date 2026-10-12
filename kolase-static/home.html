@@ -32,9 +32,9 @@
         <a class="btn btn-ghost" data-guest-only href="login.html" data-i18n="hero.register">Daftar Gratis</a>
       </div>
       <div class="stats">
-        <div class="stat"><b>4</b><span class="small" data-i18n="hero.sesi">sesi/paket</span></div>
-        <div class="stat"><b>50rb+</b><span class="small" data-i18n="hero.mulai">mulai</span></div>
-        <div class="stat"><b>1</b><span class="small" data-i18n="hero.idperm">ID permanen</span></div>
+        <div class="stat"><b id="heroSesi">4</b><span class="small" data-i18n="hero.sesi">sesi/paket</span></div>
+        <div class="stat"><b id="heroHarga">50rb+</b><span class="small" data-i18n="hero.mulai">mulai</span></div>
+        <div class="stat"><b id="heroId" style="font-size:15px">1</b><span class="small" data-i18n="hero.idperm">ID permanen</span></div>
       </div>
     </div>
     <div class="hero-card hero-media">
@@ -147,6 +147,32 @@
   track.innerHTML = steps.map(s =>
     `<div class="card"><div class="road-num${s.dim ? " dim" : ""}">${s.n}</div><b>${s.t}</b><div class="small">${s.m}${s.soon ? ` • <span class="pill p-pending">SEGERA</span>` : ``}</div><div class="small" style="margin:4px 0 8px">${s.d}</div>${s.cta}</div>`
   ).join("");
+})();
+// Stat hero live: sesi/paket + harga termurah dari katalog, ID permanen milik yang login.
+(function(){
+  try {
+    const db = KolaseStore.loadDB();
+    const u = db.sessionUser;
+    if (u && u.id) {
+      const el = document.getElementById("heroId");
+      el.textContent = u.id;
+      el.title = (u.nama || "") + " • " + (u.role || "");
+    }
+  } catch (e) {}
+  fetch("data/classes.json").then(r=>r.json()).then(classes=>{
+    const open = classes.filter(c => (c.class_status || "OPEN") === "OPEN");
+    const list = open.length ? open : classes;
+    if (!list.length) return;
+    const sesi = Math.min(...list.map(c => Number(c.sesi_count) || 4));
+    if (Number.isFinite(sesi)) document.getElementById("heroSesi").textContent = sesi;
+    const minHarga = Math.min(...list.map(c => Number(c.harga) || 0).filter(n => n > 0));
+    if (Number.isFinite(minHarga) && minHarga > 0) {
+      const short = minHarga >= 1000000
+        ? (parseFloat((minHarga / 1000000).toFixed(1)) + "jt+")
+        : minHarga >= 1000 ? (parseFloat((minHarga / 1000).toFixed(1)) + "rb+") : String(minHarga);
+      document.getElementById("heroHarga").textContent = short;
+    }
+  }).catch(()=>{});
 })();
 // Ulasan dinamis: dari localStorage (termasuk ulasan 1 paket yang baru dikirim).
 // Mendukung format baru (4 aspek bintang) + format lama (rating tunggal trial).
