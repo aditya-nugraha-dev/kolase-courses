@@ -45,6 +45,16 @@
           </div>
           <button class="auth-btn" type="submit" id="loginBtn" data-i18n="login.btn">Login</button>
           <div class="auth-out" id="loginOut" role="status" aria-live="polite"></div>
+          <div id="resetBox" style="display:none;margin-top:12px;padding:12px;border:1.5px dashed #CBD5E1;border-radius:14px">
+            <b class="small">Reset password</b>
+            <label class="auth-label" for="resetId">Email / User name</label>
+            <div class="auth-input"><input id="resetId" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+            <label class="auth-label" for="resetNew">Password baru (min. 4)</label>
+            <div class="auth-input"><input id="resetNew" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+            <label class="auth-label" for="resetNew2">Ulangi password baru</label>
+            <div class="auth-input"><input id="resetNew2" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+            <div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-brand btn-sm" id="resetGo" type="button">Reset</button><button class="btn btn-ghost btn-sm" id="resetCancel" type="button">Batal</button></div>
+          </div>
           <div class="auth-switch"><span data-i18n="login.noacc">Belum punya akun?</span> <button type="button" class="auth-link" id="goRegister" data-i18n="login.reg">Register</button></div>
           <p class="small" style="margin:10px 2px 0;text-align:center;color:var(--muted);font-size:12px">Catatan HP: matikan kapital otomatis & spasi di akhir password. Tanpa cloud, akun tersimpan per-browser (HP & PC beda). Dengan cloud aktif, 1 akun berlaku HP & PC.</p>
         </form>
@@ -187,6 +197,25 @@ document.querySelectorAll("[data-regrole]").forEach(btn => {
 document.getElementById("regStaffType").addEventListener("change", refreshStaffUI);
 document.getElementById("regNama").addEventListener("input", refreshStaffUI);
 
+// Kunci brute-force lokal: 5x gagal = kunci 60 detik (per browser).
+const LOCK_KEY = "kolase_login_lock";
+function lockLeft() {
+  try {
+    const o = JSON.parse(localStorage.getItem(LOCK_KEY) || "null");
+    if (o && o.until > Date.now()) return Math.ceil((o.until - Date.now()) / 1000);
+  } catch (e) {}
+  return 0;
+}
+function noteFail() {
+  try {
+    const o = JSON.parse(localStorage.getItem(LOCK_KEY) || '{"n":0}') || { n: 0 };
+    o.n = (o.n || 0) + 1;
+    if (o.n >= 5) { o.until = Date.now() + 60000; o.n = 0; }
+    localStorage.setItem(LOCK_KEY, JSON.stringify(o));
+  } catch (e) {}
+}
+function noteOk() { try { localStorage.removeItem(LOCK_KEY); } catch (e) {} }
+
 // LOGIN submit — cloud-first (sinkron HP↔PC), fallback localStorage bila cloud belum diset/offline
 loginPane.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -197,9 +226,12 @@ loginPane.addEventListener("submit", (e) => {
   const pass = passRaw.trim();
   out.className = "auth-out"; out.textContent = "";
   if (!id || !pass) { out.classList.add("err"); out.textContent = "User name/Email dan Password wajib diisi."; out.scrollIntoView({block:"nearest",behavior:"smooth"}); return; }
+  const locked = lockLeft();
+  if (locked > 0) { out.classList.add("err"); out.textContent = `Terlalu banyak gagal login. Coba lagi dalam ${locked} detik.`; return; }
   btn.disabled = true;
   const useCloud = window.KolaseCloud && window.KolaseCloud.configured();
   const done = (user, via) => {
+    noteOk();
     out.classList.add("ok");
     out.textContent = "Berhasil masuk • " + user.id + (via === "cloud" ? " (cloud, sinkron HP↔PC)" : " (perangkat ini)") + " — mengalihkan…";
     out.scrollIntoView({block:"nearest"});
@@ -207,6 +239,7 @@ loginPane.addEventListener("submit", (e) => {
     btn.disabled = false;
   };
   const fail = (err, usedCloud) => {
+    noteFail();
     let msg = err && err.message ? err.message : "Gagal masuk.";
     try {
       const f = KolaseStore.findUserByLogin ? KolaseStore.findUserByLogin(id) : null;
@@ -310,18 +343,34 @@ registerPane.addEventListener("submit", (e) => {
   );
 });
 
-// Forgot password: cloud-first (sinkron), fallback lokal per-perangkat
+// Forgot password: form inline bertipe password (pengganti prompt() yang tampil polos).
 document.getElementById("forgotBtn").onclick = () => {
+  const box = document.getElementById("resetBox");
+  const show = box.style.display === "none" || !box.style.display;
+  box.style.display = show ? "" : "none";
+  if (show) {
+    document.getElementById("resetId").value = document.getElementById("loginId").value.trim();
+    document.getElementById("resetNew").value = "";
+    document.getElementById("resetNew2").value = "";
+    box.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+};
+document.getElementById("resetCancel").onclick = () => {
+  document.getElementById("resetBox").style.display = "none";
+};
+document.getElementById("resetGo").onclick = () => {
   const out = document.getElementById("loginOut");
-  const id = document.getElementById("loginId").value.trim() || prompt("Masukkan Email / User name untuk reset password:");
-  if (!id) return;
-  const np = prompt("Password baru (min. 4 karakter):");
-  if (!np) return;
+  const id = document.getElementById("resetId").value.trim();
+  const np = (document.getElementById("resetNew").value || "").trim();
+  const np2 = (document.getElementById("resetNew2").value || "").trim();
+  if (!id) { out.className = "auth-out err"; out.textContent = "Isi Email / User name dulu."; return; }
+  if (np.length < 4) { out.className = "auth-out err"; out.textContent = "Password baru min. 4 karakter."; return; }
+  if (np !== np2) { out.className = "auth-out err"; out.textContent = "Ulangi password tidak sama."; return; }
   const useCloud = window.KolaseCloud && window.KolaseCloud.configured();
   if (useCloud) {
     out.className = "auth-out"; out.textContent = "Mereset via cloud…";
     window.KolaseCloud.resetPassword(id, np).then(
-      () => { out.className = "auth-out ok"; out.textContent = "Password direset di cloud (berlaku HP & PC). Silakan login dengan password baru."; },
+      () => { document.getElementById("resetBox").style.display = "none"; out.className = "auth-out ok"; out.textContent = "Password direset di cloud (berlaku HP & PC). Silakan login dengan password baru."; },
       (cerr) => {
         const m = String((cerr && cerr.message) || "");
         if (/CDN|HTTPS|Failed to fetch|Network|function|schema cache|JWT|koneksi/i.test(m)) {
@@ -339,6 +388,7 @@ document.getElementById("forgotBtn").onclick = () => {
   try {
     if (KolaseStore.resetPassword) {
       KolaseStore.resetPassword(id, np);
+      document.getElementById("resetBox").style.display = "none";
       out.className = "auth-out ok"; out.textContent = "Password direset. Silakan login dengan password baru.";
     } else {
       out.className = "auth-out"; out.textContent = "Hubungi admin untuk reset password (fitur reset membutuhkan update store.js).";

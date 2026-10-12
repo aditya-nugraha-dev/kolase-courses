@@ -72,11 +72,12 @@ function currentPhoto() {
   if (!u) return "";
   return u.photo || ((masterRow(u) || {}).photo) || "";
 }
+function escH(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
 function renderIdent() {
   var u = db.sessionUser, ph = currentPhoto();
   document.getElementById("ident").innerHTML = u
     ? (ph ? '<img src="' + ph + '" alt="Foto profil" style="width:64px;height:64px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:10px">' : "")
-      + '<span style="display:inline-block;vertical-align:middle"><b>' + u.nama + '</b><div class="small">' + u.role + ' • <span class="id-mono">' + u.id + '</span></div></span>'
+      + '<span style="display:inline-block;vertical-align:middle"><b>' + escH(u.nama) + '</b><div class="small">' + escH(u.role) + ' • <span class="id-mono">' + escH(u.id) + '</span></div></span>'
     : 'Belum login. <a href="login.html">Masuk →</a>';
   document.getElementById("avatar").src = ph || "assets/kolase-logo.png";
   document.getElementById("photoCard").style.display = u ? "" : "none";

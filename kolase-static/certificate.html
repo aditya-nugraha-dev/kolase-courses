@@ -45,13 +45,14 @@
     return;
   }
   const t = (k) => (window.KolaseI18n ? KolaseI18n.t(k) : k);
+  const escC = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   wrap.innerHTML = `<div class="cert-frame">
     <div class="cbrand">KOLASE • ENGLISH COURSE</div>
     <h1>${t("cert.title")}</h1>
     <p class="small">${t("cert.given")}</p>
-    <div class="cert-name">${b.student_name || b.student_id}</div>
-    <p><b>${b.label}</b><br><span class="small">${b.at} • ${b.ref_id}</span></p>
-    <div><span class="cert-code">${b.id}</span></div>
+    <div class="cert-name">${escC(b.student_name || b.student_id)}</div>
+    <p><b>${escC(b.label)}</b><br><span class="small">${escC(b.at)} • ${escC(b.ref_id)}</span></p>
+    <div><span class="cert-code">${escC(b.id)}</span></div>
     <p class="small" style="margin-top:12px">${t("cert.verify.note")}</p>
   </div>`;
 })();

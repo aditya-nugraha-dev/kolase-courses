@@ -130,6 +130,87 @@ function requireFullPower() {
 const SYSTEMS_PIN = "";
 const STAFF_PIN = "";
 
+/* Keamanan password lokal: SHA-256 + salt per akun, format "$kolase1$<salt>$<hex>".
+   Sinkron agar bisa dipakai browser tanpa library. Akun lama (plaintext) otomatis
+   di-hash ulang saat login berikutnya yang berhasil (migrasi transparan). */
+function sha256HexSync(s) {
+  function rr(v, a) { return (v >>> a) | (v << (32 - a)); }
+  var mp = Math.pow, mw = mp(2, 32), i, j, out = "";
+  var ascii = unescape(encodeURIComponent(String(s == null ? "" : s)));
+  var words = [], bitLen = ascii.length * 8;
+  var hash = sha256HexSync.h = sha256HexSync.h || [], k = sha256HexSync.k = sha256HexSync.k || [];
+  var pc = k.length, comp = {};
+  for (var cand = 2; pc < 64; cand++) {
+    if (!comp[cand]) {
+      for (i = 0; i < 313; i += cand) comp[i] = cand;
+      hash[pc] = (mp(cand, 0.5) * mw) | 0;
+      k[pc++] = (mp(cand, 1 / 3) * mw) | 0;
+    }
+  }
+  ascii += "\x80";
+  while (ascii.length % 64 - 56) ascii += "\x00";
+  for (i = 0; i < ascii.length; i++) {
+    j = ascii.charCodeAt(i);
+    if (j >> 8) return "";
+    words[i >> 2] |= j << ((3 - i) % 4) * 8;
+  }
+  words[words.length] = (bitLen / mw) | 0;
+  words[words.length] = bitLen;
+  for (j = 0; j < words.length;) {
+    var w = words.slice(j, j += 16), old = hash;
+    hash = hash.slice(0, 8);
+    for (i = 0; i < 64; i++) {
+      var w15 = w[i - 15], w2 = w[i - 2], a = hash[0], e = hash[4];
+      var t1 = hash[7]
+        + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25))
+        + ((e & hash[5]) ^ ((~e) & hash[6]))
+        + k[i]
+        + (w[i] = (i < 16) ? w[i] : (w[i - 16]
+          + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3))
+          + w[i - 7]
+          + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);
+      var t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22))
+        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(t1 + t2) | 0].concat(hash);
+      hash[4] = (hash[4] + t1) | 0;
+    }
+    for (i = 0; i < 8; i++) hash[i] = (hash[i] + old[i]) | 0;
+  }
+  for (i = 0; i < 8; i++) {
+    for (j = 3; j + 1; j--) {
+      var b = (hash[i] >> (j * 8)) & 255;
+      out += ((b < 16) ? "0" : "") + b.toString(16);
+    }
+  }
+  return out;
+}
+function makeSaltHex(nBytes) {
+  var n = nBytes || 8, buf = new Uint8Array(n), out = "", i;
+  try {
+    if (typeof window !== "undefined" && window.crypto && window.crypto.getRandomValues) {
+      window.crypto.getRandomValues(buf);
+    } else { throw new Error("no-csp"); }
+  } catch (e) {
+    for (i = 0; i < n; i++) buf[i] = Math.floor(Math.random() * 256);
+  }
+  for (i = 0; i < n; i++) out += ((buf[i] < 16) ? "0" : "") + buf[i].toString(16);
+  return out;
+}
+function hashPassword(pw) {
+  var salt = makeSaltHex(8);
+  return "$kolase1$" + salt + "$" + sha256HexSync(salt + "\n" + String(pw == null ? "" : pw));
+}
+function isHashed(s) { return String(s || "").indexOf("$kolase1$") === 0; }
+function verifyPassword(stored, input) {
+  var s = String(stored == null ? "" : stored), p = String(input == null ? "" : input);
+  if (isHashed(s)) {
+    var parts = s.split("$");
+    if (parts.length !== 4 || !parts[2] || !parts[3]) return false;
+    return sha256HexSync(parts[2] + "\n" + p) === parts[3];
+  }
+  return s.trim() === p.trim(); // legacy plaintext
+}
+
 function registerPerson(role, nama, email, wa, password, pin) {
   // Student (STU-…) & teacher (TCH-…) langsung jadi.
   // Staff (founder/academic/systems/staff/admin): bebas daftar langsung jadi
@@ -147,7 +228,7 @@ function registerPerson(role, nama, email, wa, password, pin) {
   }
   if (["systems", "founder", "academic", "staff", "admin"].indexOf(role) !== -1) {
     const sid = nextId("ACT", db.MST_STAFF, "staff_id");
-    const nm = String(nama || "").trim(), ml = String(email || "").trim(), ph = String(wa || "").trim(), pw = String(password || "").trim();
+    const nm = String(nama || "").trim(), ml = String(email || "").trim(), ph = String(wa || "").trim(), pw = hashPassword(String(password || "").trim());
     db.MST_STAFF.push({ staff_id: sid, nama: nm, email: ml, wa: ph, role: role === "staff" ? "staff" : role, password: pw });
     db.sessionUser = { role: role === "staff" ? "staff" : role, id: sid, nama: nm, email: ml };
     saveDB(db);
@@ -160,11 +241,11 @@ function registerPerson(role, nama, email, wa, password, pin) {
   if (role === "student") {
     id = nextId("STU", db.MST_STUDENTS, "student_id"); // STU-###### seumur hidup (KOL-POL-COD-001 §3.1)
     pilotId = id;
-    db.MST_STUDENTS.push({ student_id: id, pilot_student_id: id, nama, email, wa, password: password || "", tgl_daftar: new Date().toISOString().slice(0, 10), current_status: "REGISTERED", confirmation_status: "PENDING" });
+    db.MST_STUDENTS.push({ student_id: id, pilot_student_id: id, nama, email, wa, password: hashPassword(String(password || "").trim()), tgl_daftar: new Date().toISOString().slice(0, 10), current_status: "REGISTERED", confirmation_status: "PENDING" });
     db.PILOT_REGISTRATIONS.push({ pilot_student_id: pilotId, student_id: id, full_name: nama, email, whatsapp: wa, at: new Date().toISOString() });
   } else {
     id = nextId("TCH", db.MST_TEACHERS, "teacher_id");
-    db.MST_TEACHERS.push({ teacher_id: id, nama, email, wa, password: password || "" });
+    db.MST_TEACHERS.push({ teacher_id: id, nama, email, wa, password: hashPassword(String(password || "").trim()) });
   }
   db.sessionUser = { role, id, nama, email };
   saveDB(db);
@@ -283,12 +364,15 @@ function loginPerson(query, password, remember) {
       return null;
     })();
   if (!hit) throw new Error("Akun tidak ditemukan di perangkat ini. Cek Email / User name, atau Register dulu.");
-  // Migrasi akun lama tanpa password: set password saat login pertama.
+  // Migrasi akun lama tanpa/hash password: set/hash password saat login pertama yang cocok.
   if (!hit.r.password) {
-    hit.r.password = pass;
+    hit.r.password = hashPassword(pass);
     saveDB(db);
-  } else if (String(hit.r.password).trim() !== pass) {
+  } else if (!verifyPassword(hit.r.password, pass)) {
     throw new Error("Password salah. Gunakan Forgot Password untuk reset. Tips HP: cek huruf besar/kecil & spasi di akhir.");
+  } else if (!isHashed(hit.r.password)) {
+    hit.r.password = hashPassword(pass); // upgrade plaintext lama -> hash+salt
+    saveDB(db);
   }
   const user = { role: hit.role, id: hit.r[hit.idField], nama: hit.r.nama, email: hit.r.email };
   db.sessionUser = user;
@@ -325,7 +409,7 @@ function resetPassword(query, newPassword) {
     }
   });
   if (!target) throw new Error("Akun tidak ditemukan untuk reset.");
-  target.password = np;
+  target.password = hashPassword(np);
   saveDB(db);
   return true;
 }
@@ -981,4 +1065,4 @@ function deleteStudent(studentId) {
   saveDB(db);
   return true;
 }
-window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, deleteStaff, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance, listStaffRequests, pendingStaffRequestCount, decideStaffRequest, SYSTEMS_PIN, STAFF_PIN };
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, deleteStaff, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance, listStaffRequests, pendingStaffRequestCount, decideStaffRequest, SYSTEMS_PIN, STAFF_PIN, hashPassword };

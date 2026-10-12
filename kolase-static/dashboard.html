@@ -94,8 +94,9 @@ if (!isStudent && db.sessionUser) {
   }
   if (!viewId && roster[0]) viewId = roster[0].student_id;
   const sel = document.getElementById("viewAs");
+  const escOpt = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   sel.innerHTML = roster.length
-    ? roster.map(s => `<option value="${s.student_id}">${s.nama} • ${s.student_id}</option>`).join("")
+    ? roster.map(s => `<option value="${escOpt(s.student_id)}">${escOpt(s.nama)} • ${escOpt(s.student_id)}</option>`).join("")
     : `<option value="">— belum ada murid —</option>`;
   if (viewId) sel.value = viewId;
   sel.onchange = () => {
@@ -172,8 +173,9 @@ function fillStaffStats() {
 (function(){
   const el = document.getElementById("badgeList");
   if (!viewId) { el.textContent = "Login untuk melihat badge."; return; }
+  const escB = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const rows = KolaseStore.badgesFor(viewId);
-  el.innerHTML = rows.length ? rows.map(b=>`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><span class="pill p-verified">🏅 ${b.id}</span><span><b>${b.label}</b><br><span class="small">${b.at} • kode verifikasi ${b.id}</span></span><a class="btn btn-ghost btn-sm" style="margin-left:auto" href="certificate.html?code=${encodeURIComponent(b.id)}">Lihat & Cetak</a></div>`).join("")
+  el.innerHTML = rows.length ? rows.map(b=>`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px"><span class="pill p-verified">🏅 ${escB(b.id)}</span><span><b>${escB(b.label)}</b><br><span class="small">${escB(b.at)} • kode verifikasi ${escB(b.id)}</span></span><a class="btn btn-ghost btn-sm" style="margin-left:auto" href="certificate.html?code=${encodeURIComponent(b.id)}">Lihat & Cetak</a></div>`).join("")
     : `<span data-i18n="dash.badges.empty">Belum ada badge. Selesaikan trial 7 sesi atau 1 paket + ulasan untuk menerbitkan badge.</span>`;
 })();
 // Ulasan 1 paket: terbuka setelah semua sesi 1 enrollment selesai (4/4).
@@ -366,6 +368,7 @@ document.getElementById("pqSubmit").onclick = () => {
   const obs = db.PILOT_OBSERVATIONS.filter(o => (o.pilot_student_id || o.student_id) === pid);
   const last = obs[obs.length - 1];
   const pick = (o, keys) => { for (const k of keys) { if (o && o[k] !== undefined && o[k] !== null && o[k] !== "") return o[k]; } return "—"; };
+  const escF = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const placements = db.PILOT_PLACEMENTS.filter(p => (p.pilot_student_id || p.student_id) === pid);
   const posts = db.PILOT_POSTCLASS.filter(p => (p.pilot_student_id || p.student_id) === pid);
   const pre = placements.length ? placements[placements.length - 1].pre_check_score : null;
@@ -385,12 +388,12 @@ document.getElementById("pqSubmit").onclick = () => {
   }
   const evalHtml = last
     ? `<div class="score-grid">
-      <div class="score-cell"><span>Past Simple</span><b>${pick(last, ["past_simple", "grammar"])}</b></div>
-      <div class="score-cell"><span>Vocab &amp; Time Markers</span><b>${pick(last, ["vocabulary", "time_markers"])}</b></div>
-      <div class="score-cell"><span>Comprehensibility</span><b>${pick(last, ["comprehensibility", "fluency"])}</b></div>
+      <div class="score-cell"><span>Past Simple</span><b>${escF(pick(last, ["past_simple", "grammar"]))}</b></div>
+      <div class="score-cell"><span>Vocab &amp; Time Markers</span><b>${escF(pick(last, ["vocabulary", "time_markers"]))}</b></div>
+      <div class="score-cell"><span>Comprehensibility</span><b>${escF(pick(last, ["comprehensibility", "fluency"]))}</b></div>
     </div>
-    <div class="small" style="margin-top:8px"><b>Catatan guru:</b> ${pick(last, ["recommendation", "teacher_notes", "notes", "catatan"])}</div>
-    <div class="small">Observasi terakhir: <span class="id-mono">${last.observation_id || "-"}</span> • ${String(last.at || "").slice(0, 10)}</div>`
+    <div class="small" style="margin-top:8px"><b>Catatan guru:</b> ${escF(pick(last, ["recommendation", "teacher_notes", "notes", "catatan"]))}</div>
+    <div class="small">Observasi terakhir: <span class="id-mono">${escF(last.observation_id || "-")}</span> • ${escF(String(last.at || "").slice(0, 10))}</div>`
     : `<div class="small">Belum ada observasi guru untukmu.</div>`;
   body.innerHTML = evalHtml + `<div style="margin-top:10px"><b>Gain Score (Pre vs Post)</b>${gainHtml}</div>`;
 })();

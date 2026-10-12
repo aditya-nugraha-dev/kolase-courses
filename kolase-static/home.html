@@ -139,9 +139,10 @@
   };
   try {
     const db = KolaseStore.loadDB();
+    const escR = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
     document.getElementById("reviewGrid").innerHTML = (db.REVIEWS || []).slice(0, 6).map(r => {
       const overall = r.rating_overall != null ? r.rating_overall : r.rating;
-      return `<div class="card"><div style="color:var(--gold)">${stars(overall)} <b>${overall}</b></div>${aspectRows(r)}<p>"${r.teks}"</p><div class="small">— ${r.nama}</div></div>`;
+      return `<div class="card"><div style="color:var(--gold)">${stars(overall)} <b>${overall}</b></div>${aspectRows(r)}<p>"${escR(r.teks)}"</p><div class="small">— ${escR(r.nama)}</div></div>`;
     }).join("") || `<div class="card small">Belum ada ulasan.</div>`;
   } catch(e){}
 })();

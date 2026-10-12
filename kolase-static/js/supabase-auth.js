@@ -49,37 +49,42 @@
   }
 
   // Tulis user cloud ke DB lokal agar dashboard/katalog/chat tetap jalan offline.
+  // Password cache ikut di-hash (format lokal $kolase1$) agar tidak plaintext.
   function syncToLocal(user, extra) {
     try {
       if (!window.KolaseStore) return;
       var db = window.KolaseStore.loadDB();
       var ex = extra || {};
       var id = user.id, role = user.role;
+      var lpw = ex.password || "";
+      try {
+        if (lpw && window.KolaseStore.hashPassword) lpw = window.KolaseStore.hashPassword(lpw);
+      } catch (e) { lpw = ex.password || ""; }
       if (role === "student") {
         var s = (db.MST_STUDENTS || []).find(function (r) { return r.student_id === id; });
         if (!s) {
-          s = { student_id: id, pilot_student_id: id, nama: user.nama, email: user.email, wa: ex.wa || "", password: ex.password || "", tgl_daftar: new Date().toISOString().slice(0, 10), current_status: "REGISTERED", confirmation_status: "PENDING" };
+          s = { student_id: id, pilot_student_id: id, nama: user.nama, email: user.email, wa: ex.wa || "", password: lpw, tgl_daftar: new Date().toISOString().slice(0, 10), current_status: "REGISTERED", confirmation_status: "PENDING" };
           db.MST_STUDENTS.push(s);
         } else {
           s.nama = user.nama || s.nama; s.email = user.email || s.email;
-          if (ex.password) s.password = ex.password;
+          if (ex.password) s.password = lpw;
           if (ex.wa) s.wa = ex.wa;
         }
       } else if (role === "teacher") {
         var t = (db.MST_TEACHERS || []).find(function (r) { return r.teacher_id === id; });
         if (!t) {
-          db.MST_TEACHERS.push({ teacher_id: id, nama: user.nama, email: user.email, wa: ex.wa || "", password: ex.password || "" });
+          db.MST_TEACHERS.push({ teacher_id: id, nama: user.nama, email: user.email, wa: ex.wa || "", password: lpw });
         } else {
           t.nama = user.nama || t.nama; t.email = user.email || t.email;
-          if (ex.password) t.password = ex.password;
+          if (ex.password) t.password = lpw;
         }
       } else {
         var st = (db.MST_STAFF || []).find(function (r) { return r.staff_id === id; });
         if (!st) {
-          db.MST_STAFF.push({ staff_id: id, nama: user.nama, email: user.email, wa: ex.wa || "", role: role, password: ex.password || "" });
+          db.MST_STAFF.push({ staff_id: id, nama: user.nama, email: user.email, wa: ex.wa || "", role: role, password: lpw });
         } else {
           st.nama = user.nama || st.nama; st.email = user.email || st.email;
-          if (ex.password) st.password = ex.password;
+          if (ex.password) st.password = lpw;
         }
       }
       db.sessionUser = { role: role, id: id, nama: user.nama, email: user.email };

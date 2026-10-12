@@ -221,6 +221,18 @@ try { refreshNavAvatar(); } catch (e) {}
 try { markActiveNav(); } catch (e) {}
 document.addEventListener("DOMContentLoaded", () => {
   try { renderKolaseFooter(); } catch (e) {}
+  // Remember-me: bila login TANPA centang, sesi berakhir saat browser ditutup.
+  // Deteksi sesi browser baru via sessionStorage (hilang saat browser ditutup).
+  try {
+    if (sessionStorage.getItem("kolase_remember") === "0" && !sessionStorage.getItem("kolase_alive")) {
+      const raw = localStorage.getItem("kolase_db_v1");
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d && d.sessionUser) { d.sessionUser = null; localStorage.setItem("kolase_db_v1", JSON.stringify(d)); }
+      }
+    }
+    sessionStorage.setItem("kolase_alive", "1");
+  } catch (e) {}
   // RBAC route guard — workflow box 1 Strict Segregation.
   // Halaman yang dijaga memakai <body data-guard="student,teacher"> dst.
   const need = (document.body.getAttribute("data-guard") || "").split(",").map((s) => s.trim()).filter(Boolean);
