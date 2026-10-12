@@ -65,6 +65,11 @@
 .auth-switch{text-align:center;font-size:13px;color:var(--muted);margin-top:10px}
 .auth-meta{display:grid;gap:10px;margin-top:4px}
 .field-inline{display:grid;gap:10px;grid-template-columns:1fr}
+.role-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.role-pick button{border:1.5px solid #CBD5E1;background:#F8FAFC;border-radius:14px;padding:10px 6px;min-height:56px;cursor:pointer;text-align:center;color:var(--ink)}
+.role-pick button b{display:block;font-size:13.5px}
+.role-pick button span{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.role-pick button.active{border-color:var(--navy);background:#fff;box-shadow:0 0 0 3px color-mix(in srgb,var(--navy) 18%,transparent)}
 #roleHint{font-size:12.5px}
 
 @media(min-width:860px){

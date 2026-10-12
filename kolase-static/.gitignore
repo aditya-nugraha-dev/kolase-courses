@@ -1,3 +1,5 @@
 # KOLASE static prototype — file lokal yang tidak boleh di-commit:
 # berisi URL Apps Script production + flag dev (lihat js/sheets-config.example.js)
 js/sheets-config.js
+# berisi URL + anon key Supabase (lihat js/supabase-config.example.js)
+js/supabase-config.js

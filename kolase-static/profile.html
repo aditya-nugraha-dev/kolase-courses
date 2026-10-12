@@ -41,12 +41,20 @@
       <button class="btn btn-brand btn-sm" data-logout data-auth-only>Keluar Akun</button>
       <p class="small">Hanya keluar dari akun — data pendaftaran, transaksi & sesi tetap tersimpan di browser ini.</p>
     </div></div>
+    <div class="section"><h2>Pindah Perangkat (HP ↔ PC)</h2><div class="card">
+      <p class="small" style="margin-top:0">Tanpa cloud, data tersimpan per-browser. Pakai ini untuk memindahkan akun dari PC ke HP hari ini (atau sebaliknya). Dengan cloud aktif, langkah ini tidak perlu.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-brand btn-sm" id="backupExport" type="button">Unduh Cadangan (JSON)</button>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">Pulihkan dari File<input type="file" id="backupImport" accept="application/json,.json" hidden></label>
+      </div>
+      <p class="small" id="backupMsg"></p>
+    </div></div>
     <div class="section" id="dangerZone" style="display:none"><h2>Zona Berbahaya</h2><button class="btn btn-ghost btn-sm" id="logout">Hapus Semua Data Demo</button>
     <p class="small">Menghapus seluruh data pendaftaran, transaksi, sesi, dan antrean Sheets di browser ini (localStorage), lalu kembali ke akun demo awal. Khusus 3 ID penuh (ACT-000001/002/003).</p></div>
   </div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html" class="active">Profil</a></nav>
-<script src="js/store.js?v=12"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script>
+<script src="js/store.js?v=13"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script>
 <script>
 const db = KolaseStore.loadDB();
 // Zona Berbahaya HANYA untuk 3 ID penuh: Founder, Academic, Systems.
@@ -131,6 +139,41 @@ document.getElementById("logout").onclick = () => {
 };
 document.getElementById("sheetsMsg").textContent =
   KolaseStore.sheetsEndpoint() ? "Endpoint server-side terdeteksi. Mutasi dikirim ke Sheets." : "Mode mock: endpoint belum dikonfigurasi server-side.";
+// Backup HP<->PC: unduh JSON di perangkat lama, pulihkan di perangkat baru
+document.getElementById("backupExport").onclick = () => {
+  try {
+    const payload = {
+      app: "kolase-static", v: 1, at: new Date().toISOString(),
+      db: JSON.parse(localStorage.getItem("kolase_db_v1") || "null"),
+      sheetsQueue: JSON.parse(localStorage.getItem("kolase_sheets_queue") || "[]")
+    };
+    const blob = new Blob([JSON.stringify(payload)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "kolase-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    document.getElementById("backupMsg").textContent = "Cadangan diunduh. Kirim file ke HP/PC lain (WA/Drive), lalu Pulihkan di sana.";
+  } catch (e) { document.getElementById("backupMsg").textContent = "Gagal membuat cadangan: " + (e.message || e); }
+};
+document.getElementById("backupImport").addEventListener("change", (e) => {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const p = JSON.parse(String(rd.result || ""));
+      if (!p || !p.db) throw new Error("File bukan cadangan KOLASE.");
+      if (!confirm("Timpa data di perangkat ini dengan cadangan tanggal " + (p.at || "?") + "?")) return;
+      localStorage.setItem("kolase_db_v1", JSON.stringify(p.db));
+      if (Array.isArray(p.sheetsQueue)) localStorage.setItem("kolase_sheets_queue", JSON.stringify(p.sheetsQueue));
+      document.getElementById("backupMsg").textContent = "Dipulihkan. Memuat ulang…";
+      setTimeout(() => location.reload(), 800);
+    } catch (err) { document.getElementById("backupMsg").textContent = "Gagal pulihkan: " + (err.message || err); }
+  };
+  rd.readAsText(f);
+  e.target.value = "";
+});
 </script>
 </body>
 </html>

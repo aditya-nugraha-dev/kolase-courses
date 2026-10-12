@@ -26,6 +26,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Inject Supabase cloud config (optional)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_ANON_KEY" ]; then
+            printf 'window.KOLASE_SUPABASE_URL = "%s";\nwindow.KOLASE_SUPABASE_ANON_KEY = "%s";\n' "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > kolase-static/js/supabase-config.js
+            echo "Cloud config injected."
+          else
+            echo "SUPABASE_* secrets empty — offline mode, localStorage only."
+          fi
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload kolase-static

@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KOLASE — Masuk / Daftar</title>
 <link rel="stylesheet" href="css/style.css?v=6">
-<link rel="stylesheet" href="css/auth.css?v=6">
+<link rel="stylesheet" href="css/auth.css?v=7">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
 <body>
@@ -33,10 +33,10 @@
         <!-- LOGIN -->
         <form id="loginPane" autocomplete="on">
           <label class="auth-label" for="loginId" data-i18n="login.user">User name</label>
-          <div class="auth-input"><input id="loginId" name="username" autocomplete="username email" placeholder="Enter your User name / Email" data-i18n-ph="login.user.ph"></div>
+          <div class="auth-input"><input id="loginId" name="username" autocomplete="username email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Enter your User name / Email" data-i18n-ph="login.user.ph"></div>
           <label class="auth-label" for="loginPass" data-i18n="login.pass">Password</label>
           <div class="auth-input">
-            <input id="loginPass" name="current-password" type="password" autocomplete="current-password" placeholder="Enter your Password" data-i18n-ph="login.pass.ph">
+            <input id="loginPass" name="current-password" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="Enter your Password" data-i18n-ph="login.pass.ph">
             <button type="button" class="auth-eye" data-eye="loginPass" aria-label="Tampilkan password">👁</button>
           </div>
           <div class="auth-row">
@@ -46,39 +46,37 @@
           <button class="auth-btn" type="submit" id="loginBtn" data-i18n="login.btn">Login</button>
           <div class="auth-out" id="loginOut" role="status" aria-live="polite"></div>
           <div class="auth-switch"><span data-i18n="login.noacc">Belum punya akun?</span> <button type="button" class="auth-link" id="goRegister" data-i18n="login.reg">Register</button></div>
+          <p class="small" style="margin:10px 2px 0;text-align:center;color:var(--muted);font-size:12px">Catatan HP: matikan kapital otomatis & spasi di akhir password. Tanpa cloud, akun tersimpan per-browser (HP & PC beda). Dengan cloud aktif, 1 akun berlaku HP & PC.</p>
         </form>
 
         <!-- REGISTER -->
         <form id="registerPane" hidden autocomplete="on">
           <label class="auth-label" for="regEmail" data-i18n="login.email">Email Address</label>
-          <div class="auth-input"><input id="regEmail" type="email" autocomplete="email" placeholder="Enter your Email Address" data-i18n-ph="login.email.ph"></div>
+          <div class="auth-input"><input id="regEmail" type="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Enter your Email Address" data-i18n-ph="login.email.ph"></div>
           <label class="auth-label" for="regNama" data-i18n="login.uname">User name</label>
-          <div class="auth-input"><input id="regNama" autocomplete="name" placeholder="Enter your User name" data-i18n-ph="login.uname.ph"></div>
+          <div class="auth-input"><input id="regNama" autocomplete="name" autocapitalize="words" placeholder="Enter your User name" data-i18n-ph="login.uname.ph"></div>
           <label class="auth-label" for="regPass" data-i18n="login.pass">Password</label>
           <div class="auth-input">
-            <input id="regPass" type="password" autocomplete="new-password" placeholder="Enter your Password (min. 4 karakter)" data-i18n-ph="login.newpass.ph">
+            <input id="regPass" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Enter your Password (min. 4 karakter)" data-i18n-ph="login.newpass.ph">
             <button type="button" class="auth-eye" data-eye="regPass" aria-label="Tampilkan password">👁</button>
           </div>
-          <div class="field-inline" style="margin-top:12px">
-            <div>
-              <label class="auth-label" for="regWa" style="margin-top:0" data-i18n="login.wa">No. WA</label>
-              <div class="auth-input"><input id="regWa" inputmode="tel" autocomplete="tel" placeholder="08xx"></div>
+          <div style="margin-top:12px">
+            <label class="auth-label" for="regWa" style="margin-top:0" data-i18n="login.wa">No. WA</label>
+            <div class="auth-input"><input id="regWa" inputmode="tel" autocomplete="tel" placeholder="08xx"></div>
+          </div>
+          <div style="margin-top:12px">
+            <span class="auth-label" style="margin-top:0" data-i18n="login.role.pick">Daftar sebagai</span>
+            <div class="role-pick" role="radiogroup" aria-label="Pilih peran">
+              <button type="button" data-regrole="student" class="active" role="radio" aria-checked="true"><b data-i18n="login.role.student">Student</b><span data-i18n="login.role.student.d">Murid • ID STU</span></button>
+              <button type="button" data-regrole="teacher" role="radio" aria-checked="false"><b data-i18n="login.role.teacher">Teacher</b><span data-i18n="login.role.teacher.d">Guru • ID TCH</span></button>
+              <button type="button" data-regrole="staff" role="radio" aria-checked="false"><b data-i18n="login.role.staff">Staff</b><span data-i18n="login.role.staff.d">Tim • ID ACT</span></button>
             </div>
-            <div>
-              <label class="auth-label" for="regRole" style="margin-top:0" data-i18n="login.role">Peran</label>
-              <div class="auth-input"><select id="regRole"><option value="student">Student</option><option value="teacher">Teacher</option><option value="staff">Staff</option></select></div>
-            </div>
+            <input type="hidden" id="regRole" value="student">
           </div>
           <div id="staffTypeWrap" style="display:none">
             <label class="auth-label" for="regStaffType">Staff sebagai</label>
             <div class="auth-input"><select id="regStaffType"><option value="founder">Founder & Business Lead</option><option value="academic">Co-Founder & Academic Lead</option><option value="systems">Head of Systems & Technology</option></select></div>
           </div>
-          <div id="pinWrap" style="display:none">
-            <label class="auth-label" for="regPin" style="margin-top:12px" data-i18n="login.pin">PIN Khusus Systems</label>
-            <div class="auth-input"><input id="regPin" inputmode="numeric" autocomplete="off" placeholder="••••••" data-i18n-ph="login.pin.ph" maxlength="20"></div>
-            <p class="small" style="margin:6px 2px 0" data-i18n="login.pin.hint">Tanpa PIN yang benar, akun Systems tidak dibuat.</p>
-          </div>
-          <div id="approvalInfo" class="small" style="display:none;margin:8px 2px 0" data-i18n="login.needapproval">Peran ini butuh persetujuan Head of Systems & Technology — permintaanmu akan muncul sebagai notif untuk disetujui/ditolak.</div>
           <div id="roleHint" class="small" style="display:none;margin:8px 2px 0"></div>
           <button class="auth-btn" type="submit" id="regBtn">Register</button>
           <div class="auth-out" id="regOut" role="status" aria-live="polite"></div>
@@ -89,7 +87,7 @@
   </div>
 </main>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/sheets-config.js"></script><script src="js/store.js?v=12"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script>
+<script src="js/sheets-config.js"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/store.js?v=13"></script><script src="js/supabase-auth.js?v=1"></script><script src="js/i18n.js?v=6"></script><script src="js/app.js?v=11"></script>
 <script>
 // Sudah masuk? Langsung ke portal.
 try {
@@ -133,7 +131,7 @@ document.querySelectorAll("[data-eye]").forEach(btn => {
   });
 });
 
-// Staff invite-only + hint nama (logika lama dipertahankan)
+// Staff bebas daftar langsung jadi + hint nama
 var STAFF_LABEL = { founder: "Founder & Business Lead", academic: "Co-Founder & Academic Lead", systems: "Head of Systems & Technology" };
 function normNama(v) { return String(v || "").toLowerCase().replace(/[^a-z\s]/g, " ").replace(/\s+/g, " ").trim(); }
 function detectStaffRole(nama) {
@@ -154,17 +152,12 @@ function refreshStaffUI() {
   var hint = document.getElementById("roleHint");
   var nama = document.getElementById("regNama").value;
   var suggest = detectStaffRole(nama);
-  var srole = selectedStaffRole();
   wrap.style.display = role === "staff" ? "" : "none";
-  document.getElementById("pinWrap").style.display = srole === "systems" ? "" : "none";
-  document.getElementById("approvalInfo").style.display = (srole === "founder" || srole === "academic") ? "" : "none";
   if (!suggest) { hint.style.display = "none"; hint.textContent = ""; return; }
   var label = STAFF_LABEL[suggest];
   if (role === "staff" && document.getElementById("regStaffType").value === suggest) {
     hint.style.display = "";
-    hint.textContent = suggest === "systems"
-      ? "Terdeteksi sebagai " + label + " — masukkan PIN khusus untuk membuat akun."
-      : "Terdeteksi sebagai " + label + " — permintaanmu butuh persetujuan Head of Systems & Technology.";
+    hint.textContent = "Terdeteksi sebagai " + label + " — lanjutkan untuk membuat akun langsung (ID ACT baru).";
   } else {
     hint.style.display = "";
     hint.innerHTML = "";
@@ -180,23 +173,59 @@ function refreshStaffUI() {
   }
 }
 document.getElementById("regRole").addEventListener("change", refreshStaffUI);
+document.querySelectorAll("[data-regrole]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.getElementById("regRole").value = btn.getAttribute("data-regrole");
+    document.querySelectorAll("[data-regrole]").forEach(b => {
+      const on = b === btn;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-checked", String(on));
+    });
+    refreshStaffUI();
+  });
+});
 document.getElementById("regStaffType").addEventListener("change", refreshStaffUI);
 document.getElementById("regNama").addEventListener("input", refreshStaffUI);
 
-// LOGIN submit
+// LOGIN submit — cloud-first (sinkron HP↔PC), fallback localStorage bila cloud belum diset/offline
 loginPane.addEventListener("submit", (e) => {
   e.preventDefault();
   const out = document.getElementById("loginOut");
-  const id = document.getElementById("loginId").value.trim();
-  const pass = document.getElementById("loginPass").value;
+  const btn = document.getElementById("loginBtn");
+  const id = document.getElementById("loginId").value.trim().replace(/\s+/g, " ");
+  const passRaw = document.getElementById("loginPass").value || "";
+  const pass = passRaw.trim();
   out.className = "auth-out"; out.textContent = "";
-  if (!id || !pass) { out.classList.add("err"); out.textContent = "User name/Email dan Password wajib diisi."; return; }
-  try {
+  if (!id || !pass) { out.classList.add("err"); out.textContent = "User name/Email dan Password wajib diisi."; out.scrollIntoView({block:"nearest",behavior:"smooth"}); return; }
+  btn.disabled = true;
+  const useCloud = window.KolaseCloud && window.KolaseCloud.configured();
+  const done = (user, via) => {
+    out.classList.add("ok");
+    out.textContent = "Berhasil masuk • " + user.id + (via === "cloud" ? " (cloud, sinkron HP↔PC)" : " (perangkat ini)") + " — mengalihkan…";
+    out.scrollIntoView({block:"nearest"});
+    setTimeout(() => location.replace(KolaseStore.portalFor(user.role)), 600);
+    btn.disabled = false;
+  };
+  const fail = (err, usedCloud) => {
+    let msg = err && err.message ? err.message : "Gagal masuk.";
+    try {
+      const f = KolaseStore.findUserByLogin ? KolaseStore.findUserByLogin(id) : null;
+      if (f && f.password && pass.toLowerCase() === String(f.password).toLowerCase() && pass !== f.password) {
+        msg += " (Periksa huruf besar/kecil — keyboard HP sering mengubah huruf pertama jadi kapital.)";
+      }
+      if (/tidak ditemukan/i.test(msg) && !usedCloud) {
+        msg += " Catatan: cloud belum aktif / offline — akun ini hanya ada di perangkat lain. Aktifkan Supabase (lihat js/supabase-config.example.js) atau daftar ulang di HP ini.";
+      }
+    } catch (_) {}
+    out.classList.add("err"); out.textContent = msg;
+    out.scrollIntoView({block:"nearest",behavior:"smooth"});
+    btn.disabled = false;
+  };
+  const localLogin = () => {
     let user = null;
     if (KolaseStore.loginPerson) {
       user = KolaseStore.loginPerson(id, pass, document.getElementById("remember").checked);
     } else {
-      // fallback: cari di DB lokal tanpa password (kompatibel akun lama)
       const db = KolaseStore.loadDB();
       const all = [...(db.MST_STUDENTS||[]).map(r=>({role:"student",id:r.student_id,nama:r.nama,email:r.email})),
                    ...(db.MST_TEACHERS||[]).map(r=>({role:"teacher",id:r.teacher_id,nama:r.nama,email:r.email})),
@@ -206,29 +235,45 @@ loginPane.addEventListener("submit", (e) => {
       if (user) { db.sessionUser = user; KolaseStore.saveDB(db); }
     }
     if (!user) throw new Error("Akun tidak ditemukan / password salah.");
-    out.classList.add("ok"); out.textContent = "Berhasil masuk • " + user.id + " — mengalihkan…";
-    setTimeout(() => location.replace(KolaseStore.portalFor(user.role)), 600);
-  } catch (err) {
-    out.classList.add("err"); out.textContent = err.message;
+    return user;
+  };
+  if (useCloud) {
+    out.textContent = "Menghubungi cloud…";
+    window.KolaseCloud.login(id, pass).then(
+      (user) => done(user, "cloud"),
+      (cerr) => {
+        const m = String((cerr && cerr.message) || "");
+        // Gangguan teknis (CDN/RPC/HTTPS) -> fallback lokal agar tetap bisa dipakai
+        if (/CDN|HTTPS|Failed to fetch|Network|function|schema cache|JWT|koneksi/i.test(m)) {
+          try { done(localLogin(), "local"); }
+          catch (lerr) { fail(new Error(m + " (cloud tidak terjangkau, fallback lokal gagal: " + (lerr.message || "") + ")"), true); }
+        } else {
+          fail(cerr, true);
+        }
+      }
+    );
+  } else {
+    try { done(localLogin(), "local"); }
+    catch (err) { fail(err, false); }
   }
 });
 
-// REGISTER submit
+// REGISTER submit — bebas daftar langsung jadi; cloud-first bila aktif
 registerPane.addEventListener("submit", (e) => {
   e.preventDefault();
   const out = document.getElementById("regOut");
+  const btn = document.getElementById("regBtn");
   out.className = "auth-out"; out.textContent = "";
   let peran = document.getElementById("regRole").value;
   if (peran === "staff") peran = selectedStaffRole() || "staff";
   const nama = document.getElementById("regNama").value.trim() || "Pengguna Baru";
   const email = document.getElementById("regEmail").value.trim();
   const wa = document.getElementById("regWa").value.trim();
-  const pass = document.getElementById("regPass").value;
-  const pin = (document.getElementById("regPin") || {}).value || "";
+  const pass = (document.getElementById("regPass").value || "").trim();
   if (!email || !wa) { out.classList.add("err"); out.textContent = "Email dan No. WA wajib diisi."; return; }
   if (!pass || pass.length < 4) { out.classList.add("err"); out.textContent = "Password min. 4 karakter."; return; }
-  try {
-    const res = KolaseStore.registerPerson(peran, nama, email, wa, pass, pin);
+  const localReg = () => KolaseStore.registerPerson(peran, nama, email, wa, pass);
+  const finish = (res) => {
     if (res && res.request) {
       out.classList.add("ok");
       out.textContent = "Permintaan terkirim (" + res.reqId + ") — menunggu persetujuan Head of Systems & Technology. Cek lagi nanti setelah disetujui.";
@@ -243,20 +288,56 @@ registerPane.addEventListener("submit", (e) => {
     out.append(" • ");
     const a = document.createElement("a"); a.href = dest; a.textContent = "Lanjut →"; out.appendChild(a);
     setTimeout(() => location.replace(dest), 900);
-  } catch (err) {
-    out.classList.add("err"); out.textContent = err.message;
+  };
+  const useCloud = window.KolaseCloud && window.KolaseCloud.configured();
+  if (!useCloud) {
+    try { finish(localReg()); }
+    catch (err) { out.classList.add("err"); out.textContent = err.message; }
+    return;
   }
+  btn.disabled = true; out.textContent = "Mendaftarkan ke cloud…";
+  window.KolaseCloud.register(peran, nama, email, wa, pass).then(
+    (id) => { btn.disabled = false; finish(id); },
+    (cerr) => {
+      const m = String((cerr && cerr.message) || "");
+      if (/CDN|HTTPS|Failed to fetch|Network|function|schema cache|JWT|koneksi/i.test(m)) {
+        try { btn.disabled = false; finish(localReg()); out.textContent += " (cloud tidak terjangkau, tersimpan di perangkat ini)."; }
+        catch (lerr) { btn.disabled = false; out.classList.add("err"); out.textContent = m; }
+      } else {
+        btn.disabled = false; out.classList.add("err"); out.textContent = m;
+      }
+    }
+  );
 });
 
-// Forgot password: reset sederhana via email
+// Forgot password: cloud-first (sinkron), fallback lokal per-perangkat
 document.getElementById("forgotBtn").onclick = () => {
   const out = document.getElementById("loginOut");
   const id = document.getElementById("loginId").value.trim() || prompt("Masukkan Email / User name untuk reset password:");
   if (!id) return;
+  const np = prompt("Password baru (min. 4 karakter):");
+  if (!np) return;
+  const useCloud = window.KolaseCloud && window.KolaseCloud.configured();
+  if (useCloud) {
+    out.className = "auth-out"; out.textContent = "Mereset via cloud…";
+    window.KolaseCloud.resetPassword(id, np).then(
+      () => { out.className = "auth-out ok"; out.textContent = "Password direset di cloud (berlaku HP & PC). Silakan login dengan password baru."; },
+      (cerr) => {
+        const m = String((cerr && cerr.message) || "");
+        if (/CDN|HTTPS|Failed to fetch|Network|function|schema cache|JWT|koneksi/i.test(m)) {
+          try {
+            KolaseStore.resetPassword(id, np);
+            out.className = "auth-out ok"; out.textContent = "Cloud tidak terjangkau — password direset di perangkat ini saja.";
+          } catch (lerr) { out.className = "auth-out err"; out.textContent = m; }
+        } else {
+          out.className = "auth-out err"; out.textContent = m;
+        }
+      }
+    );
+    return;
+  }
   try {
     if (KolaseStore.resetPassword) {
-      const np = prompt("Password baru (min. 4 karakter):");
-      if (!np) return;
       KolaseStore.resetPassword(id, np);
       out.className = "auth-out ok"; out.textContent = "Password direset. Silakan login dengan password baru.";
     } else {
@@ -266,6 +347,17 @@ document.getElementById("forgotBtn").onclick = () => {
     out.className = "auth-out err"; out.textContent = err.message;
   }
 };
+// Status cloud kecil di bawah judul (biar ketahuan HP↔PC sudah sinkron atau belum)
+try {
+  const cloudOn = window.KolaseCloud && window.KolaseCloud.configured();
+  const el = document.getElementById("authDesc");
+  if (el) {
+    const s = document.createElement("div");
+    s.style.cssText = "margin-top:6px;font-size:12px;";
+    s.textContent = cloudOn ? "● Cloud AKTIF — 1 akun berlaku HP & PC." : "○ Cloud nonaktif — akun tersimpan per-perangkat. Aktifkan via js/supabase-config.js.";
+    el.appendChild(s);
+  }
+} catch (_) {}
 </script>
 </body>
 </html>
