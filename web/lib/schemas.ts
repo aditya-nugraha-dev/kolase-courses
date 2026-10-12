@@ -180,3 +180,18 @@ export const userDeleteServerSchema = z.object({
   type: z.enum(["student", "teacher"]),
   id: z.string().trim().min(3).max(64),
 });
+
+// Big data: ekspor CSV per tabel (khusus staff, via /api/stats/export?tab=).
+export const statsExportSchema = z.object({
+  tab: z.enum([
+    "students",
+    "teachers",
+    "staff",
+    "payments",
+    "membership",
+    "ledger",
+    "trials",
+    "placements",
+    "attendance",
+  ]),
+});

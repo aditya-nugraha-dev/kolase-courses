@@ -44,6 +44,20 @@
   <div class="section"><h2>Ledger Terakhir (TXN_ENTITLEMENT_LEDGER)</h2>
     <div class="table-wrap"><table><thead><tr><th>Waktu</th><th>ENR</th><th>Delta</th><th>Alasan</th><th>Balance</th></tr></thead><tbody id="ledT"></tbody></table></div>
   </div>
+  <div class="section" id="dataSec"><h2>Data & Ekspor</h2>
+    <p class="small">Agregat big data dari browser ini + unduh CSV per tabel.</p>
+    <div class="kpi">
+      <div class="card"><div class="small">Omzet Verified</div><b id="dOmzet" style="font-size:18px">-</b></div>
+      <div class="card"><div class="small">Pending</div><b id="dPend" style="font-size:18px">-</b><div class="small" id="dPendN"></div></div>
+      <div class="card"><div class="small">Kehadiran</div><b id="dHad" style="font-size:26px">-</b></div>
+      <div class="card"><div class="small">Gain rata-rata</div><b id="dGain" style="font-size:26px">-</b></div>
+    </div>
+    <div class="grid cols-2" style="margin-top:10px">
+      <div class="card"><b>Funnel Trial</b><div id="dFunnel" style="margin-top:6px"></div></div>
+      <div class="card"><b>Okupansi Kelas</b><div id="dOcc" class="small" style="margin-top:6px"></div></div>
+    </div>
+    <div class="card" style="margin-top:10px"><b>Ekspor CSV</b><div id="dExp" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div><div class="small" id="dExpMsg" style="margin-top:6px"></div></div>
+  </div>
   <div class="section" id="database"><h2>Database Pengguna</h2>
     <p class="small">Teacher mengajar di kelas apa • student siapa saja yang masuk • hapus data permanen (konfirmasi ganda).</p>
     <div class="kpi">
@@ -171,6 +185,72 @@ fetch("data/classes.json").then(r=>r.json()).then(classes=>{
   renderDatabase();
 }).catch(()=>renderDatabase());
 document.getElementById("dbQ").addEventListener("input", renderDatabase);
+// Big data lokal: agregat + ekspor CSV per tabel (cermin /api/stats backend).
+function dlCSV(name, rows, cols) {
+  const q = (v) => { let s = v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return '"' + s.replace(/"/g, '""') + '"'; };
+  const csv = "\uFEFF" + cols.join(",") + "\r\n" + rows.map(r => cols.map(c => q(r[c])).join(",")).join("\r\n") + "\r\n";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+const EXP_TABS = [
+  ["students", "Murid", "MST_STUDENTS", ["student_id", "nama", "email", "wa", "tgl_daftar", "current_status"]],
+  ["teachers", "Guru", "MST_TEACHERS", ["teacher_id", "nama", "email", "wa"]],
+  ["staff", "Staff", "MST_STAFF", ["staff_id", "nama", "email", "wa", "role"]],
+  ["payments", "Pembayaran", "TXN_PAYMENTS", ["trx_id", "enrollment_id", "student_id", "class_id", "nominal", "method", "status", "tgl"]],
+  ["membership", "Membership", "CLASS_MEMBERSHIP", ["enrollment_id", "student_id", "class_id", "status", "sisa"]],
+  ["ledger", "Ledger", "TXN_ENTITLEMENT_LEDGER", ["at", "enrollment_id", "student_id", "delta", "reason", "balance_after"]],
+  ["trials", "Trial", "TRIALS", ["trial_id", "student_id", "class_id", "status", "decision"]],
+  ["placements", "Placement", "PILOT_PLACEMENTS", ["attempt_id", "pilot_student_id", "placement_total", "pre_check_score", "at"]],
+  ["attendance", "Absensi", "SESSION_ATTENDANCE", ["session_id", "student_id", "hadir", "recorded_at"]]
+];
+function renderData() {
+  const d = KolaseStore.loadDB();
+  const rp = (n) => "Rp " + Number(n || 0).toLocaleString("id-ID");
+  const pays = d.TXN_PAYMENTS || [];
+  const ver = pays.filter(t => t.status === "VERIFIED").reduce((a, t) => a + Number(t.nominal || 0), 0);
+  const pen = pays.filter(t => t.status === "PENDING");
+  document.getElementById("dOmzet").textContent = rp(ver);
+  document.getElementById("dPend").textContent = rp(pen.reduce((a, t) => a + Number(t.nominal || 0), 0));
+  document.getElementById("dPendN").textContent = pen.length + " trx menunggu";
+  const att = d.SESSION_ATTENDANCE || [];
+  const pres = att.filter(a => a.hadir === "PRESENT" || a.hadir === "LATE").length;
+  document.getElementById("dHad").textContent = att.length ? Math.round(pres / att.length * 100) + "%" : "-";
+  const preById = {};
+  (d.PILOT_PLACEMENTS || []).forEach(p => { const id = p.pilot_student_id || p.student_id; if (id && p.pre_check_score != null) preById[id] = p.pre_check_score; });
+  const gains = (d.PILOT_POSTCLASS || []).map(p => {
+    const id = p.pilot_student_id || p.student_id;
+    return (id && preById[id] != null && p.post_check_total != null) ? Number(p.post_check_total) - Number(preById[id]) : null;
+  }).filter(g => g !== null);
+  document.getElementById("dGain").textContent = gains.length ? (gains.reduce((a, b) => a + b, 0) / gains.length >= 0 ? "+" : "") + (Math.round(gains.reduce((a, b) => a + b, 0) / gains.length * 100) / 100) : "-";
+  const funnel = {};
+  (d.TRIALS || []).forEach(t => { const k = t.status || "STARTED"; funnel[k] = (funnel[k] || 0) + 1; });
+  const fmax = Math.max(1, ...Object.values(funnel));
+  document.getElementById("dFunnel").innerHTML = Object.keys(funnel).length
+    ? Object.entries(funnel).map(([k, v]) => `<div class="small" style="display:flex;justify-content:space-between"><span>${escDb(k)}</span><b>${v}</b></div><div class="progress" style="margin:2px 0 6px"><i style="width:${Math.round(v / fmax * 100)}%"></i></div>`).join("")
+    : `<div class="small">Belum ada trial.</div>`;
+  const occ = {};
+  (d.CLASS_MEMBERSHIP || []).forEach(m => { if (m.status === "PENDING" || m.status === "ACTIVE") occ[m.class_id] = (occ[m.class_id] || 0) + 1; });
+  const renderOcc = (classes) => {
+    const map = {};
+    (classes || []).forEach(c => { map[c.id] = c; });
+    const keys = [...new Set([...Object.keys(occ), ...(classes || []).map(c => c.id)])];
+    document.getElementById("dOcc").innerHTML = keys.length
+      ? keys.map(id => { const c = map[id] || {}; return `<div style="display:flex;justify-content:space-between;gap:8px"><span>${escDb(c.nama || id)}</span><b>${occ[id] || 0}/${c.kuota || "—"}</b></div>`; }).join("")
+      : `<div class="small">Belum ada enrollment.</div>`;
+  };
+  renderOcc(window.__dbClasses || []);
+  fetch("data/classes.json").then(r => r.json()).then(renderOcc).catch(() => {});
+  document.getElementById("dExp").innerHTML = EXP_TABS.map(([k, label]) => `<button class="btn btn-ghost btn-sm" data-exp="${k}">⬇ ${label}</button>`).join("");
+  document.querySelectorAll("[data-exp]").forEach(b => b.onclick = () => {
+    const tab = EXP_TABS.find(t => t[0] === b.getAttribute("data-exp"));
+    const rows = (KolaseStore.loadDB()[tab[2]] || []);
+    dlCSV(`kolase-${tab[0]}-` + new Date().toISOString().slice(0, 10) + ".csv", rows, tab[3]);
+    document.getElementById("dExpMsg").textContent = `${rows.length} baris diunduh (${tab[1]}).`;
+  });
+}
+renderData();
 // Skema Sheets viewer (internal staff): render data/sheets-schema.json sebagai kartu
 document.getElementById("schemaToggle").onclick = () => {
   const sec = document.getElementById("schemaSection");
