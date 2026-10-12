@@ -100,6 +100,18 @@
     return m;
   }
 
+  // Cermin ke Google Sheets (tab MST_*/LOGIN_LOG) — TANPA password/hash.
+  // Aman dipanggil kapan pun: tanpa endpoint hanya antre lokal.
+  function sheetLog(body) {
+    try {
+      if (typeof postSheets === "function") postSheets(body);
+      else if (window.KolaseStore && window.KolaseStore.postSheets) window.KolaseStore.postSheets(body);
+    } catch (e) {}
+  }
+  function sheetLoginLog(user) {
+    sheetLog({ action: "login", login: { at: new Date().toISOString(), user_id: user.id, nama: user.nama, email: user.email, role: user.role } });
+  }
+
   function login(query, password) {
     var q = normQuery(query);
     var pass = String(password || "").trim();
@@ -111,6 +123,7 @@
       var d = res.data;
       var user = { role: d.role, id: d.id, nama: d.nama, email: d.email };
       syncToLocal(user, { password: String(password || "").trim() });
+      sheetLoginLog(user);
       return user;
     });
   }
@@ -131,8 +144,26 @@
     }).then(function (res) {
       if (res.error) throw new Error(rpcError(res.error));
       var id = String(res.data || "");
-      var user = { role: r, id: id, nama: nm || "Pengguna Baru", email: em };
+      var nm2 = nm || "Pengguna Baru";
+      var user = { role: r, id: id, nama: nm2, email: em };
       syncToLocal(user, { password: pass, wa: w });
+      // Cermin ke Sheets: baris master + login log (+ pilot untuk student).
+      var tgl = new Date().toISOString().slice(0, 10);
+      var row = r === "student"
+        ? { student_id: id, nama: nm2, email: em, wa: w, tgl_daftar: tgl }
+        : r === "teacher"
+          ? { teacher_id: id, nama: nm2, email: em, wa: w }
+          : { staff_id: id, nama: nm2, email: em, wa: w, role: r };
+      sheetLog({ action: "register", role: r, row: row });
+      sheetLoginLog(user);
+      if (r === "student") {
+        var now = new Date().toISOString();
+        sheetLog({
+          action: "register_pilot",
+          registration: { "Cap waktu": now, "Full Name": nm2, Email: em, "No. WhatsApp": w },
+          student: { Student_ID: id, Full_Name: nm2, Email: em, WhatsApp: w, Current_Status: "REGISTERED", Confirmation_Status: "PENDING", Registration_Date: now.slice(0, 10), Last_Updated: now },
+        });
+      }
       return id;
     });
   }

@@ -32,15 +32,17 @@ KOLASE — Deploy Apps Script ke Google Sheets (5-10 menit)
   lalu kirim "key" di setiap POST.
 - Copy URL: https://script.google.com/macros/s/XXXX/exec
 
-4) HUBUNGKAN PROTOTYPE (kolase-static)
-- Cara cepat (tanpa edit file): buka profile.html > bagian "Sheets Endpoint"
-  > paste URL > Simpan. Endpoint tersimpan di localStorage.
-- Atau via console: localStorage.setItem("kolase_sheets_endpoint", "URL_ANDA")
-- Atau permanen: buat js/sheets-config.js dari contoh:
-    copy js/sheets-config.example.js -> js/sheets-config.js, isi URL,
-    lalu tambah <script src="js/sheets-config.js"></script> sebelum store.js.
-- Cek antrean: badge data-sheets-count di index.html + DevTools > Application
-  > localStorage > kolase_sheets_queue.
+4) HUBUNGKAN WEBSITE (otomatis via Secrets — tanpa edit file)
+- GitHub repo > Settings > Secrets and variables > Actions > New repository secret:
+    SHEETS_ENDPOINT = URL Web App dari langkah 3 (https://script.google.com/macros/s/.../exec)
+    SHEETS_API_KEY  = (opsional) samakan dengan Script Properties KOLASE_API_KEY bila dipakai
+- Push apa saja ke main (atau Run workflow manual): file js/sheets-config.js
+  dibuat otomatis saat deploy. Tanpa secret = mode antre lokal saja.
+- Lokal (ngoding di laptop): copy kolase-static/js/sheets-config.example.js
+  menjadi kolase-static/js/sheets-config.js (gitignored, jangan commit), isi URL.
+- Cek: daftar/login di website > buka Sheet, tab MST_STUDENTS/MST_TEACHERS/
+  MST_STAFF bertambah 1 baris + tiap login tercatat di tab LOGIN_LOG.
+  Password TIDAK PERNAH dikirim ke Sheets (hanya ID, nama, email, peran).
 
 5) UJI END-TO-END
 - Buka .../apps-script URL + ?action=ping (harus {"ok":true}).
