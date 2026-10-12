@@ -251,3 +251,15 @@ hr{border:0;border-top:1px solid var(--line)}
 @media(min-width:600px) and (max-width:859px){
   #schemaTabs{grid-template-columns:repeat(2,1fr)}
 }
+/* HP: banner hero paling atas (di bawah navbar), font dikecilkan */
+@media(max-width:859px){
+  .hero-grid .hero-media{order:-1}
+}
+@media(max-width:640px){
+  .hero-card{padding:20px}
+  .hero-card h1{font-size:24px}
+  .section h2{font-size:19px}
+  .stat b{font-size:16px}
+  .topbar .wrap{height:58px}
+  .brand .logo-name{font-size:16px}
+}

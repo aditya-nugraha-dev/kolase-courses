@@ -78,3 +78,11 @@
   .auth-body{padding:30px 34px 28px}
   .field-inline{grid-template-columns:1fr 1fr}
 }
+/* HP: font form dikecilkan */
+@media(max-width:640px){
+  .auth-body{padding:20px 16px}
+  .auth-title{font-size:18px}
+  .auth-tabs button{font-size:12px;padding:8px 10px}
+  .role-pick button b{font-size:12.5px}
+  .role-pick button span{font-size:10.5px}
+}
