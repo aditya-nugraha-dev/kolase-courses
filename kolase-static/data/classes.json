@@ -16,6 +16,8 @@
     "duration_minutes": 60,
     "class_status": "OPEN",
     "deskripsi": "Anak 6-12 th. 4 sesi large-group ~50 siswa: Hello Its Me, My Favorite Things, My Day, I Can Speak English + invitation. Observasi, bukan placement. Min. 3 pendaftar untuk mulai.",
+    "learn": ["Sapaan & perkenalan diri (Hello, It's Me!)", "Kosakata favorit: warna, mainan, makanan", "Cerita aktivitas harian (My Day)", "Tampil percaya diri di showcase kelas"],
+    "next": { "id": "CLS-PUB-TEEN-01", "nama": "Beginner English (Teen)" },
     "meet": "",
     "slides": "",
     "gform": ""
@@ -37,6 +39,8 @@
     "duration_minutes": 60,
     "class_status": "COMING_SOON",
     "deskripsi": "Nama resmi KOL-AKD-MOD-002. 4 sesi @60 mnt, ~50 peserta, tanpa asesmen awal. Lanjut via Diagnostic Placement 50 poin. Status COMING_SOON: belum bisa checkout.",
+    "learn": ["Perkenalan & small talk sehari-hari", "Rutinitas harian (Simple Present)", "Hobi & kesukaan (Likes & Dislikes)", "Mini presentasi + Diagnostic Placement"],
+    "next": { "id": "", "nama": "Small Group (segera)" },
     "meet": "",
     "slides": "",
     "gform": ""

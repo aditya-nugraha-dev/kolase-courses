@@ -179,20 +179,11 @@ begin
   return true;
 end $$;
 
--- ===== 6) Seed 3 ID penuh agar bisa login cloud (hash kosong -> diset saat login pertama) =====
-insert into mst_staff (staff_id, nama, email, wa, role) values
-  ('ACT-000001', 'Galang Maharsi', '', '', 'founder'),
-  ('ACT-000002', 'Hilal Badruz', '', '', 'academic'),
-  ('ACT-000003', 'Aditya Nugraha', '', '', 'systems')
-on conflict (staff_id) do nothing;
-
--- Baris cloud untuk leadership dibuat TANPA email (login via nama sampai email diisi).
--- Admin: isi email via Dashboard > Table Editor > auth_accounts bila ingin login email.
-insert into auth_accounts (email, nama, role, ref_id, password_hash) values
-  ('__local__act-000001@kolase.local', 'Galang Maharsi', 'founder', 'ACT-000001', ''),
-  ('__local__act-000002@kolase.local', 'Hilal Badruz', 'academic', 'ACT-000002', ''),
-  ('__local__act-000003@kolase.local', 'Aditya Nugraha', 'systems', 'ACT-000003', '')
-on conflict (email) do nothing;
+-- ===== 6) Bersih-bersih baris hantu (jalankan ulang aman/idempoten) =====
+-- Menghapus placeholder leadership lama (__local__… tanpa hash) bila masih ada,
+-- agar login cloud hanya berisi akun yang benar mendaftar. Akun asli TIDAK disentuh.
+delete from auth_accounts
+where email like '\_\_local\_\_%@kolase.local' and coalesce(password_hash, '') = '';
 
 -- ===== 7) Izin panggil RPC dari site statis (anon key) =====
 grant execute on function kolase_next_id(text, text) to anon, authenticated;

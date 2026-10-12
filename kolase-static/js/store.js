@@ -30,9 +30,8 @@ function nextTxnId(list) {
   return `${prefix}${String(max + 1).padStart(4, "0")}`;
 }
 
-/* Hak penuh website HANYA 3 ID ini (tidak bisa didaftarkan, hanya login):
-   ACT-000001 Founder & Business Lead • ACT-000002 Co-Founder & Academic Lead
-   • ACT-000003 Head of Systems & Technology. */
+/* ID kanonikal bersejarah (dipakai guard hak penuh berbasis peran).
+   TIDAK lagi dibuat otomatis: direktori hanya berisi akun yang benar mendaftar. */
 const FULL_POWER_IDS = ["ACT-000001", "ACT-000002", "ACT-000003"];
 const FULL_POWER_SEED = [
   { staff_id: "ACT-000001", nama: "Galang Maharsi", email: "", wa: "", role: "founder", password: "" },
@@ -43,7 +42,7 @@ function seed() {
   return {
     MST_STUDENTS: [],
     MST_TEACHERS: [],
-    MST_STAFF: FULL_POWER_SEED.map((r) => ({ ...r })),
+    MST_STAFF: [],
     TXN_PAYMENTS: [],
     TXN_ENTITLEMENT_LEDGER: [],
     CLASS_MEMBERSHIP: [],
@@ -92,19 +91,16 @@ function loadDB() {
     if (!Array.isArray(db.EBADGES)) db.EBADGES = [];
     if (!Array.isArray(db.DELETED_IDS)) db.DELETED_IDS = [];
     if (!Array.isArray(db.STAFF_REQUESTS)) db.STAFF_REQUESTS = [];
-    // Pastikan 3 ID kanonikal ada (tanpa digabung; tiap pendaftaran baru
-    // dapat ID baru berurutan ACT-XXXXXX sesuai nomor urut pendaftaran).
+    // Bersih-bersih satu kali: hapus baris hantu kanonikal yang belum pernah
+    // diklaim (email + password kosong + nama bawaan). Akun asli (sudah ada
+    // email/password) TIDAK disentuh. Direktori = hanya pendaftar nyata.
     if (!Array.isArray(db.MST_STAFF)) db.MST_STAFF = [];
-    FULL_POWER_SEED.forEach((f) => {
-      // ID yang pernah dihapus sengaja TIDAK dibangkitkan lagi.
-      if (db.DELETED_IDS.indexOf(f.staff_id) !== -1) return;
-      let canon = db.MST_STAFF.find((r) => r && r.staff_id === f.staff_id);
-      if (!canon) {
-        canon = { staff_id: f.staff_id, nama: f.nama, email: "", wa: "", role: f.role, password: "" };
-        db.MST_STAFF.push(canon);
-      }
-      canon.role = f.role;
-      if (!canon.nama) canon.nama = f.nama;
+    db.MST_STAFF = db.MST_STAFF.filter((r) => {
+      if (!r || FULL_POWER_IDS.indexOf(r.staff_id) === -1) return true;
+      const claimed = String(r.email || "").trim() !== "" || String(r.password || "") !== "";
+      const seedName = (FULL_POWER_SEED.find((f) => f.staff_id === r.staff_id) || {}).nama || "";
+      if (!claimed && String(r.nama || "").trim().toLowerCase() === seedName.toLowerCase()) return false;
+      return true;
     });
     try { saveDB(db); } catch (e) {}
     return db;

@@ -36,19 +36,26 @@
         <div class="stat"><b>50rb+</b><span class="small" data-i18n="hero.mulai">mulai</span></div>
         <div class="stat"><b>1</b><span class="small" data-i18n="hero.idperm">ID permanen</span></div>
       </div>
-      <div class="card" style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-style:dashed">
-        <div style="flex:1;min-width:200px"><b data-i18n="trial.title">🎁 Coba 7 Sesi Gratis</b><div class="small" data-i18n="trial.desc">Tanpa bayar — 6 sesi belajar + 1 progress test. Selesai? Pilih lanjut ke Kelas Kids atau berhenti.</div></div>
-        <button class="btn btn-brand" data-trial="CLS-PUB-KIDS-01" data-i18n="trial.btn">Mulai Trial Gratis</button>
-      </div>
     </div>
     <div class="hero-card hero-media">
       <img src="assets/kolase-banner.png" alt="Welcome to KOLASE Academy — In Your Voice We Trust" loading="eager">
     </div>
   </div></div>
 
+  <div class="section"><div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-style:dashed">
+    <div style="flex:1;min-width:200px"><b data-i18n="trial.title">🎁 Coba 7 Sesi Gratis</b><div class="small" data-i18n="trial.desc">Tanpa bayar — 6 sesi belajar + 1 progress test. Selesai? Pilih lanjut ke Kelas Kids atau berhenti.</div></div>
+    <button class="btn btn-brand" data-trial="CLS-PUB-KIDS-01" data-i18n="trial.btn">Mulai Trial Gratis</button>
+  </div></div>
+
   <div class="section"><h2 data-i18n="sec.populer">Kelas Populer</h2>
     <div class="swipe-row" data-catalog></div>
     <p class="small" data-i18n="sec.populer.hint">Geser ke samping di HP • Grid 3 kolom di desktop.</p>
+  </div>
+
+  <div class="section" id="roadmap"><h2 data-i18n="sec.roadmap">Jalur Belajar</h2>
+    <p class="small" data-i18n="sec.roadmap.d">Selesai satu tahap, otomatis tahu lanjut ke kelas mana.</p>
+    <div class="swipe-row" id="roadTrack"></div>
+    <p class="small"><a href="catalog.html" data-i18n="sec.roadmap.cta">Mulai dari Trial Gratis →</a></p>
   </div>
 
   <div class="section" id="galeri"><h2 data-i18n="sec.cara">Cara Kami Mengajar</h2>
@@ -111,7 +118,7 @@
   <a href="dashboard.html">Kelas</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a>
 </nav>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/store.js?v=13"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script><script src="js/drive-content.js?v=5"></script>
+<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script><script src="js/drive-content.js?v=5"></script>
 <script>
 // Pengumuman terbaru dari teacher/staff.
 (function(){
@@ -125,6 +132,21 @@
       document.getElementById("annStrip").style.display = "";
     }
   } catch(e){}
+})();
+// Jalur belajar: trial → Kids → Teen → Placement → Small Group.
+(function(){
+  const track = document.getElementById("roadTrack");
+  if (!track) return;
+  const steps = [
+    { n: "1", t: "Trial Gratis", m: "7 sesi • Rp0", d: "Coba dulu, tanpa bayar.", cta: `<button class="btn btn-brand btn-sm" data-trial="CLS-PUB-KIDS-01">Mulai Trial</button>` },
+    { n: "2", t: "Kids Public", m: "4 sesi • Rp50rb", d: "Usia 6–12 th.", cta: `<a class="btn btn-ghost btn-sm" href="class-details.html?id=CLS-PUB-KIDS-01">Detail →</a>` },
+    { n: "3", t: "Teen Beginner", m: "4 sesi • Rp75rb", d: "Remaja & dewasa.", soon: true, cta: `<a class="btn btn-ghost btn-sm" href="class-details.html?id=CLS-PUB-TEEN-01">Detail →</a>` },
+    { n: "4", t: "Placement 50 poin", m: "Tes penempatan", d: "Tahu level kelasmu.", cta: `<a class="btn btn-ghost btn-sm" href="dashboard.html">Ikuti Tes →</a>` },
+    { n: "5", t: "Small Group", m: "Segera", d: "Lanjutan CORE.", dim: true, cta: `` },
+  ];
+  track.innerHTML = steps.map(s =>
+    `<div class="card"><div class="road-num${s.dim ? " dim" : ""}">${s.n}</div><b>${s.t}</b><div class="small">${s.m}${s.soon ? ` • <span class="pill p-pending">SEGERA</span>` : ``}</div><div class="small" style="margin:4px 0 8px">${s.d}</div>${s.cta}</div>`
+  ).join("");
 })();
 // Ulasan dinamis: dari localStorage (termasuk ulasan 1 paket yang baru dikirim).
 // Mendukung format baru (4 aspek bintang) + format lama (rating tunggal trial).

@@ -13,6 +13,7 @@
   <button class="burger" data-burger>☰</button>
 </div></header>
 <main class="wrap">
+  <div class="section"><a class="small" href="catalog.html">‹ Katalog</a></div>
   <div class="section"><div class="card" id="detail">Memuat...</div></div>
   <div class="section"><h2 data-i18n="detail.structure">Struktur Paket</h2>
     <div class="grid cols-3">
@@ -30,7 +31,7 @@
   <a class="btn btn-brand" style="flex:1;text-align:center" id="ctaMobile" href="checkout.html">Daftar Kelas Sekarang</a>
 </div></div>
 <nav class="mobile-tabs"><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Kelas</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
-<script src="js/store.js?v=13"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script>
+<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script>
 <script>
 const id = new URLSearchParams(location.search).get("id") || "CLS-PUB-KIDS-01";
 const t = (k) => (window.KolaseI18n ? KolaseI18n.t(k) : k);
@@ -41,13 +42,19 @@ fetch("data/classes.json").then(r=>r.json()).then(list=>{
     ? `<a class="btn btn-brand" style="flex:1;text-align:center" id="ctaMobile" href="checkout.html?id=${c.id}">${t("detail.enroll")}</a>`
     : `<span class="btn btn-ghost" style="flex:1;text-align:center" id="ctaMobile">Coming Soon</span>`;
   document.getElementById("detail").innerHTML = `
-    <div class="meta"><span class="pill p-verified">${c.level}</span><span>${c.jadwal}</span><span>${c.id}</span>${open ? `` : `<span class="pill p-pending">${t("card.soon")}</span>`}</div>
-    <h2 style="margin:4px 0">${c.nama}</h2>
-    <div class="small">${c.guru}</div>
+    <div class="meta"><span class="pill ${open ? "p-verified" : "p-pending"}">${open ? "OPEN" : (c.class_status || "")}</span><span>${c.id}</span></div>
+    <div style="display:flex;gap:14px;align-items:flex-start;margin-top:8px">
+      <div class="course-ico" style="background:${c.level === "TEEN" ? "#7C3AED" : "#2563EB"}">${c.level === "TEEN" ? "Aa" : "&lt;/&gt;"}</div>
+      <div style="min-width:0"><h2 style="margin:0">${c.nama}</h2>
+      <div class="small" style="margin-top:4px">${c.sesi_count || 4} sesi • ${c.level} • ${c.duration_minutes || 60} mnt/sesi • ${c.jadwal}</div></div>
+    </div>
     <p>${c.deskripsi}</p>
-    <div><span class="price">Rp ${Number(c.harga).toLocaleString("id-ID")}</span><s> Rp ${Number(c.harga_coret).toLocaleString("id-ID")}</s></div>
-    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-      ${open ? `<a class="btn btn-brand" href="checkout.html?id=${c.id}">${t("detail.enroll")}</a>
+    <div class="small">${c.guru} • kuota ${c.kuota} kursi</div>
+    <b style="display:block;margin-top:12px">Yang akan dipelajari</b>
+    <ul class="check-list">${(c.learn || []).map(x => `<li>${x}</li>`).join("")}</ul>
+    ${c.next && c.next.nama ? `<div class="card" style="margin-top:12px;background:#F8FAFC"><span class="small">Selesai kelas ini → lanjut ke <b>${c.next.nama}</b></span>${c.next.id ? ` <a class="btn btn-ghost btn-sm" style="margin-left:8px" href="class-details.html?id=${c.next.id}">Lihat →</a>` : ` <span class="pill p-pending">SEGERA</span>`}</div>` : ``}
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center">
+      ${open ? `<a class="btn btn-brand" href="checkout.html?id=${c.id}">Daftar — Rp ${Number(c.harga).toLocaleString("id-ID")}</a>
       <a class="btn btn-ghost" href="#" id="trialBtn">${t("detail.trial")}</a>` : `<span class="pill p-pending">${t("detail.soonmsg")}</span>`}
       <a class="btn btn-ghost" href="catalog.html">${t("detail.back")}</a>
     </div>`;
@@ -60,6 +67,7 @@ fetch("data/classes.json").then(r=>r.json()).then(list=>{
   // Silabus 4 sesi (KOL-AKD-KID-001 §2.4 untuk Kids; Teen menyusul saat pembukaan)
   const SYLLABI = {
     "CLS-PUB-KIDS-01": ["Sesi 1 — Hello, It's Me! (sapaan & perkenalan)","Sesi 2 — My Favorite Things (warna/mainan/makanan)","Sesi 3 — My Day (aktivitas harian)","Sesi 4 — I Can Speak English! (showcase + invitation)"],
+    "CLS-PUB-TEEN-01": ["Sesi 1 — Hello & Introductions (perkenalan & small talk)","Sesi 2 — My Daily Routine (Simple Present)","Sesi 3 — Hobbies & Likes (kesukaan)","Sesi 4 — Mini Presentation + Diagnostic Placement"],
   };
   const topics = SYLLABI[c.id] || ["Sesi 1 — Diumumkan saat pembukaan","Sesi 2 — Diumumkan saat pembukaan","Sesi 3 — Diumumkan saat pembukaan","Sesi 4 — Diumumkan saat pembukaan"];
   const t0 = new Date();

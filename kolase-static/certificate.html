@@ -27,13 +27,14 @@
 <main class="wrap">
   <div class="section" id="certWrap"><div class="card small">Memuat sertifikat…</div></div>
   <div class="section no-print" style="text-align:center">
-    <button class="btn btn-brand" onclick="window.print()">Cetak / Simpan PDF</button>
+    <button class="btn btn-brand" id="shareBtn">Bagikan</button>
+    <button class="btn btn-brand" onclick="window.print()" style="margin-left:8px">Cetak / Simpan PDF</button>
     <a class="btn btn-ghost" href="dashboard.html" style="margin-left:8px">Kembali ke Dashboard</a>
   </div>
 </main>
 <nav class="mobile-tabs"><a href="home.html">Home</a><a href="dashboard.html">Kelas</a><a href="profile.html">Profil</a></nav>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a></div></footer>
-<script src="js/store.js?v=13"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script>
+<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=5"></script><script src="js/app.js?v=11"></script>
 <script>
 (function(){
   const code = (new URLSearchParams(location.search).get("code") || "").trim();
@@ -55,6 +56,17 @@
     <div><span class="cert-code">${escC(b.id)}</span></div>
     <p class="small" style="margin-top:12px">${t("cert.verify.note")}</p>
   </div>`;
+  const shareBtn = document.getElementById("shareBtn");
+  if (shareBtn) shareBtn.onclick = async () => {
+    const data = { title: "Sertifikat KOLASE", text: `Sertifikat ${b.label} — ${b.student_name || ""} (${b.id})`, url: location.href };
+    try {
+      if (navigator.share) { await navigator.share(data); return; }
+      throw new Error("no-share");
+    } catch (e) {
+      try { await navigator.clipboard.writeText(location.href); alert("Tautan sertifikat disalin."); }
+      catch (_) { alert("Salin manual: " + location.href); }
+    }
+  };
 })();
 </script>
 </body>
