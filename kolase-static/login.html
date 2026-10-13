@@ -97,7 +97,7 @@
   </div>
 </main>
 <footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/sheets-config.js"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/store.js?v=14"></script><script src="js/supabase-auth.js?v=2"></script><script src="js/i18n.js?v=6"></script><script src="js/app.js?v=11"></script>
+<script src="js/sheets-config.js"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/store.js?v=14"></script><script src="js/supabase-auth.js?v=2"></script><script src="js/sheets-auth.js?v=1"></script><script src="js/i18n.js?v=6"></script><script src="js/app.js?v=12"></script>
 <script>
 // Sudah masuk? Langsung ke portal.
 try {
@@ -216,7 +216,14 @@ function noteFail() {
 }
 function noteOk() { try { localStorage.removeItem(LOCK_KEY); } catch (e) {} }
 
-// LOGIN submit — cloud-first (sinkron HP↔PC), fallback localStorage bila cloud belum diset/offline
+// Backend sinkron: Supabase dulu, lalu Sheets (Apps Script), terakhir lokal per-perangkat.
+function activeBackend(){
+  if (window.KolaseCloud && window.KolaseCloud.configured()) return { api: window.KolaseCloud, tag: "cloud" };
+  if (window.KolaseSheets && window.KolaseSheets.configured()) return { api: window.KolaseSheets, tag: "sheets" };
+  return null;
+}
+
+// LOGIN submit — sinkron (cloud/Sheets) bila aktif, fallback localStorage bila belum/offline
 loginPane.addEventListener("submit", (e) => {
   e.preventDefault();
   const out = document.getElementById("loginOut");
@@ -229,11 +236,11 @@ loginPane.addEventListener("submit", (e) => {
   const locked = lockLeft();
   if (locked > 0) { out.classList.add("err"); out.textContent = `Terlalu banyak gagal login. Coba lagi dalam ${locked} detik.`; return; }
   btn.disabled = true;
-  const useCloud = window.KolaseCloud && window.KolaseCloud.configured();
+  const be = activeBackend();
   const done = (user, via) => {
     noteOk();
     out.classList.add("ok");
-    out.textContent = "Berhasil masuk • " + user.id + (via === "cloud" ? " (cloud, sinkron HP↔PC)" : " (perangkat ini)") + " — mengalihkan…";
+    out.textContent = "Berhasil masuk • " + user.id + (via === "local" ? " (perangkat ini)" : " (sinkron HP↔PC)") + " — mengalihkan…";
     out.scrollIntoView({block:"nearest"});
     setTimeout(() => location.replace(KolaseStore.portalFor(user.role)), 600);
     btn.disabled = false;
@@ -247,7 +254,7 @@ loginPane.addEventListener("submit", (e) => {
         msg += " (Periksa huruf besar/kecil — keyboard HP sering mengubah huruf pertama jadi kapital.)";
       }
       if (/tidak ditemukan/i.test(msg) && !usedCloud) {
-        msg += " Catatan: cloud belum aktif / offline — akun ini hanya ada di perangkat lain. Aktifkan Supabase (lihat js/supabase-config.example.js) atau daftar ulang di HP ini.";
+        msg += " Catatan: sinkronisasi belum aktif / offline — akun ini hanya ada di perangkat lain. Aktifkan cloud/Sheets atau daftar ulang di HP ini.";
       }
     } catch (_) {}
     out.classList.add("err"); out.textContent = msg;
@@ -270,10 +277,10 @@ loginPane.addEventListener("submit", (e) => {
     if (!user) throw new Error("Akun tidak ditemukan / password salah.");
     return user;
   };
-  if (useCloud) {
-    out.textContent = "Menghubungi cloud…";
-    window.KolaseCloud.login(id, pass).then(
-      (user) => done(user, "cloud"),
+  if (be) {
+    out.textContent = "Menghubungi server…";
+    be.api.login(id, pass).then(
+      (user) => done(user, be.tag),
       (cerr) => {
         const m = String((cerr && cerr.message) || "");
         // Gangguan teknis (CDN/RPC/HTTPS) -> fallback lokal agar tetap bisa dipakai
@@ -291,7 +298,7 @@ loginPane.addEventListener("submit", (e) => {
   }
 });
 
-// REGISTER submit — bebas daftar langsung jadi; cloud-first bila aktif
+// REGISTER submit — bebas daftar langsung jadi; sinkron (cloud/Sheets) bila aktif
 registerPane.addEventListener("submit", (e) => {
   e.preventDefault();
   const out = document.getElementById("regOut");
@@ -322,19 +329,19 @@ registerPane.addEventListener("submit", (e) => {
     const a = document.createElement("a"); a.href = dest; a.textContent = "Lanjut →"; out.appendChild(a);
     setTimeout(() => location.replace(dest), 900);
   };
-  const useCloud = window.KolaseCloud && window.KolaseCloud.configured();
-  if (!useCloud) {
+  const beReg = activeBackend();
+  if (!beReg) {
     try { finish(localReg()); }
     catch (err) { out.classList.add("err"); out.textContent = err.message; }
     return;
   }
-  btn.disabled = true; out.textContent = "Mendaftarkan ke cloud…";
-  window.KolaseCloud.register(peran, nama, email, wa, pass).then(
+  btn.disabled = true; out.textContent = "Mendaftarkan…";
+  beReg.api.register(peran, nama, email, wa, pass).then(
     (id) => { btn.disabled = false; finish(id); },
     (cerr) => {
       const m = String((cerr && cerr.message) || "");
-      if (/CDN|HTTPS|Failed to fetch|Network|function|schema cache|JWT|koneksi/i.test(m)) {
-        try { btn.disabled = false; finish(localReg()); out.textContent += " (cloud tidak terjangkau, tersimpan di perangkat ini)."; }
+      if (/CDN|HTTPS|Failed to fetch|Network|function|schema cache|JWT|koneksi|tidak terhubung/i.test(m)) {
+        try { btn.disabled = false; finish(localReg()); out.textContent += " (server tidak terjangkau, tersimpan di perangkat ini)."; }
         catch (lerr) { btn.disabled = false; out.classList.add("err"); out.textContent = m; }
       } else {
         btn.disabled = false; out.classList.add("err"); out.textContent = m;
@@ -366,17 +373,17 @@ document.getElementById("resetGo").onclick = () => {
   if (!id) { out.className = "auth-out err"; out.textContent = "Isi Email / User name dulu."; return; }
   if (np.length < 4) { out.className = "auth-out err"; out.textContent = "Password baru min. 4 karakter."; return; }
   if (np !== np2) { out.className = "auth-out err"; out.textContent = "Ulangi password tidak sama."; return; }
-  const useCloud = window.KolaseCloud && window.KolaseCloud.configured();
-  if (useCloud) {
-    out.className = "auth-out"; out.textContent = "Mereset via cloud…";
-    window.KolaseCloud.resetPassword(id, np).then(
-      () => { document.getElementById("resetBox").style.display = "none"; out.className = "auth-out ok"; out.textContent = "Password direset di cloud (berlaku HP & PC). Silakan login dengan password baru."; },
+  const beRs = activeBackend();
+  if (beRs) {
+    out.className = "auth-out"; out.textContent = "Mereset…";
+    beRs.api.resetPassword(id, np).then(
+      () => { document.getElementById("resetBox").style.display = "none"; out.className = "auth-out ok"; out.textContent = "Password direset (berlaku HP & PC bila sinkron aktif). Silakan login dengan password baru."; },
       (cerr) => {
         const m = String((cerr && cerr.message) || "");
-        if (/CDN|HTTPS|Failed to fetch|Network|function|schema cache|JWT|koneksi/i.test(m)) {
+        if (/CDN|HTTPS|Failed to fetch|Network|function|schema cache|JWT|koneksi|tidak terhubung/i.test(m)) {
           try {
             KolaseStore.resetPassword(id, np);
-            out.className = "auth-out ok"; out.textContent = "Cloud tidak terjangkau — password direset di perangkat ini saja.";
+            out.className = "auth-out ok"; out.textContent = "Server tidak terjangkau — password direset di perangkat ini saja.";
           } catch (lerr) { out.className = "auth-out err"; out.textContent = m; }
         } else {
           out.className = "auth-out err"; out.textContent = m;
@@ -397,14 +404,16 @@ document.getElementById("resetGo").onclick = () => {
     out.className = "auth-out err"; out.textContent = err.message;
   }
 };
-// Status cloud kecil di bawah judul (biar ketahuan HP↔PC sudah sinkron atau belum)
+// Status sinkron kecil di bawah judul (biar ketahuan HP↔PC sudah sinkron atau belum)
 try {
-  const cloudOn = window.KolaseCloud && window.KolaseCloud.configured();
+  const be0 = activeBackend();
   const el = document.getElementById("authDesc");
   if (el) {
     const s = document.createElement("div");
     s.style.cssText = "margin-top:6px;font-size:12px;";
-    s.textContent = cloudOn ? "● Cloud AKTIF — 1 akun berlaku HP & PC." : "○ Cloud nonaktif — data beda per perangkat. Aktifkan via GitHub Secrets SUPABASE_URL & SUPABASE_ANON_KEY.";
+    s.textContent = be0
+      ? (be0.tag === "cloud" ? "● Cloud AKTIF — 1 akun berlaku HP & PC." : "● Sheets AKTIF — 1 akun berlaku HP & PC.")
+      : "○ Sinkron nonaktif — data beda per perangkat. Untuk terjemahan bahasa, pakai Google Translate browser.";
     el.appendChild(s);
   }
 } catch (_) {}

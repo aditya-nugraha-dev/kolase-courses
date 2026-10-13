@@ -46,6 +46,10 @@ KOLASE — Deploy Apps Script ke Google Sheets (5-10 menit)
 
 5) UJI END-TO-END
 - Buka .../apps-script URL + ?action=ping (harus {"ok":true}).
+- Sinkron akun (tanpa Supabase): cukup SHEETS_ENDPOINT aktif (Secrets) —
+  Register di website > cek Sheet: tab AUTH + master (MST_*) bertambah,
+  LOGIN_LOG mencatat tiap login. Password tidak pernah tersimpan
+  (hanya salt+hash SHA-256 di tab AUTH yang tersembunyi dari klien).
 - Di prototype: auth.html daftar student > checkout > Simulasi Webhook
   > cek Sheet: TXN_PAYMENTS VERIFIED, CLASS_MEMBERSHIP ACTIVE sisa 15 (langsung)
   atau sisa 8 + ledger -7 bila konversi trial COMPLETED,

@@ -251,12 +251,12 @@
     }
   };
   var KEY = "kolase_lang";
+  // Bahasa dikunci Indonesia — terjemahan diserahkan ke Google Translate browser.
   function getLang() {
-    try { var v = localStorage.getItem(KEY); return v === "en" ? "en" : "id"; }
-    catch (e) { return "id"; }
+    return "id";
   }
   function setLang(v) {
-    try { localStorage.setItem(KEY, v === "en" ? "en" : "id"); } catch (e) {}
+    try { localStorage.removeItem(KEY); } catch (e) {}
   }
   function t(k) {
     var L = DICT[getLang()] || DICT.id;

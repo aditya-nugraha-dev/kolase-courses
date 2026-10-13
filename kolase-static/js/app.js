@@ -162,29 +162,9 @@ function renderRoleNav() {
     var tabs = document.querySelector(".mobile-tabs");
     if (tabs) tabs.innerHTML = nav.tabs.map(function (l) { return '<a href="' + l[0] + '">' + navT(l[1]) + "</a>"; }).join("");
   } catch (e) {}
-  try { renderLangToggle(); } catch (e) {}
 }
-/* Tombol alih bahasa ID ⇄ EN di topbar (semua halaman). */
-function renderLangToggle() {
-  var wrap = document.querySelector(".topbar .wrap");
-  if (!wrap || document.getElementById("langToggle")) return;
-  var cur = "id";
-  try { if (window.KolaseI18n) cur = KolaseI18n.getLang(); } catch (e) {}
-  var b = document.createElement("button");
-  b.id = "langToggle";
-  b.type = "button";
-  b.className = "btn btn-ghost btn-sm";
-  b.style.marginLeft = "8px";
-  b.textContent = cur === "id" ? "EN" : "ID";
-  b.title = cur === "id" ? "Switch to English" : "Ganti ke Bahasa Indonesia";
-  b.setAttribute("aria-label", cur === "id" ? "Switch language to English" : "Ganti bahasa ke Indonesia");
-  b.onclick = function () {
-    try { if (window.KolaseI18n) KolaseI18n.setLang(cur === "id" ? "en" : "id"); } catch (e) {}
-    location.reload();
-  };
-  var burger = wrap.querySelector("[data-burger]");
-  wrap.insertBefore(b, burger);
-}
+/* Alih bahasa bawaan DIMATIKAN: situs selalu Indonesia, terjemahan via
+   Google Translate browser. (Tombol EN/ID lama dihapus.) */
 /* CTA global "Trial 7 Sesi Gratis" ([data-trial="CLS-ID"]): student → mulai
    trial lalu ke dashboard; tamu/peran lain → login/register dulu. */
 function handleTrialCta(cid) {

@@ -21,6 +21,9 @@ const HEADERS = {
   TRIALS: ["trial_id", "student_id", "class_id", "status", "at"],
   REVIEWS: ["nama", "rating", "teks", "class_id", "at"],
   LOGIN_LOG: ["at", "user_id", "nama", "email", "role"],
+  // Auth cloud Sheets: 1 baris = 1 akun lintas perangkat (HP↔PC).
+  // Salt+hash dihitung di server (Apps Script), password asli TIDAK disimpan.
+  AUTH: ["email", "nama", "role", "ref_id", "salt", "password_hash", "wa", "created_at", "updated_at"],
   // Grain kanonikal KOL-POL-COD-001 §3.3 (otomatis dibuat via setup saat redeploy)
   CLASS_SESSIONS: ["session_id", "class_id", "seq", "tanggal", "status"],
   SESSION_ATTENDANCE: ["session_id", "student_id", "hadir", "recorded_by", "recorded_at"],
@@ -163,6 +166,49 @@ function json_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
+/* ===== Helper AUTH (server-side; password asli tidak pernah disimpan) ===== */
+function normQ_(v) {
+  return String(v || "").trim().replace(/\s+/g, " ").toLowerCase().slice(0, 160);
+}
+function shaHex_(s) {
+  const bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, String(s || ""), Utilities.Charset.UTF_8);
+  return bytes.map((b) => ((b < 0 ? b + 256 : b) < 16 ? "0" : "") + (b < 0 ? b + 256 : b).toString(16)).join("");
+}
+function authRows_() {
+  const tab = "AUTH";
+  const sh = getSheet_(tab);
+  const last = sh.getLastRow();
+  if (last < 2) return [];
+  const vals = sh.getRange(2, 1, last - 1, 8).getValues();
+  return vals.map((r) => ({ email: String(r[0] || ""), nama: String(r[1] || ""), role: String(r[2] || ""), ref_id: String(r[3] || ""), salt: String(r[4] || ""), password_hash: String(r[5] || ""), wa: String(r[6] || "") }));
+}
+function authEmailTaken_(em) {
+  return authRows_().some((a) => a.email === em);
+}
+/* Prioritas email -> ID -> nama terbaru (baris paling bawah menang). */
+function authFind_(q) {
+  const rows = authRows_();
+  let hit = rows.find((a) => a.email === q) || null;
+  if (!hit) hit = rows.find((a) => a.ref_id.toLowerCase() === q) || null;
+  if (!hit) {
+    for (let i = rows.length - 1; i >= 0; i--) {
+      if (normQ_(rows[i].nama) === q) { hit = rows[i]; break; }
+    }
+  }
+  return hit;
+}
+/* Throttle sederhana via CacheService: maxN kali per windowSec detik per kunci. */
+function throttle_(key, maxN, windowSec) {
+  try {
+    const c = CacheService.getScriptCache();
+    const k = "th_" + String(key).slice(0, 120);
+    const n = Number(c.get(k) || 0);
+    if (n >= maxN) return false;
+    c.put(k, String(n + 1), windowSec);
+    return true;
+  } catch (e) { return true; /* cache gagal = jangan blokir */ }
+}
+
 function doGet(e) {
   const p = (e && e.parameter) || {};
   if (p.action === "ping") return json_({ ok: true, tabs: Object.keys(HEADERS).concat(Object.keys(PILOT_HEADERS)) });
@@ -302,6 +348,68 @@ function doPost(e) {
         return json_({ ok: true, observation_id: o.Observation_ID });
       }
       return json_({ ok: false, error: "observation kosong" });
+    }
+
+    // ===== AUTH CLOUD (sinkron HP↔PC) =====
+    // Salt+hash SHA-256 dihitung SERVER (Utilities), password asli tidak disimpan.
+    if (a === "auth_register") {
+      // body: { nama, email, wa, role, password }
+      const nm = String(body.nama || "").trim().slice(0, 100);
+      const em = String(body.email || "").trim().toLowerCase().slice(0, 160);
+      const wa = String(body.wa || "").trim().slice(0, 20);
+      const role = String(body.role || "").trim().toLowerCase();
+      const pw = String(body.password || "");
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return json_({ ok: false, error: "Email tidak valid." });
+      if (!nm || !wa) return json_({ ok: false, error: "Nama dan No. WA wajib diisi." });
+      if (pw.length < 4) return json_({ ok: false, error: "Password min. 4 karakter." });
+      const tab = role === "student" ? "MST_STUDENTS" : role === "teacher" ? "MST_TEACHERS" : null;
+      const keyCol = role === "student" ? "student_id" : role === "teacher" ? "teacher_id" : "staff_id";
+      const prefix = role === "student" ? "STU" : role === "teacher" ? "TCH" : "ACT";
+      if (!tab && ["systems", "founder", "academic", "staff", "admin"].indexOf(role) === -1) {
+        return json_({ ok: false, error: "Peran tidak dikenal." });
+      }
+      const rTab = tab || "MST_STAFF";
+      if (authEmailTaken_(em)) return json_({ ok: false, error: "Email sudah terdaftar. Silakan Login." });
+      const nid = nextFreeId_(rTab, prefix);
+      const tgl = now.slice(0, 10);
+      const row = role === "student"
+        ? { student_id: nid, nama: nm, email: em, wa: wa, tgl_daftar: tgl }
+        : role === "teacher"
+          ? { teacher_id: nid, nama: nm, email: em, wa: wa }
+          : { staff_id: nid, nama: nm, email: em, wa: wa, role: role };
+      appendObj_(rTab, row);
+      const salt = Utilities.getUuid().replace(/-/g, "");
+      appendObj_("AUTH", {
+        email: em, nama: nm, role: role === "staff" ? "staff" : role, ref_id: nid,
+        salt: salt, password_hash: shaHex_(salt + "\n" + pw), wa: wa,
+        created_at: now, updated_at: now,
+      });
+      return json_({ ok: true, id: nid });
+    }
+    if (a === "auth_login") {
+      // body: { login: { query, password } } — password plaintext via HTTPS, hanya dibandingkan.
+      const q = normQ_(body.login && body.login.query);
+      const pw = String((body.login && body.login.password) || "");
+      if (!q || !pw) return json_({ ok: false, error: "User name/Email dan Password wajib diisi." });
+      if (!throttle_("login:" + q, 20, 600)) return json_({ ok: false, error: "Terlalu banyak percobaan. Tunggu 10 menit." });
+      const acc = authFind_(q);
+      if (!acc) return json_({ ok: false, error: "Akun tidak ditemukan. Cek Email / User name, atau Register dulu." });
+      if (shaHex_(acc.salt + "\n" + pw) !== acc.password_hash) {
+        return json_({ ok: false, error: "Password salah. Gunakan Forgot Password untuk reset." });
+      }
+      if (body.login) appendObj_("LOGIN_LOG", { at: now, user_id: acc.ref_id, nama: acc.nama, email: acc.email, role: acc.role });
+      return json_({ ok: true, user: { role: acc.role, id: acc.ref_id, nama: acc.nama, email: acc.email } });
+    }
+    if (a === "auth_reset") {
+      // body: { query, new_password }
+      const q = normQ_(body.query);
+      const np = String(body.new_password || "");
+      if (np.length < 4) return json_({ ok: false, error: "Password baru min. 4 karakter." });
+      const acc = authFind_(q);
+      if (!acc) return json_({ ok: false, error: "Akun tidak ditemukan untuk reset." });
+      const salt = Utilities.getUuid().replace(/-/g, "");
+      updateWhere_("AUTH", "email", acc.email, { salt: salt, password_hash: shaHex_(salt + "\n" + np), updated_at: now });
+      return json_({ ok: true });
     }
 
     return json_({ ok: false, error: "unknown action/tab" });
