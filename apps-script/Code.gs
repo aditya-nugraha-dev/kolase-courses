@@ -213,6 +213,8 @@ function doGet(e) {
   const p = (e && e.parameter) || {};
   if (p.action === "ping") return json_({ ok: true, tabs: Object.keys(HEADERS).concat(Object.keys(PILOT_HEADERS)) });
   if (p.action === "setup") return json_({ ok: true, msg: setup_() });
+  // KEAMANAN: tab AUTH (salt+hash kredensial) TIDAK boleh dibaca via GET publik.
+  if (p.tab === "AUTH") return json_({ ok: false, error: "forbidden" });
   if (p.tab && headersFor_(p.tab)) {
     const sh = getSheet_(p.tab);
     const hr = headerRowFor_(p.tab);
@@ -236,6 +238,8 @@ function doPost(e) {
     const now = new Date().toISOString();
 
     // 1) Generic append: { tab: "MST_STUDENTS", payload: {...} }
+    // KEAMANAN: tab AUTH hanya ditulis via aksi auth_* (bukan append bebas).
+    if (body.tab === "AUTH") return json_({ ok: false, error: "forbidden" });
     if (body.tab && body.payload) {
       appendObj_(body.tab, body.payload);
       return json_({ ok: true, tab: body.tab });
@@ -362,6 +366,7 @@ function doPost(e) {
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return json_({ ok: false, error: "Email tidak valid." });
       if (!nm || !wa) return json_({ ok: false, error: "Nama dan No. WA wajib diisi." });
       if (pw.length < 4) return json_({ ok: false, error: "Password min. 4 karakter." });
+      if (!throttle_("reg:" + em, 5, 3600)) return json_({ ok: false, error: "Terlalu banyak pendaftaran. Coba lagi nanti." });
       const tab = role === "student" ? "MST_STUDENTS" : role === "teacher" ? "MST_TEACHERS" : null;
       const keyCol = role === "student" ? "student_id" : role === "teacher" ? "teacher_id" : "staff_id";
       const prefix = role === "student" ? "STU" : role === "teacher" ? "TCH" : "ACT";

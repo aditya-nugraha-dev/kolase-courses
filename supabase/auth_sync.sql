@@ -55,6 +55,12 @@ returns text language sql immutable as $$
   select lower(trim(both from regexp_replace(coalesce(p, ''), '\s+', ' ', 'g')))
 $$;
 
+-- ===== 2b) Selaraskan peran staff: UI + lokal + Sheets membolehkan 'staff' =====
+do $$ begin
+  begin alter table mst_staff drop constraint if exists mst_staff_role_check; exception when others then null; end;
+  begin alter table mst_staff add constraint mst_staff_role_check check (role in ('admin','staff','founder','academic','systems')); exception when duplicate_object then null; end;
+end $$;
+
 -- ===== 3) REGISTER cloud (student / teacher / staff) =====
 -- Bebas daftar langsung jadi — tanpa PIN, tanpa persetujuan. Tiap pendaftaran
 -- dapat ID baru berurutan (STU/TCH/ACT-XXXXXX). Email = dari pendaftar (wajib unik).

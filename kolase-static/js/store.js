@@ -296,7 +296,8 @@ function decideStaffRequest(reqId, approve) {
   let newId = null;
   if (approve) {
     newId = nextId("ACT", db.MST_STAFF, "staff_id");
-    db.MST_STAFF.push({ staff_id: newId, nama: r.nama, email: r.email, wa: r.wa, role: r.role, password: r.password || "" });
+    const oldPw = String(r.password || "");
+    db.MST_STAFF.push({ staff_id: newId, nama: r.nama, email: r.email, wa: r.wa, role: r.role, password: oldPw.indexOf("$kolase1$") === 0 ? oldPw : hashPassword(oldPw) });
     postSheets({ action: "register", role: r.role, row: { staff_id: newId, nama: r.nama, email: r.email, wa: r.wa, role: r.role } });
   }
   saveDB(db);
