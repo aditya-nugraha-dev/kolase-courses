@@ -1,0 +1,76 @@
+================================================================
+KOLASE KE FIGMA — bahan UI/UX + tutorial import
+Jawaban singkat: BISA, satu arah (website -> Figma, jadi gambar
+desain yang bisa diedit). Figma tidak bisa tersambung live ke
+kode — setiap import adalah potret saat itu.
+================================================================
+
+CARA 1 (disarankan): plugin html.to.design — hasil bisa diedit
+----------------------------------------------------------------
+1) Daftar/buka Figma (figma.com) -> New design file.
+2) Menu Resources/Plugins -> cari "html.to.design" -> Run.
+3) Paste URL halaman website (daftar URL di bawah) -> Import.
+   Atur viewport: 390x844 untuk HP, 1440x900 untuk desktop.
+4) Ulangi per layar -> susun frame per halaman (HP + desktop).
+5) Font Hammersmith One: Figma minta install font ke laptop
+   sekali (Google Fonts, gratis) agar judul tampil sama persis.
+Catatan: paket gratis plugin ada batas impor per bulan —
+prioritaskan 6 layar bertanda [utama] di bawah. Alternatif
+gratis tanpa batas: screenshot (Shift+Win+S) -> paste langsung
+di Figma sebagai gambar referensi (tidak bisa diedit).
+
+CARA 2: Figma Sites / export — TIDAK dipakai di sini (butuh
+bayar & tidak cocok untuk website dinamis ber-login).
+
+TOKEN DESAIN (untuk dibuat Styles di Figma)
+-------------------------------------------
+Warna:
+  navy/utama     #B29E84   navy tua (hover) #857763
+  amber/aksen    #D97706   amber tua #92400E   bg muda #FEF3C7
+  tinta/teks     #0F172A   abu/muted #64748B   garis #E2E8F0
+  latar          #F8F9FA   kartu #FFFFFF
+  hijau ok bg #ECFDF5 teks #065F46 garis #6EE7B7
+  merah bg #FEF2F2 teks #991B1B garis #FCA5A5
+  biru muda bg #f0ece6 teks #857763 garis #d1c5b5
+Font: judul Hammersmith One (Google Fonts); isi system-ui.
+Ukuran: hero HP 24 / desktop 44; judul seksi HP 19 / desktop 22;
+isi 13-14.
+Radius: kartu 14-18; tombol pill 999px; tombol biasa 8-12px.
+Tombol: primer navy teks putih; ghost putih bingkai abu.
+Pill status: hijau=verified/aktif, kuning=pending/menunggu,
+merah=ditolak/hapus, abu-ungu=terkunci.
+
+INVENTARIS LAYAR (ganti .../ dengan URL live)
+----------------------------------------------
+Basis: https://aditya-nugraha-dev.github.io/kolase-courses/
+[utama] home.html ................. Homepage (hero, trial, populer, roadmap)
+[utama] login.html ................ Login (tambah ?mode=register utk Register)
+[utama] catalog.html .............. Katalog + kartu kelas
+[utama] class-details.html?id=CLS-PUB-KIDS-01 .. Detail kelas + silabus
+[utama] dashboard.html ............ Butuh LOGIN murid (trial, badge, materi)
+[utama] checkout.html?id=CLS-PUB-KIDS-01 ..... Butuh login (bayar PENDING)
+certificate.html?code=BDG-... .... Butuh badge (selesaikan paket dulu)
+staff-portal.html ................. Butuh LOGIN staff (KPI, data, ekspor)
+teacher-portal.html ............... Butuh LOGIN guru
+profile.html ...................... Butuh login (profil, backup)
+direktori.html .................... Butuh LOGIN staff
+teacher-chat.html ................. Butuh login (isi chat contoh dulu)
+schedule.html ..................... Kalender (isi sesudah ada enrollment)
+public-class.html ................. Pendaftaran public class
+review-package.html ............... Butuh paket selesai
+tim.html .......................... Bagan organisasi
+trust-legal.html .................. Syarat & privasi
+
+Tips import layar butuh-login: login dulu di tab Chrome yang
+sama yang dipakai plugin (plugin memakai sesi browser itu).
+Isi chat/ulasan/transaksi contoh: buat dulu 1 akun murid +
+1 trial di website, baru import dashboard-nya.
+
+BATAS JUJUR
+------------
+- Hasil import = potret diam; ubahan di Figma TIDAK mengubah
+  website (dan sebaliknya). Untuk ubah tampilan, tetap edit kode.
+- Data dinamis (nama murid, saldo) ikut terpotret apa adanya.
+- Ikon/logo: unduh dari kolase-static/assets/ untuk dipasang
+  manual bila hasil import pecah.
+================================================================
