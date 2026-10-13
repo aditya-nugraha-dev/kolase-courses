@@ -93,11 +93,7 @@
   }
 
   function rpcError(err) {
-    var m = (err && err.message) ? err.message : "Cloud error.";
-    // Pesan Postgres("...") -> ambil inti agar ramah HP
-    var cut = m.match(/NEED_APPROVAL:[^"]*/);
-    if (cut) return cut[0];
-    return m;
+    return (err && err.message) ? err.message : "Cloud error.";
   }
 
   // Cermin ke Google Sheets (tab MST_*/LOGIN_LOG) — TANPA password/hash.
