@@ -1,0 +1,229 @@
+================================================================
+PANDUAN KOLASE — semua penjelasan dalam satu file
+Dibuat: 13 Okt 2026. Bahasa: Indonesia, untuk pemula.
+================================================================
+
+DAFTAR ISI
+  1. Kenapa HP dan PC berbeda?
+  2. ACT-000001 (PC) vs ACT-000003 (HP) — kenapa?
+  3. Login: password benar tapi salah / tidak bisa masuk
+  4. Apa itu CLOUD dan kenapa wajib untuk sinkron?
+  5. Pilih database: Google Sheets vs Supabase
+  6. TUTORIAL: Sheets jadi cloud (tanpa akun baru)
+  7. TUTORIAL: Supabase (database beneran)
+  8. Cara tahu HP-PC SUDAH sinkron (3 tes bukti)
+  9. Pindah data PC -> HP hari ini (tanpa cloud)
+ 10. Spreadsheet otomatis terisi saat daftar/login
+ 11. Aturan akun sekarang (daftar bebas, ID berurutan)
+ 12. Fitur-fitur website yang sudah dibuat
+ 13. Keamanan yang sudah dipasang (ringkas)
+ 14. Backend + big data (ringkas)
+ 15. Kalau layar putih / error (cara lapor yang benar)
+ 16. Checklist yang masih harus kamu lakukan
+----------------------------------------------------------------
+
+1. KENAPA HP DAN PC BERBEDA?
+-----------------------------
+Tanpa cloud, tiap browser menyimpan data sendiri (namanya
+localStorage — seperti buku catatan di saku masing-masing
+perangkat). Yang ditulis di buku PC tidak terlihat di buku HP,
+dan sebaliknya. Jadi:
+- akun yang daftar di PC hanya ada di PC,
+- akun yang daftar di HP hanya ada di HP,
+- jumlah murid/transaksi/chat di kedua perangkat beda.
+
+Ini bukan bug — ini sifat penyimpanan lokal. Satu-satunya obat:
+satu database bersama di internet = CLOUD (lihat bagian 4).
+
+Dua penyebab tambahan yang bikin makin kacau:
+a) Cache lama: browser menyimpan salinan halaman lama. PC kamu
+   sempat menampilkan kolom PIN padahal PIN sudah dihapus dari
+   kode. Solusi: hard reload (Ctrl+Shift+R) / tutup tab, buka lagi.
+b) Akun hantu bawaan: versi lama otomatis membuat 3 staff
+   (ACT-000001/002/003) di tiap perangkat baru. Sudah dihapus
+   dari kode + yang belum diklaim dibersihkan otomatis.
+
+2. ACT-000001 (PC) vs ACT-000003 (HP) — KENAPA?
+----------------------------------------------
+Itu DUA akun lokal yang berbeda, bukan satu akun yang gagal
+sinkron:
+- PC: databasenya kuno (tanpa seed), pendaftaran staff pertama
+  dapat nomor urut 000001.
+- HP: databasenya baru berisi baris bawaan "Aditya Nugraha",
+  login nama mengklaim baris itu = 000003.
+Selama cloud mati, keduanya tidak akan pernah sama. Setelah
+cloud aktif: daftarkan 1 akun baru 1x, login di kedua perangkat
+-> ID sama persis. Akun lama tidak pindah otomatis (tetap bisa
+dibuka di perangkat asalnya).
+
+3. LOGIN: PASSWORD BENAR TAPI SALAH / TIDAK BISA MASUK
+-----------------------------------------------------
+Penyebab #1 di HP: keyboard otomatis mengkapitalkan huruf
+pertama (rz190604 -> Rz190604) + spasi di akhir. Password itu
+peka huruf besar-kecil. Solusi: klik ikon mata, pastikan persis,
+atau pakai Forgot Password (reset cloud berlaku dua arah).
+Kode sekarang: anti kapital-otomatis, trim spasi, pesan error
+jelas, kunci 60 detik tiap 5x gagal (anti brute-force).
+
+4. APA ITU CLOUD DAN KENAPA WAJIB UNTUK SINKRON?
+------------------------------------------------
+Analogi: tanpa cloud = dua buku catatan terpisah. Cloud = satu
+PAPAN TULIS BERSAMA di internet yang dibaca HP dan PC.
+- Daftar di PC -> tercatat di papan -> HP ikut melihatnya.
+- Login di HP pakai akun yang sama -> ID sama persis.
+Tidak ada kode yang bisa menyinkronkan dua browser tanpa server
+bersama — ini syarat fisika, bukan kekurangan kode.
+
+Urutan otomatis website: Supabase dulu, kalau tidak ada pakai
+Sheets (Apps Script), kalau tidak ada juga pakai lokal.
+Tulisan di halaman login memberi tahu yang aktif:
+  (●) Cloud AKTIF / (●) Sheets AKTIF = 1 akun berlaku HP & PC
+  (○) nonaktif = data beda per perangkat.
+
+5. PILIH DATABASE: GOOGLE SHEETS vs SUPABASE
+--------------------------------------------
+GOOGLE SHEETS (disarankan untuk mulai):
++ Tanpa akun baru, spreadsheet kamu sudah ada.
++ Cukup untuk puluhan-ratusan akun.
+- Buku kas, bukan database beneran; bisa lambat bila membludak.
+
+SUPABASE:
++ Database beneran (PostgreSQL), cepat, kuat data besar, ada
+  laporan berat (/admin/data di folder web/).
+- Harus daftar akun supabase.com + klik project + paste SQL.
+
+Keduanya sudah dikodekan penuh dan teruji simulasi. Pilih satu
+dulu (disarankan Sheets), pindah ke Supabase kapan saja nanti.
+
+6. TUTORIAL: SHEETS JADI CLOUD (tanpa akun baru)
+------------------------------------------------
+Prinsip: spreadsheet = lemari arsip; Apps Script (Code.gs) =
+petugasnya. HP/PC hanya boleh lewat 3 perintah: auth_register,
+auth_login, auth_reset. Salt+hash SHA-256 dihitung di server,
+password asli TIDAK disimpan. Tab AUTH diblokir dari baca
+publik + register di-throttle.
+
+Langkah:
+1) Buka spreadsheet kamu -> Extensions -> Apps Script -> hapus
+   isi editor -> paste seluruh apps-script/Code.gs dari repo.
+2) Pilih fungsi "setup" -> Run -> Allow (tab AUTH + yang kurang
+   dibuat otomatis).
+3) Deploy -> New deployment -> Web app -> Execute as: Me,
+   Who has access: Anyone -> Deploy -> salin URL .../exec.
+4) GitHub repo -> Settings -> Secrets -> Actions -> tambah
+   SHEETS_ENDPOINT = URL tadi (opsional SHEETS_API_KEY).
+5) Tunggu deploy ±1 menit -> buka login.html di HP: harus
+   "● Sheets AKTIF — 1 akun berlaku HP & PC".
+6) Daftar 1 akun di PC -> cek sheet: tab AUTH + MST_* nambah
+   1 baris, LOGIN_LOG mencatat -> login di HP pakai akun itu.
+
+7. TUTORIAL: SUPABASE (database beneran)
+----------------------------------------
+1) Daftar di supabase.com -> New Project (nama kolase, region
+   Singapore) -> tunggu ±2 menit.
+2) SQL Editor -> jalankan berurutan (copy-paste isi file):
+   supabase/schema.sql, lalu auth_sync.sql, lalu seed.sql.
+3) Project Settings -> Data API -> salin Project URL + anon key.
+4) GitHub repo -> Settings -> Secrets -> Actions:
+   SUPABASE_URL dan SUPABASE_ANON_KEY -> deploy ulang otomatis.
+5) Cek login.html: "● Cloud AKTIF". Daftar 1x, login di mana saja.
+
+8. CARA TAHU HP-PC SUDAH SINKRON (3 tes bukti)
+----------------------------------------------
+Tes 1: ID login di HP dan PC SAMA PERSIS (mis. dua-duanya
+  STU-000001).
+Tes 2: buat 1 Pengumuman di PC (akun staff) -> buka Home di HP
+  -> pengumuman itu muncul.
+Tes 3: buka Spreadsheet -> tab LOGIN_LOG ada baris login dari
+  KEDUA perangkat (nama/ID sama, waktu beda).
+Ketiganya lolos = sinkron penuh dua arah.
+
+9. PINDAH DATA PC -> HP HARI INI (tanpa cloud)
+----------------------------------------------
+Profil -> Pindah Perangkat -> Unduh Cadangan (JSON) di PC ->
+kirim file ke HP (WA/email/Drive) -> Profil HP -> Pulihkan dari
+File -> konfirmasi. HP jadi salinan persis PC (akun, kelas,
+transaksi, chat, badge).
+PERINGATAN: menimpa (bukan menggabung) — cadangkan HP dulu
+kalau datanya penting. Dan sekali jalan saja (bukan sinkron
+terus).
+
+10. SPREADSHEET OTOMATIS TERISI SAAT DAFTAR/LOGIN
+-------------------------------------------------
+Ya, sudah disambungkan + live. Daftar -> baris ke MST_STUDENTS/
+MST_TEACHERS/MST_STAFF (+ pilot untuk murid). Tiap login ->
+baris ke LOGIN_LOG (waktu, ID, nama, email, peran). Password
+TIDAK PERNAH dikirim ke Sheets (hanya ID/nama/email/peran).
+Syarat: langkah bagian 6 selesai (deploy + secret).
+
+11. ATURAN AKUN SEKARANG
+------------------------
+- Bebas daftar langsung jadi: Student, Teacher, Staff
+  (Founder/Academic/Systems). Tanpa PIN, tanpa persetujuan.
+- Tiap pendaftaran dapat ID baru berurutan (STU/TCH/ACT-XXXXXX).
+- Email dari pendaftar, wajib unik.
+- Tidak ada lagi akun hantu: direktori hanya berisi pendaftar
+  nyata. Login pakai email paling aman (nama kembar: terbaru menang).
+- Tombol bahasa ID/EN dihapus; pakai Google Translate browser
+  (menu Chrome -> Translate).
+
+12. FITUR-FITUR WEBSITE YANG SUDAH DIBUAT
+-----------------------------------------
+- Login ramah HP + role picker Student/Teacher/Staff + reset
+  password inline + ingat-saya yang benar-benar jalan.
+- Dashboard sadar-peran: murid lihat datanya; staff/guru bisa
+  intip dashboard tiap murid (pilih nama + link ?as=STU-...).
+- Course Details ala referensi (checklist materi, chip lanjut ke
+  kelas berikutnya, tombol daftar + trial).
+- Jalur Belajar/Roadmap: Trial -> Kids -> Teen -> Placement ->
+  Small Group (geser di HP).
+- Sertifikat kelulusan: muncul otomatis bila paket Kids/Teen
+  selesai (lihat + bagikan + cetak PDF).
+- Popular Classes tepat di bawah Trial; stat hero live
+  (sesi, harga termurah, ID milikmu); banner paling atas di HP;
+  font HP dikecilkan.
+- Profil: backup/restore HP-PC, foto profil, riwayat + ledger.
+- Staff portal: verifikasi bayar, absensi, materi, pengumuman,
+  direktori + hapus, Data & Ekspor (agregat + CSV 9 tabel).
+
+13. KEAMANAN YANG SUDAH DIPASANG (ringkas)
+------------------------------------------
+- Password lokal: SHA-256 + salt per akun (bukan plaintext);
+  akun lama otomatis upgrade saat login.
+- XSS: semua nama/ulasan/judul yang tampil di-escape (teruji).
+- Rate-limit login lokal + throttle server, reset berlapis.
+- RPC Supabase: search_path dikunci, hash wajib 64-hex, batas
+  panjang input. Tab AUTH tak bisa dibaca publik.
+- Batasan jujur: hash cloud tanpa salt, tanpa captcha, tanpa
+  header server (Pages tak mendukung). Produksi serius butuh
+  Supabase Auth asli / backend.
+
+14. BACKEND + BIG DATA (ringkas)
+---------------------------------
+- web/ (Next.js): API register/checkout/webhook/trial/placement/
+  absensi/chat/materi + auth email + session HMAC + rate-limit +
+  audit_log. API /api/stats (omzet, okupansi, funnel, placement,
+  kehadiran, gain, integritas) + /api/stats/export (CSV 9 tabel)
+  + halaman /admin/data. Butuh web/.env project Supabase untuk jalan.
+- Live site: seksi Data & Ekspor di staff-portal dari localStorage.
+
+15. KALAU LAYAR PUTIH / ERROR (cara lapor yang benar)
+-----------------------------------------------------
+Struktur halaman terbukti utuh (dicek langsung dari server).
+Putih total = browser gagal load, bukan salah data:
+1) Hard reload: Ctrl+Shift+R (HP: tutup tab, buka baru).
+2) Coba Incognito + login ulang (kalau bisa = cache rusak).
+3) Masih putih: tekan F12 -> tab Console -> foto tulisan
+  merahnya. Itu menunjuk penyebab dalam hitungan detik.
+
+16. CHECKLIST YANG MASIH HARUS KAMU LAKUKAN
+-------------------------------------------
+[ ] Hard reload HP + PC sekali (usir cache lama penyebab PIN hantu)
+[ ] Pilih 1 jalur cloud: Sheets (bagian 6) ATAU Supabase (bagian 7)
+[ ] Isi Secrets GitHub yang sesuai + tunggu deploy
+[ ] Verifikasi tulisan ● AKTIF di login HP dan PC
+[ ] Daftar 1 akun baru 1x -> login di kedua perangkat (3 tes bag. 8)
+[ ] (Opsional) Isi web/.env bila mau menjalankan backend Next.js
+================================================================
+Akhir panduan. File ini boleh dibuka pakai Notepad biasa.
+================================================================
