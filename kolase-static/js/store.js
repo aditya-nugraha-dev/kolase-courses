@@ -984,42 +984,101 @@ function pendingBadgeCount() {
   });
   return { trial, paket, total: trial + paket };
 }
-/* Data demo 1-klik untuk mockup/testing (dipakai login.html?demo=1).
-   Idempoten: bila STU-900001 sudah ada, hanya login sebagai dia. */
-function seedDemo() {
+/* Data demo 1-klik untuk mockup/testing (dipakai login.html?demo=1 / ?demo=teacher).
+   Idempoten: bila akun demo sudah ada, hanya login sebagai dia. */
+function seedDemo(role) {
+  if (String(role || "").toLowerCase() === "teacher") return seedDemoTeacher();
   const SID = "STU-900001", TID = "TCH-900001";
-  let db = loadDB();
-  if ((db.MST_STUDENTS || []).some((r) => r.student_id === SID)) {
-    const s = db.MST_STUDENTS.find((r) => r.student_id === SID);
-    db.sessionUser = { role: "student", id: SID, nama: s.nama, email: s.email };
-    saveDB(db);
-    return SID;
-  }
   const d = (off) => { const t = new Date(); t.setDate(t.getDate() + off); return t.toISOString().slice(0, 10); };
-  db.MST_STUDENTS.push({ student_id: SID, pilot_student_id: SID, nama: "Siswa Demo", email: "demo@kolase.local", wa: "0819000001", password: hashPassword("demo1234"), tgl_daftar: d(-30), current_status: "PLACEMENT_SUBMITTED", confirmation_status: "PENDING", placement_total: 35, pre_check_score: 7 });
-  db.MST_TEACHERS.push({ teacher_id: TID, nama: "Guru Demo", email: "guru@kolase.local", wa: "0819000002", password: hashPassword("demo1234") });
-  db.PILOT_REGISTRATIONS.push({ pilot_student_id: SID, student_id: SID, full_name: "Siswa Demo", email: "demo@kolase.local", whatsapp: "0819000001", at: new Date().toISOString() });
-  db.PILOT_PLACEMENTS.push({ attempt_id: "ATM-900001", pilot_student_id: SID, student_id: SID, placement_total: 35, pre_check_score: 7, at: new Date().toISOString() });
-  db.TRIALS.push({ trial_id: "TRL-900001", student_id: SID, class_id: "CLS-PUB-KIDS-01", done: true, reviewed: false, status: "COMPLETED", sessions: [1, 2, 3, 4, 5, 6, 7].map((i) => ({ seq: i, tanggal: d(-28 + (i - 1) * 7), hadir: "PRESENT" })) });
-  db.TXN_PAYMENTS.push({ trx_id: "TXN-2026-9001", enrollment_id: "ENR-900001", student_id: SID, class_id: "CLS-PUB-KIDS-01", nominal: 50000, method: "QRIS", status: "VERIFIED", tgl: new Date().toISOString(), tgl_verifikasi: new Date().toISOString() });
-  db.CLASS_MEMBERSHIP.push({ enrollment_id: "ENR-900001", student_id: SID, class_id: "CLS-PUB-KIDS-01", status: "ACTIVE", sisa: 0, activated_at: new Date().toISOString(), expires_at: d(30) });
-  [1, 2, 3, 4].forEach((i) => db.SESSIONS.push({ session_id: "SES-00000" + i + "-ENR-900001", enrollment_id: "ENR-900001", seq: i, tanggal: d(-21 + (i - 1) * 7), status: "DONE", hadir: "PRESENT" }));
-  db.TXN_ENTITLEMENT_LEDGER.push({ enrollment_id: "ENR-900001", student_id: SID, delta: 4, reason: "PAYMENT_VERIFIED", at: new Date().toISOString(), balance_after: 4 });
-  [1, 2, 3, 4].forEach((i) => db.TXN_ENTITLEMENT_LEDGER.push({ enrollment_id: "ENR-900001", student_id: SID, delta: -1, reason: "ATTENDANCE_PRESENT_" + i, at: new Date().toISOString(), balance_after: 4 - i }));
+  let db = loadDB();
+  // Baris murid (lengkapi bila sudah ada versi ramping dari demo guru).
+  let s = (db.MST_STUDENTS || []).find((r) => r.student_id === SID);
+  if (!s) {
+    s = { student_id: SID, pilot_student_id: SID, nama: "Siswa Demo", email: "demo@kolase.local", wa: "0819000001", password: hashPassword("demo1234"), tgl_daftar: d(-30), current_status: "PLACEMENT_SUBMITTED", confirmation_status: "PENDING", placement_total: 35, pre_check_score: 7 };
+    db.MST_STUDENTS.push(s);
+    db.PILOT_REGISTRATIONS.push({ pilot_student_id: SID, student_id: SID, full_name: "Siswa Demo", email: "demo@kolase.local", whatsapp: "0819000001", at: new Date().toISOString() });
+  }
+  if (!(db.MST_TEACHERS || []).some((r) => r.teacher_id === TID)) {
+    db.MST_TEACHERS.push({ teacher_id: TID, nama: "Guru Demo", email: "guru@kolase.local", wa: "0819000002", password: hashPassword("demo1234") });
+  }
+  if (!(db.PILOT_PLACEMENTS || []).some((p) => (p.pilot_student_id || p.student_id) === SID)) {
+    db.PILOT_PLACEMENTS.push({ attempt_id: "ATM-900001", pilot_student_id: SID, student_id: SID, placement_total: 35, pre_check_score: 7, at: new Date().toISOString() });
+  }
+  if (!(db.TRIALS || []).some((t) => t.trial_id === "TRL-900001")) {
+    db.TRIALS.push({ trial_id: "TRL-900001", student_id: SID, class_id: "CLS-PUB-KIDS-01", done: true, reviewed: false, status: "COMPLETED", sessions: [1, 2, 3, 4, 5, 6, 7].map((i) => ({ seq: i, tanggal: d(-28 + (i - 1) * 7), hadir: "PRESENT" })) });
+  }
+  if (!(db.CLASS_MEMBERSHIP || []).some((m) => m.enrollment_id === "ENR-900001")) {
+    db.TXN_PAYMENTS.push({ trx_id: "TXN-2026-9001", enrollment_id: "ENR-900001", student_id: SID, class_id: "CLS-PUB-KIDS-01", nominal: 50000, method: "QRIS", status: "VERIFIED", tgl: new Date().toISOString(), tgl_verifikasi: new Date().toISOString() });
+    db.CLASS_MEMBERSHIP.push({ enrollment_id: "ENR-900001", student_id: SID, class_id: "CLS-PUB-KIDS-01", status: "ACTIVE", sisa: 0, activated_at: new Date().toISOString(), expires_at: d(30) });
+    [1, 2, 3, 4].forEach((i) => db.SESSIONS.push({ session_id: "SES-00000" + i + "-ENR-900001", enrollment_id: "ENR-900001", seq: i, tanggal: d(-21 + (i - 1) * 7), status: "DONE", hadir: "PRESENT" }));
+    db.TXN_ENTITLEMENT_LEDGER.push({ enrollment_id: "ENR-900001", student_id: SID, delta: 4, reason: "PAYMENT_VERIFIED", at: new Date().toISOString(), balance_after: 4 });
+    [1, 2, 3, 4].forEach((i) => db.TXN_ENTITLEMENT_LEDGER.push({ enrollment_id: "ENR-900001", student_id: SID, delta: -1, reason: "ATTENDANCE_PRESENT_" + i, at: new Date().toISOString(), balance_after: 4 - i }));
+  }
   db.sessionUser = { role: "student", id: SID, nama: "Siswa Demo", email: "demo@kolase.local" };
   saveDB(db);
   try { submitPackageReview("ENR-900001", { rating_kelas: 5, rating_guru: 5, rating_pembelajaran: 5, rating_materi: 5 }, "Belajarnya seru, gurunya sabar!"); } catch (e) {}
-  try { recordObservation(SID, "CLS-PUB-KIDS-01", { attendance: "Hadir", grammar: 7, vocabulary: 8, fluency: 7, recommendation: "Terus berlatih speaking setiap hari!" }); } catch (e) {}
-  try { sendChat("Halo Miss, kapan sesi berikutnya?"); } catch (e) {}
+  if (!(loadDB().PILOT_OBSERVATIONS || []).some((o) => (o.pilot_student_id || o.student_id) === SID)) {
+    try { recordObservation(SID, "CLS-PUB-KIDS-01", { attendance: "Hadir", grammar: 7, vocabulary: 8, fluency: 7, recommendation: "Terus berlatih speaking setiap hari!" }); } catch (e) {}
+  }
+  try {
+    const th = chatThread(SID);
+    if (!((th || {}).messages || []).some((m) => m.from === "student")) sendChat("Halo Miss, kapan sesi berikutnya?");
+  } catch (e) {}
   db = loadDB();
   db.sessionUser = { role: "teacher", id: TID, nama: "Guru Demo", email: "guru@kolase.local" };
   saveDB(db);
-  try { teacherSendChat(SID, "Halo! Sesi berikutnya Sabtu jam 10 ya. Sampai jumpa!"); } catch (e) {}
-  try { addAnnouncement("Batch 04 dibuka!", "Pendaftaran kelas Kids & Teen batch 04 sudah dibuka. Amankan kursimu."); } catch (e) {}
+  try {
+    const th2 = chatThread(SID);
+    const msgs = (th2 || {}).messages || [];
+    if (msgs.some((m) => m.from === "student") && !msgs.some((m) => m.from !== "student")) {
+      teacherSendChat(SID, "Halo! Sesi berikutnya Sabtu jam 10 ya. Sampai jumpa!");
+    }
+  } catch (e) {}
+  try {
+    if (!listAnnouncements().length) addAnnouncement("Batch 04 dibuka!", "Pendaftaran kelas Kids & Teen batch 04 sudah dibuka. Amankan kursimu.");
+  } catch (e) {}
   db = loadDB();
   db.sessionUser = { role: "student", id: SID, nama: "Siswa Demo", email: "demo@kolase.local" };
   saveDB(db);
   return SID;
+}
+/* Demo guru: 2 murid + trial berjalan 3/7 + jadwal sesi + materi + chat masuk.
+   Idempoten dan gabung dengan demo murid bila sudah ada. */
+function seedDemoTeacher() {
+  const TID = "TCH-900001", S1 = "STU-900001", S2 = "STU-900002", CLS = "CLS-PUB-KIDS-01";
+  const db = loadDB();
+  const d = (off) => { const t = new Date(); t.setDate(t.getDate() + off); return t.toISOString().slice(0, 10); };
+  if (!(db.MST_TEACHERS || []).some((r) => r.teacher_id === TID)) {
+    db.MST_TEACHERS.push({ teacher_id: TID, nama: "Guru Demo", email: "guru@kolase.local", wa: "0819000002", password: hashPassword("demo1234") });
+  }
+  const ensureStudent = (id, nama, email, wa) => {
+    if (!(db.MST_STUDENTS || []).some((r) => r.student_id === id)) {
+      db.MST_STUDENTS.push({ student_id: id, pilot_student_id: id, nama, email, wa, password: hashPassword("demo1234"), tgl_daftar: d(-30), current_status: "REGISTERED", confirmation_status: "PENDING" });
+    }
+  };
+  ensureStudent(S1, "Siswa Demo", "demo@kolase.local", "0819000001");
+  ensureStudent(S2, "Murid Kedua", "murid2@kolase.local", "0819000003");
+  if (!(db.TRIALS || []).some((t) => t.trial_id === "TRL-900002")) {
+    db.TRIALS.push({ trial_id: "TRL-900002", student_id: S2, class_id: CLS, done: false, reviewed: false, status: "STARTED", sessions: [1, 2, 3, 4, 5, 6, 7].map((i) => ({ seq: i, tanggal: d(-14 + (i - 1) * 7), hadir: i <= 3 ? "PRESENT" : null })) });
+  }
+  const haveSeq = new Set((db.CLASS_SESSIONS || []).filter((x) => x.class_id === CLS).map((x) => x.seq));
+  [1, 2, 3, 4].forEach((i) => {
+    if (!haveSeq.has(i)) db.CLASS_SESSIONS.push({ session_id: "SES-" + String(i).padStart(6, "0"), class_id: CLS, seq: i, tanggal: d((i - 1) * 7), status: "SCHEDULED" });
+  });
+  if (!(db.MATERIALS || []).some((m) => m.title === "Modul Sapaan Hello")) {
+    db.MATERIALS.unshift({ id: "MAT-900001", class_id: CLS, title: "Modul Sapaan Hello", kind: "link", url: "https://drive.google.com/", name: "", size: 0, by: TID, at: new Date().toISOString() });
+  }
+  if (!db.CHAT_THREADS || typeof db.CHAT_THREADS !== "object") db.CHAT_THREADS = {};
+  const ensureThread = (sid, nama, text) => {
+    if (!db.CHAT_THREADS[sid]) {
+      db.CHAT_THREADS[sid] = { student_id: sid, nama, messages: [{ from: "student", text, at: "09:00" }], updated_at: new Date().toISOString() };
+    }
+  };
+  ensureThread(S1, "Siswa Demo", "Halo Miss, kapan sesi berikutnya?");
+  ensureThread(S2, "Murid Kedua", "Miss, materi sesi 3 ada di mana ya?");
+  db.sessionUser = { role: "teacher", id: TID, nama: "Guru Demo", email: "guru@kolase.local" };
+  saveDB(db);
+  return TID;
 }
 /* Pemeriksaan ringan ala 99_AUDIT: peringatan sebelum pelaporan. */
 function auditWarnings() {

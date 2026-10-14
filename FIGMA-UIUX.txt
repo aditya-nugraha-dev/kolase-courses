@@ -65,10 +65,15 @@ Tips import layar butuh-login: login dulu di tab Chrome yang
 sama yang dipakai plugin (plugin memakai sesi browser itu).
 CARA TERMUDAH (mode demo 1-klik, tanpa daftar):
 Buka login.html?demo=1 (tambah ?demo=1 di URL, atau klik
-"Coba mode demo" di halaman login) -> otomatis masuk sebagai
+"Demo murid" di halaman login) -> otomatis masuk sebagai
 murid contoh berisi penuh: trial 7/7, paket lunas + badge +
 sertifikat, placement, evaluasi guru, chat, pengumuman.
+Untuk sisi GURU: login.html?demo=teacher (link "Demo guru"):
+masuk sebagai guru contoh berisi 2 murid, trial berjalan 3/7
+(siap dicatat), jadwal 4 sesi, 1 materi, 2 chat masuk.
 Lalu import halaman apa pun — semuanya terisi, bukan kosong.
+Password demo: demo1234. Aman diulang-ulang (idempoten);
+hapus via Zona Berbahaya di Profil bila selesai.
 Isi chat/ulasan/transaksi contoh: buat dulu 1 akun murid +
 1 trial di website, baru import dashboard-nya.
 
