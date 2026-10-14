@@ -66,6 +66,31 @@ sama yang dipakai plugin (plugin memakai sesi browser itu).
 Isi chat/ulasan/transaksi contoh: buat dulu 1 akun murid +
 1 trial di website, baru import dashboard-nya.
 
+CARA LOKAL (desain dari VS Code, bukan dari website live)
+---------------------------------------------------------
+Kalau yang di-import mau dari kode di laptop (bukan yang sudah
+di-push), jalankan websitenya secara lokal dulu:
+1) VS Code -> Extensions -> cari "Live Server" (Ritwick Dey)
+   -> Install.
+2) File -> Open Folder -> pilih folder kolase-static.
+3) Klik kanan home.html -> "Open with Live Server". Chrome
+   terbuka, catat portnya (biasanya 5500).
+4) Di tab Chrome itu: daftar 1 akun murid + 1 trial agar
+   dashboard ada isinya (data tersimpan di browser itu).
+5) Di plugin html.to.design: paste URL lokal, contoh:
+   http://127.0.0.1:5500/home.html -> Import seperti biasa.
+   Ganti home.html dengan nama file lain untuk layar lain.
+6) Tiap ubah kode -> simpan -> browser reload otomatis ->
+   import ulang halaman itu.
+Catatan jujur:
+- Kalau plugin menolak alamat localhost, pakai URL live
+  GitHub Pages saja (kodenya sama persis yang sudah di-push),
+  atau screenshot halaman lokal (Shift+Win+S) lalu paste di Figma.
+- Aset gambar/logo: drag langsung dari folder
+  kolase-static/assets/ ke kanvas Figma.
+- Login: plugin membaca sesi Chrome yang sama — login dulu
+  di tab localhost sebelum import dashboard/portal.
+
 BATAS JUJUR
 ------------
 - Hasil import = potret diam; ubahan di Figma TIDAK mengubah
