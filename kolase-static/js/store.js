@@ -984,6 +984,43 @@ function pendingBadgeCount() {
   });
   return { trial, paket, total: trial + paket };
 }
+/* Data demo 1-klik untuk mockup/testing (dipakai login.html?demo=1).
+   Idempoten: bila STU-900001 sudah ada, hanya login sebagai dia. */
+function seedDemo() {
+  const SID = "STU-900001", TID = "TCH-900001";
+  let db = loadDB();
+  if ((db.MST_STUDENTS || []).some((r) => r.student_id === SID)) {
+    const s = db.MST_STUDENTS.find((r) => r.student_id === SID);
+    db.sessionUser = { role: "student", id: SID, nama: s.nama, email: s.email };
+    saveDB(db);
+    return SID;
+  }
+  const d = (off) => { const t = new Date(); t.setDate(t.getDate() + off); return t.toISOString().slice(0, 10); };
+  db.MST_STUDENTS.push({ student_id: SID, pilot_student_id: SID, nama: "Siswa Demo", email: "demo@kolase.local", wa: "0819000001", password: hashPassword("demo1234"), tgl_daftar: d(-30), current_status: "PLACEMENT_SUBMITTED", confirmation_status: "PENDING", placement_total: 35, pre_check_score: 7 });
+  db.MST_TEACHERS.push({ teacher_id: TID, nama: "Guru Demo", email: "guru@kolase.local", wa: "0819000002", password: hashPassword("demo1234") });
+  db.PILOT_REGISTRATIONS.push({ pilot_student_id: SID, student_id: SID, full_name: "Siswa Demo", email: "demo@kolase.local", whatsapp: "0819000001", at: new Date().toISOString() });
+  db.PILOT_PLACEMENTS.push({ attempt_id: "ATM-900001", pilot_student_id: SID, student_id: SID, placement_total: 35, pre_check_score: 7, at: new Date().toISOString() });
+  db.TRIALS.push({ trial_id: "TRL-900001", student_id: SID, class_id: "CLS-PUB-KIDS-01", done: true, reviewed: false, status: "COMPLETED", sessions: [1, 2, 3, 4, 5, 6, 7].map((i) => ({ seq: i, tanggal: d(-28 + (i - 1) * 7), hadir: "PRESENT" })) });
+  db.TXN_PAYMENTS.push({ trx_id: "TXN-2026-9001", enrollment_id: "ENR-900001", student_id: SID, class_id: "CLS-PUB-KIDS-01", nominal: 50000, method: "QRIS", status: "VERIFIED", tgl: new Date().toISOString(), tgl_verifikasi: new Date().toISOString() });
+  db.CLASS_MEMBERSHIP.push({ enrollment_id: "ENR-900001", student_id: SID, class_id: "CLS-PUB-KIDS-01", status: "ACTIVE", sisa: 0, activated_at: new Date().toISOString(), expires_at: d(30) });
+  [1, 2, 3, 4].forEach((i) => db.SESSIONS.push({ session_id: "SES-00000" + i + "-ENR-900001", enrollment_id: "ENR-900001", seq: i, tanggal: d(-21 + (i - 1) * 7), status: "DONE", hadir: "PRESENT" }));
+  db.TXN_ENTITLEMENT_LEDGER.push({ enrollment_id: "ENR-900001", student_id: SID, delta: 4, reason: "PAYMENT_VERIFIED", at: new Date().toISOString(), balance_after: 4 });
+  [1, 2, 3, 4].forEach((i) => db.TXN_ENTITLEMENT_LEDGER.push({ enrollment_id: "ENR-900001", student_id: SID, delta: -1, reason: "ATTENDANCE_PRESENT_" + i, at: new Date().toISOString(), balance_after: 4 - i }));
+  db.sessionUser = { role: "student", id: SID, nama: "Siswa Demo", email: "demo@kolase.local" };
+  saveDB(db);
+  try { submitPackageReview("ENR-900001", { rating_kelas: 5, rating_guru: 5, rating_pembelajaran: 5, rating_materi: 5 }, "Belajarnya seru, gurunya sabar!"); } catch (e) {}
+  try { recordObservation(SID, "CLS-PUB-KIDS-01", { attendance: "Hadir", grammar: 7, vocabulary: 8, fluency: 7, recommendation: "Terus berlatih speaking setiap hari!" }); } catch (e) {}
+  try { sendChat("Halo Miss, kapan sesi berikutnya?"); } catch (e) {}
+  db = loadDB();
+  db.sessionUser = { role: "teacher", id: TID, nama: "Guru Demo", email: "guru@kolase.local" };
+  saveDB(db);
+  try { teacherSendChat(SID, "Halo! Sesi berikutnya Sabtu jam 10 ya. Sampai jumpa!"); } catch (e) {}
+  try { addAnnouncement("Batch 04 dibuka!", "Pendaftaran kelas Kids & Teen batch 04 sudah dibuka. Amankan kursimu."); } catch (e) {}
+  db = loadDB();
+  db.sessionUser = { role: "student", id: SID, nama: "Siswa Demo", email: "demo@kolase.local" };
+  saveDB(db);
+  return SID;
+}
 /* Pemeriksaan ringan ala 99_AUDIT: peringatan sebelum pelaporan. */
 function auditWarnings() {
   const db = loadDB();
@@ -1062,4 +1099,4 @@ function deleteStudent(studentId) {
   saveDB(db);
   return true;
 }
-window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, deleteStaff, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance, listStaffRequests, pendingStaffRequestCount, decideStaffRequest, SYSTEMS_PIN, STAFF_PIN, hashPassword };
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, deleteStaff, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance, listStaffRequests, pendingStaffRequestCount, decideStaffRequest, SYSTEMS_PIN, STAFF_PIN, hashPassword, seedDemo };
