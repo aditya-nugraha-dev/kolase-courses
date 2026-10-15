@@ -27,6 +27,15 @@
       <div class="pay-box"><div class="qr" id="qrText">QRIS</div>
         <div class="copy-row"><code id="payCode">-</code><button class="btn btn-ghost btn-sm" data-copy="-" id="copyBtn">Salin Kode</button></div>
       </div>
+      <div id="payMethods" class="small" style="margin-top:8px"></div>
+      <div id="proofBox" style="margin-top:10px;display:none">
+        <b class="small">Bukti transfer (difoto/screenshot, wajib untuk verifikasi admin)</b>
+        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;align-items:center">
+          <input type="file" id="proofInput" accept="image/jpeg,image/png,image/webp" style="font-size:13px">
+          <button class="btn btn-brand btn-sm" id="proofSend" type="button">Kirim Bukti</button>
+        </div>
+        <div class="small" id="proofMsg" style="margin-top:6px"></div>
+      </div>
       <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
         <button class="btn btn-brand btn-sm" id="simulateWebhook" data-i18n="co.simulate">Simulasi Webhook VERIFIED</button>
         <span class="small" data-i18n="co.simnote">Di production: callback Midtrans/Xendit → verifyPayment().</span>
@@ -35,21 +44,86 @@
     </div>
   </div>
 </main>
-<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
+<script src="js/store.js?v=14"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/cloud-orders.js?v=1"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
 <script>
-let CLS=null, TRX=null;
+let CLS=null, TRX=null, ENR=null, METHOD="";
 const qs = new URLSearchParams(location.search);
 const cid = qs.get("id") || "CLS-PUB-KIDS-01";
 const preEnr = qs.get("enr") || "";
+function escH(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
+function cloudOn(){ return (window.KolaseOrders && window.KolaseOrders.configured && window.KolaseOrders.configured()) || false; }
+function cloudOrderPayload(proof) {
+  var u = null;
+  try { u = KolaseStore.loadDB().sessionUser; } catch (e) {}
+  if (!u || !ENR || !TRX || !CLS) return null;
+  return { order_id: ENR, trx_id: TRX, student_id: u.id, student_nama: u.nama, student_email: u.email,
+    class_id: CLS.id, class_nama: CLS.nama, nominal: CLS.harga, method: METHOD, proof: proof || "", status: "PENDING" };
+}
+// Cerminkan order ke cloud (diam-diam; gagal = tetap lanjut lokal).
+function pushOrderCloud(proof, msgEl) {
+  if (!cloudOn()) return;
+  var p = cloudOrderPayload(proof);
+  if (!p) return;
+  window.KolaseOrders.upsertOrder(p).then(function(){
+    if (msgEl) msgEl.textContent = "Bukti terkirim • menunggu verifikasi admin.";
+  }, function(err){
+    if (msgEl) msgEl.textContent = "Gagal kirim ke cloud: " + (err && err.message ? err.message : "coba lagi");
+  });
+}
+// Instruksi bayar dari metode yang diinput owner (rekening/QRIS). Fallback: opsi statis.
+function renderPayMethods(selected) {
+  var box = document.getElementById("payMethods");
+  if (!box) return;
+  if (!cloudOn()) { box.innerHTML = ""; return; }
+  box.textContent = "Memuat metode pembayaran…";
+  window.KolaseOrders.payMethods().then(function (list) {
+    if (!list.length) { box.innerHTML = ""; return; }
+    var sel = document.getElementById("method");
+    var cur = selected || sel.value;
+    sel.innerHTML = list.map(function (m) {
+      return '<option value="' + escH(m.label) + '"' + (m.label === cur ? " selected" : "") + '>' + escH(m.label) + '</option>';
+    }).join("");
+    METHOD = sel.value;
+    box.innerHTML = list.map(function (m) {
+      var inner = "<b>" + escH(m.label) + "</b>";
+      if (m.type === "qris" && m.qr) inner += '<div><img src="' + m.qr + '" alt="QRIS" style="max-width:220px;border-radius:12px;margin-top:6px"></div>';
+      else inner += '<div>No. ' + escH(m.account) + ' • a.n. ' + escH(m.holder) + ' <button class="btn btn-ghost btn-sm" data-copy="' + escH(m.account) + '" type="button">Salin</button></div>';
+      return '<div class="card" style="margin-top:8px">' + inner + "</div>";
+    }).join("");
+    box.querySelectorAll("[data-copy]").forEach(function (b) {
+      b.onclick = function () {
+        var t = b.getAttribute("data-copy") || "";
+        var done = function () { b.textContent = "Tersalin!"; setTimeout(function(){ b.textContent = "Salin"; }, 1500); };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, function(){ prompt("Salin manual:", t); });
+        else prompt("Salin manual:", t);
+      };
+    });
+  }, function () { box.innerHTML = ""; });
+}
 function showPayBox(method, enrId, trxId) {
-  TRX = trxId;
+  TRX = trxId; ENR = enrId; METHOD = method;
   document.getElementById("payBox").style.display = "block";
   document.getElementById("payCard").style.display = "none";
   document.getElementById("payCode").textContent = method==="QRIS" ? "QR-KOLASE-"+trxId : "80000"+String(trxId).replace(/\D/g,"").padStart(6,"0");
   document.getElementById("qrText").textContent = method;
   document.getElementById("copyBtn").setAttribute("data-copy", document.getElementById("payCode").textContent);
   document.getElementById("verifyResult").innerHTML = `ENR <span class="id-mono">${enrId}</span> • TRX <span class="id-mono">${trxId}</span> • <span class="pill p-pending">PENDING</span>`;
+  renderPayMethods(method);
+  var pb = document.getElementById("proofBox");
+  if (pb) pb.style.display = cloudOn() ? "" : "none";
+  pushOrderCloud("");
 }
+document.getElementById("method").addEventListener("change", function(e){ METHOD = e.target.value; });
+var proofSendBtn = document.getElementById("proofSend");
+if (proofSendBtn) proofSendBtn.onclick = function(){
+  var msg = document.getElementById("proofMsg");
+  var f = (document.getElementById("proofInput").files || [])[0];
+  if (!f) { msg.textContent = "Pilih foto bukti transfer dulu."; return; }
+  msg.textContent = "Mengompres & mengirim…";
+  window.KolaseOrders.compressImage(f, 800, 380000).then(function(out){
+    pushOrderCloud(out, msg);
+  }, function(err){ msg.textContent = err && err.message ? err.message : "Gagal memproses gambar."; });
+};
 fetch("data/classes.json").then(r=>r.json()).then(list=>{
   CLS = list.find(x=>x.id===cid)||list[0];
   document.getElementById("summary").innerHTML = `<b>${CLS.nama}</b><div class="small">${CLS.id} • ${CLS.jadwal}</div><div class="price">Rp ${Number(CLS.harga).toLocaleString("id-ID")}</div>`;

@@ -38,6 +38,23 @@
   <div class="section"><h2>Verifikasi Pembayaran (ganti Webhook asli di production)</h2>
     <div id="pendingList" class="grid cols-2"></div>
   </div>
+  <div class="section"><h2>Pembayaran Masuk (semua perangkat)</h2>
+    <p class="small">Antrean cloud: murid bayar dari HP mana pun muncul di sini. Verifikasi di sini mengaktifkan kelas di perangkat murid.</p>
+    <div id="cloudPending" class="grid cols-2"><div class="card small">Memuat…</div></div>
+  </div>
+  <div class="section" id="payMethodsSec" style="display:none"><h2>Metode Pembayaran (rekening / QRIS)</h2>
+    <p class="small">Diisi owner — tampil di halaman checkout semua perangkat.</p>
+    <div class="card">
+      <div class="field"><label>Tipe</label><select id="pmType"><option value="bank">Transfer Bank</option><option value="qris">QRIS</option><option value="ewallet">E-Wallet</option></select></div>
+      <div class="field"><label>Label (tampil di checkout)</label><input id="pmLabel" placeholder="cth. BCA • 1234567890"></div>
+      <div class="field"><label>Nomor rekening / nomor e-wallet</label><input id="pmAccount" placeholder="cth. 1234567890"></div>
+      <div class="field"><label>Atas nama</label><input id="pmHolder" placeholder="cth. KOLASE English"></div>
+      <div class="field"><label>Foto QRIS (khusus tipe QRIS)</label><input type="file" id="pmQr" accept="image/jpeg,image/png,image/webp" style="font-size:13px"></div>
+      <button class="btn btn-brand btn-sm" id="pmSave">Simpan Metode</button>
+      <div class="small" id="pmMsg" style="margin-top:6px"></div>
+    </div>
+    <div id="pmList" style="margin-top:10px"></div>
+  </div>
   <div class="section"><h2>Keuangan (TXN_PAYMENTS)</h2>
     <div class="table-wrap"><table><thead><tr><th>TRX</th><th>ENR</th><th>Nominal</th><th>Metode</th><th>Status</th></tr></thead><tbody id="payT"></tbody></table></div>
   </div>
@@ -83,7 +100,7 @@
   </div>
 </main>
 <nav class="mobile-tabs"><a href="home.html">Home</a><a href="staff-portal.html" class="active">Portal</a><a href="profile.html">Profil</a></nav>
-<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
+<script src="js/store.js?v=14"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/cloud-orders.js?v=1"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
 <script>
 const db = KolaseStore.loadDB();
 document.getElementById("who").textContent = db.sessionUser ? `${db.sessionUser.id} • ${db.sessionUser.nama}` : "";
@@ -271,6 +288,123 @@ document.getElementById("schemaToggle").onclick = () => {
     sec.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 };
+// ===== Pembayaran cloud: antrean + metode (butuh §13-14 auth_sync.sql) =====
+(function(){
+  var FULL = ["founder", "academic", "systems"];
+  var me = null;
+  try { me = KolaseStore.loadDB().sessionUser; } catch (e) {}
+  var isFull = !!(me && FULL.indexOf(me.role) !== -1);
+  if (!window.KolaseOrders || !window.KolaseOrders.configured()) {
+    document.getElementById("cloudPending").innerHTML = `<div class="card small">Sinkron cloud nonaktif — antrean antar-perangkat mati. Aktifkan cloud dulu.</div>`;
+    return;
+  }
+  var escC = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function loadPending(){
+    KolaseOrders.pendingOrders().then(function(list){
+      var box = document.getElementById("cloudPending");
+      if (!list.length) { box.innerHTML = `<div class="card small">Tidak ada pembayaran pending dari perangkat lain.</div>`; return; }
+      box.innerHTML = list.map(function(o){
+        return `<div class="card"><div class="meta"><span class="id-mono">${escC(o.trx_id)}</span><span class="id-mono">${escC(o.order_id)}</span><span class="pill p-pending">PENDING</span></div>
+        <b>${escC(o.student_nama)} • ${escC(o.student_id)}</b><div class="small">${escC(o.class_nama || o.class_id)} • Rp ${Number(o.nominal||0).toLocaleString("id-ID")} • ${escC(o.method)}</div>
+        ${o.proof ? `<div style="margin-top:6px"><img src="${o.proof}" alt="Bukti" style="max-width:220px;border-radius:12px"></div>` : `<div class="small">Belum ada bukti transfer.</div>`}
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-brand btn-sm" data-cver="${escC(o.order_id)}">Verifikasi</button>
+          <button class="btn btn-ghost btn-sm" data-crej="${escC(o.order_id)}">Tolak</button>
+        </div></div>`;
+      }).join("");
+      box.querySelectorAll("[data-cver]").forEach(function(b){ b.onclick = function(){ cloudDecide(b.getAttribute("data-cver"), true); }; });
+      box.querySelectorAll("[data-crej]").forEach(function(b){ b.onclick = function(){ if (confirm("Tolak pembayaran ini?")) cloudDecide(b.getAttribute("data-crej"), false); }; });
+    }, function(){ document.getElementById("cloudPending").innerHTML = `<div class="card small">Gagal memuat antrean cloud.</div>`; });
+  }
+  function cloudDecide(orderId, approve){
+    document.getElementById("cloudPending").querySelectorAll("button").forEach(function(b){ b.disabled = true; });
+    KolaseOrders.pendingOrders().then(function(list){
+      var o = list.find(function(x){ return x.order_id === orderId; });
+      if (!o) throw new Error("Order tidak ada di antrean (mungkin sudah diputuskan).");
+      // Pastikan salinan lokal ada (order dibuat di perangkat murid).
+      KolaseOrders.ensureLocalPending(o);
+      if (!approve) {
+        try {
+          var db0 = KolaseStore.loadDB();
+          var p0 = (db0.TXN_PAYMENTS || []).find(function(t){ return t.trx_id === o.trx_id; });
+          if (p0) { p0.status = "FAILED"; KolaseStore.saveDB(db0); }
+        } catch (e) {}
+        return KolaseOrders.verifyOrder(orderId, { status: "REJECTED" });
+      }
+      // Verifikasi lokal (hitung sisa/tanggal/sesi/ledger) lalu cerminkan ke cloud.
+      KolaseStore.verifyPayment(o.trx_id);
+      var db1 = KolaseStore.loadDB();
+      var m = (db1.CLASS_MEMBERSHIP || []).find(function(x){ return x.enrollment_id === o.order_id; });
+      if (!m) throw new Error("Enrollment lokal gagal dibuat.");
+      var grant = String(o.class_id || "").indexOf("CLS-PUB-") === 0 ? m.sisa : 15;
+      return KolaseOrders.verifyOrder(orderId, {
+        status: "VERIFIED", sisa: m.sisa, grant: grant,
+        trial: !!m.trial_credit_applied, activated_at: m.activated_at, expires_at: m.expires_at
+      });
+    }).then(function(){
+      alert(approve ? "VERIFIED: kelas aktif, tersinkron ke perangkat murid." : "Pembayaran ditolak.");
+      location.reload();
+    }).catch(function(err){
+      alert((err && err.message) || "Gagal memproses.");
+      location.reload();
+    });
+  }
+  loadPending();
+  if (!isFull) return;
+  document.getElementById("payMethodsSec").style.display = "";
+  function loadMethods(){
+    KolaseOrders.payMethods().then(function(list){
+      var box = document.getElementById("pmList");
+      box.innerHTML = list.length ? list.map(function(m){
+        return `<div class="card" style="margin-top:8px"><b>${escC(m.label)}</b> <span class="small">(${escC(m.type)})</span>
+        <div class="small">${m.type === "qris" ? "" : "No. " + escC(m.account) + " • a.n. " + escC(m.holder)}</div>
+        ${m.type === "qris" && m.qr ? `<img src="${m.qr}" alt="QRIS" style="max-width:160px;border-radius:12px;margin-top:6px">` : ""}
+        <div style="margin-top:6px;display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" data-pmdel="${escC(m.id)}">Hapus</button>
+          <button class="btn btn-ghost btn-sm" data-pmtoggle="${escC(m.id)}">${m.is_active ? "Nonaktifkan" : "Aktifkan"}</button>
+        </div></div>`;
+      }).join("") : `<div class="card small">Belum ada metode. Tambahkan rekening / QRIS di atas.</div>`;
+      box.querySelectorAll("[data-pmdel]").forEach(function(b){ b.onclick = function(){
+        if (!confirm("Hapus metode ini?")) return;
+        KolaseOrders.deleteMethod(b.getAttribute("data-pmdel")).then(loadMethods, function(e){ alert(e.message); });
+      }; });
+      box.querySelectorAll("[data-pmtoggle]").forEach(function(b){ b.onclick = function(){
+        var id = b.getAttribute("data-pmtoggle");
+        KolaseOrders.payMethods().then(function(l2){
+          var m2 = l2.find(function(x){ return x.id === id; });
+          if (!m2) return;
+          m2.is_active = !m2.is_active;
+          return KolaseOrders.saveMethod(m2);
+        }).then(loadMethods, function(e){ if (e) alert(e.message); });
+      }; });
+    });
+  }
+  loadMethods();
+  document.getElementById("pmSave").onclick = function(){
+    var msg = document.getElementById("pmMsg");
+    var type = document.getElementById("pmType").value;
+    var label = document.getElementById("pmLabel").value.trim();
+    var account = document.getElementById("pmAccount").value.trim();
+    var holder = document.getElementById("pmHolder").value.trim();
+    var f = (document.getElementById("pmQr").files || [])[0] || null;
+    if (!label) { msg.textContent = "Label wajib diisi."; return; }
+    if (type !== "qris" && !account) { msg.textContent = "Nomor rekening wajib diisi."; return; }
+    msg.textContent = "Menyimpan…";
+    var done = function(qr){
+      KolaseOrders.saveMethod({ type: type, label: label, account: account, holder: holder, qr: qr || "", is_active: true }).then(function(){
+        msg.textContent = "Tersimpan • tampil di checkout semua perangkat.";
+        document.getElementById("pmLabel").value = "";
+        document.getElementById("pmAccount").value = "";
+        document.getElementById("pmHolder").value = "";
+        document.getElementById("pmQr").value = "";
+        loadMethods();
+      }, function(e){ msg.textContent = e.message; });
+    };
+    if (type === "qris" && f) KolaseOrders.compressImage(f, 800, 380000).then(done, function(e){ msg.textContent = e.message; });
+    else if (type === "qris" && !f) { msg.textContent = "Pilih foto QRIS dulu."; }
+    else done("");
+  };
+})();
 </script>
 </body>
 </html>
