@@ -21,7 +21,7 @@
         <img id="avatar" alt="Foto profil" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid var(--navy);background:#F1F5F9">
         <div style="flex:1;min-width:200px">
           <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" style="font-size:13px">
-          <p class="small">JPG/PNG/WebP • otomatis dikompres ±512px agar muat di browser ini.</p>
+          <p class="small">JPG/PNG/WebP • otomatis dikompres ±512px • tersinkron HP↔PC bila cloud aktif.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-brand btn-sm" id="photoDel" type="button">Hapus Foto</button>
           </div>
@@ -54,7 +54,7 @@
   </div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html" class="active">Profil</a></nav>
-<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
+<script src="js/store.js?v=14"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase-auth.js?v=4"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
 <script>
 const db = KolaseStore.loadDB();
 // Zona Berbahaya HANYA untuk 3 ID penuh: Founder, Academic, Systems.
@@ -94,7 +94,15 @@ function savePhoto(dataUrl) {
   }
   renderIdent();
   try { if (window.KolaseNavAvatar) window.KolaseNavAvatar.refresh(); } catch (e) {}
-  document.getElementById("photoMsg").textContent = "Foto tersimpan di browser ini.";
+  if (window.KolaseCloud && window.KolaseCloud.configured && window.KolaseCloud.configured()) {
+    document.getElementById("photoMsg").textContent = "Foto tersimpan. Mengirim ke cloud…";
+    window.KolaseCloud.setPhoto(dataUrl).then(
+      function () { document.getElementById("photoMsg").textContent = "Foto tersimpan & tersinkron (berlaku HP & PC)."; },
+      function (err) { document.getElementById("photoMsg").textContent = "Foto tersimpan di browser ini (cloud: " + (err && err.message ? err.message : "gagal") + ")."; }
+    );
+  } else {
+    document.getElementById("photoMsg").textContent = "Foto tersimpan di browser ini.";
+  }
 }
 document.getElementById("photoInput").addEventListener("change", function(e) {
   var f = e.target.files && e.target.files[0];
@@ -126,11 +134,36 @@ document.getElementById("photoDel").onclick = function() {
   KolaseStore.saveDB(db);
   renderIdent();
   try { if (window.KolaseNavAvatar) window.KolaseNavAvatar.refresh(); } catch (e) {}
-  document.getElementById("photoMsg").textContent = "Foto dihapus.";
+  if (window.KolaseCloud && window.KolaseCloud.configured && window.KolaseCloud.configured()) {
+    window.KolaseCloud.setPhoto("").then(
+      function () { document.getElementById("photoMsg").textContent = "Foto dihapus (semua perangkat bila sinkron aktif)."; },
+      function (err) { document.getElementById("photoMsg").textContent = "Foto dihapus di browser ini (cloud: " + (err && err.message ? err.message : "gagal") + ")."; }
+    );
+  } else {
+    document.getElementById("photoMsg").textContent = "Foto dihapus.";
+  }
 };
 renderIdent();
 document.getElementById("trx").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="4" class="small">Kosong</td></tr>`;
 document.getElementById("ledger").innerHTML = db.TXN_ENTITLEMENT_LEDGER.map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
+// Tarik foto dari cloud bila perangkat ini belum punya (mis. upload dari HP).
+// Tanpa login ulang pun cukup buka halaman Profil.
+try {
+  if (db.sessionUser && !currentPhoto() && window.KolaseCloud && window.KolaseCloud.configured && window.KolaseCloud.configured() && window.KolaseCloud.pullPhoto) {
+    window.KolaseCloud.pullPhoto().then(function (ph) {
+      if (!ph || currentPhoto()) return;
+      var u2 = db.sessionUser;
+      if (!u2) return;
+      u2.photo = ph;
+      var m2 = masterRow(u2);
+      if (m2) m2.photo = ph;
+      try { KolaseStore.saveDB(db); } catch (e) { return; }
+      renderIdent();
+      try { if (window.KolaseNavAvatar) window.KolaseNavAvatar.refresh(); } catch (e) {}
+      document.getElementById("photoMsg").textContent = "Foto ditarik dari cloud.";
+    });
+  }
+} catch (e) {}
 document.getElementById("logout").onclick = () => {
   if (!canDanger) return;
   if (!confirm("Hapus SEMUA data di browser ini (siswa, transaksi, sesi, antrean Sheets)?")) return;

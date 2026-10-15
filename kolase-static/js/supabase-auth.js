@@ -87,7 +87,23 @@
           if (ex.password) st.password = lpw;
         }
       }
+      // Foto profil ikut sinkron bila cloud menyimpannya (login/register mengembalikannya).
+      // Cloud kosong ('') = jangan timpa foto lokal (akun lama / belum upload).
+      try {
+        var ph = user.photo || "";
+        if (ph) {
+          var prow = null;
+          if (role === "student") prow = (db.MST_STUDENTS || []).find(function (r) { return r.student_id === id; });
+          else if (role === "teacher") prow = (db.MST_TEACHERS || []).find(function (r) { return r.teacher_id === id; });
+          else prow = (db.MST_STAFF || []).find(function (r) { return r.staff_id === id; });
+          if (prow) prow.photo = ph;
+        }
+      } catch (e) {}
+      var keepPh = "";
+      try { keepPh = (db.sessionUser && db.sessionUser.id === id && db.sessionUser.photo) || ""; } catch (e) {}
       db.sessionUser = { role: role, id: id, nama: user.nama, email: user.email };
+      if (user.photo) db.sessionUser.photo = user.photo;
+      else if (keepPh) db.sessionUser.photo = keepPh;
       window.KolaseStore.saveDB(db);
     } catch (e) { /* cache lokal opsional, jangan gagalkan login cloud */ }
   }
@@ -117,7 +133,7 @@
     }).then(function (res) {
       if (res.error) throw new Error(rpcError(res.error));
       var d = res.data;
-      var user = { role: d.role, id: d.id, nama: d.nama, email: d.email };
+      var user = { role: d.role, id: d.id, nama: d.nama, email: d.email, photo: d.photo || "" };
       syncToLocal(user, { password: String(password || "").trim() });
       sheetLoginLog(user);
       return user;
@@ -182,10 +198,47 @@
     });
   }
 
+  // ===== Foto profil sinkron HP<->PC (butuh §8-11 di auth_sync.sql) =====
+  // setPhoto: dorong dataURL dari halaman Profil ke cloud ('' = hapus).
+  // pullPhoto: tarik foto cloud ke perangkat ini tanpa password ('' bila belum ada).
+  // Keduanya tidak menyentuh localStorage — baca/tulis lokal urusan pemanggil.
+  function sessionIdent() {
+    try {
+      if (window.KolaseStore && window.KolaseStore.loadDB) {
+        var u = window.KolaseStore.loadDB().sessionUser || null;
+        if (u) return String(u.email || u.id || "").trim();
+      }
+    } catch (e) {}
+    return "";
+  }
+
+  function setPhoto(dataUrl) {
+    var v = String(dataUrl == null ? "" : dataUrl);
+    if (v && v.length > 500000) return Promise.reject(new Error("Foto kebesaran untuk cloud (maks 500rb karakter)."));
+    if (v && !/^data:image\/(jpeg|png|webp);base64,/.test(v)) return Promise.reject(new Error("Format foto tidak didukung."));
+    var q = sessionIdent();
+    if (!q) return Promise.reject(new Error("Login dulu sebelum sinkron foto."));
+    return client().rpc("kolase_set_photo", { p_query: q, p_photo_url: v }).then(function (res) {
+      if (res.error) throw new Error(rpcError(res.error));
+      return true;
+    });
+  }
+
+  function pullPhoto() {
+    var q = sessionIdent();
+    if (!q || !cfg()) return Promise.resolve("");
+    return client().rpc("kolase_get_photo", { p_query: q }).then(function (res) {
+      if (res.error) return "";
+      return String(res.data || "");
+    }, function () { return ""; });
+  }
+
   window.KolaseCloud = {
     configured: configured,
     login: login,
     register: register,
-    resetPassword: resetPassword
+    resetPassword: resetPassword,
+    setPhoto: setPhoto,
+    pullPhoto: pullPhoto
   };
 })();
