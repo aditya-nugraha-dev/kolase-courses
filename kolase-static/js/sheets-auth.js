@@ -91,7 +91,7 @@
   function login(query, password) {
     var q = String(query || "").trim().replace(/\s+/g, " ");
     var pass = String(password || "").trim();
-    if (!q || !pass) return Promise.reject(new Error("User name/Email dan Password wajib diisi."));
+    if (!q || !pass) return Promise.reject(new Error("Gmail dan Password wajib diisi."));
     return call(withKey({ action: "auth_login", login: { query: q, password: pass } })).then(function (j) {
       var user = j.user;
       syncToLocal(user, pass, "");

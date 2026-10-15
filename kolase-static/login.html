@@ -32,8 +32,8 @@
 
         <!-- LOGIN -->
         <form id="loginPane" autocomplete="on">
-          <label class="auth-label" for="loginId" data-i18n="login.user">User name</label>
-          <div class="auth-input"><input id="loginId" name="username" autocomplete="username email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Enter your User name / Email" data-i18n-ph="login.user.ph"></div>
+          <label class="auth-label" for="loginId" data-i18n="login.user">Gmail</label>
+          <div class="auth-input"><input id="loginId" name="email" type="text" inputmode="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Enter your Gmail" data-i18n-ph="login.user.ph"></div>
           <label class="auth-label" for="loginPass" data-i18n="login.pass">Password</label>
           <div class="auth-input">
             <input id="loginPass" name="current-password" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" placeholder="Enter your Password" data-i18n-ph="login.pass.ph">
@@ -47,7 +47,7 @@
           <div class="auth-out" id="loginOut" role="status" aria-live="polite"></div>
           <div id="resetBox" style="display:none;margin-top:12px;padding:12px;border:1.5px dashed #CBD5E1;border-radius:14px">
             <b class="small">Reset password</b>
-            <label class="auth-label" for="resetId">Email / User name</label>
+            <label class="auth-label" for="resetId">Gmail</label>
             <div class="auth-input"><input id="resetId" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
             <label class="auth-label" for="resetNew">Password baru (min. 4)</label>
             <div class="auth-input"><input id="resetNew" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
@@ -232,7 +232,7 @@ loginPane.addEventListener("submit", (e) => {
   const passRaw = document.getElementById("loginPass").value || "";
   const pass = passRaw.trim();
   out.className = "auth-out"; out.textContent = "";
-  if (!id || !pass) { out.classList.add("err"); out.textContent = "User name/Email dan Password wajib diisi."; out.scrollIntoView({block:"nearest",behavior:"smooth"}); return; }
+  if (!id || !pass) { out.classList.add("err"); out.textContent = "Gmail dan Password wajib diisi."; out.scrollIntoView({block:"nearest",behavior:"smooth"}); return; }
   const locked = lockLeft();
   if (locked > 0) { out.classList.add("err"); out.textContent = `Terlalu banyak gagal login. Coba lagi dalam ${locked} detik.`; return; }
   btn.disabled = true;
@@ -370,7 +370,7 @@ document.getElementById("resetGo").onclick = () => {
   const id = document.getElementById("resetId").value.trim();
   const np = (document.getElementById("resetNew").value || "").trim();
   const np2 = (document.getElementById("resetNew2").value || "").trim();
-  if (!id) { out.className = "auth-out err"; out.textContent = "Isi Email / User name dulu."; return; }
+  if (!id) { out.className = "auth-out err"; out.textContent = "Isi Gmail dulu."; return; }
   if (np.length < 4) { out.className = "auth-out err"; out.textContent = "Password baru min. 4 karakter."; return; }
   if (np !== np2) { out.className = "auth-out err"; out.textContent = "Ulangi password tidak sama."; return; }
   const beRs = activeBackend();

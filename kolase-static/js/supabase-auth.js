@@ -111,7 +111,7 @@
   function login(query, password) {
     var q = normQuery(query);
     var pass = String(password || "").trim();
-    if (!q || !pass) return Promise.reject(new Error("User name/Email dan Password wajib diisi."));
+    if (!q || !pass) return Promise.reject(new Error("Gmail dan Password wajib diisi."));
     return sha256hex(pass).then(function (h) {
       return client().rpc("kolase_login", { p_query: q, p_password_hash: h });
     }).then(function (res) {

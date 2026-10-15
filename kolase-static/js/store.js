@@ -349,7 +349,7 @@ function loginPerson(query, password, remember) {
     nama: String(r.nama || "").trim().replace(/\s+/g, " ").toLowerCase(),
     id: String(r[idField] || "").trim().toLowerCase()
   });
-  if (!q) throw new Error("Akun tidak ditemukan di perangkat ini. Cek Email / User name, atau Register dulu.");
+  if (!q) throw new Error("Akun tidak ditemukan di perangkat ini. Cek Gmail, atau Register dulu.");
   // Prioritas: email dulu, lalu ID, lalu nama (terbaru menang bila nama kembar —
   // tiap pendaftaran dapat ID baru berurutan).
   let hit = all.find(({ r, idField }) => normRec(r, idField).email === q && q !== "")
@@ -360,7 +360,7 @@ function loginPerson(query, password, remember) {
       }
       return null;
     })();
-  if (!hit) throw new Error("Akun tidak ditemukan di perangkat ini. Cek Email / User name, atau Register dulu.");
+  if (!hit) throw new Error("Akun tidak ditemukan di perangkat ini. Cek Gmail, atau Register dulu.");
   // Migrasi akun lama tanpa/hash password: set/hash password saat login pertama yang cocok.
   if (!hit.r.password) {
     hit.r.password = hashPassword(pass);
