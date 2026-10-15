@@ -49,8 +49,8 @@
       </div>
       <p class="small" id="backupMsg"></p>
     </div></div>
-    <div class="section" id="dangerZone" style="display:none"><h2>Zona Berbahaya</h2><button class="btn btn-ghost btn-sm" id="logout">Hapus Semua Data Demo</button>
-    <p class="small">Menghapus seluruh data pendaftaran, transaksi, sesi, dan antrean Sheets di browser ini (localStorage), lalu kembali ke akun demo awal. Khusus 3 ID penuh (ACT-000001/002/003).</p></div>
+    <div class="section" id="dangerZone" style="display:none"><h2>Zona Berbahaya</h2><button class="btn btn-ghost btn-sm" id="logout">Hapus Semua Data</button>
+    <p class="small">Menghapus seluruh data pendaftaran, transaksi, sesi, dan antrean Sheets di browser ini (localStorage), lalu kembali ke halaman masuk.</p></div>
   </div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html" class="active">Profil</a></nav>
@@ -133,7 +133,7 @@ document.getElementById("trx").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class
 document.getElementById("ledger").innerHTML = db.TXN_ENTITLEMENT_LEDGER.map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
 document.getElementById("logout").onclick = () => {
   if (!canDanger) return;
-  if (!confirm("Hapus SEMUA data demo di browser ini (siswa, transaksi, sesi, antrean Sheets)?")) return;
+  if (!confirm("Hapus SEMUA data di browser ini (siswa, transaksi, sesi, antrean Sheets)?")) return;
   localStorage.removeItem("kolase_db_v1");
   localStorage.removeItem("kolase_sheets_queue");
   location.href = "login.html";

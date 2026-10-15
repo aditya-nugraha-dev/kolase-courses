@@ -55,7 +55,7 @@ if (isTeacher) {
   setInterval(function(){ if (!document.hidden) { renderThreads(true); renderConv(true); } }, 4000);
 } else {
   var verified = db.CLASS_MEMBERSHIP.some(m=>me && m.student_id===me.id && m.status==="ACTIVE");
-  document.getElementById("lock").textContent = verified ? "Terbuka — pembayaran VERIFIED." : "Terkunci (demo tetap bisa lihat). Selesaikan pembayaran agar VERIFIED di production.";
+  document.getElementById("lock").textContent = verified ? "Terbuka — pembayaran VERIFIED." : "Terkunci. Selesaikan pembayaran agar VERIFIED untuk membuka chat.";
   renderMine();
   setInterval(function(){ if (!document.hidden) renderMine(); }, 4000);
 }
@@ -112,7 +112,7 @@ document.getElementById("send").onclick = () => {
         if (u && u.role === "student") {
           var t = d.CHAT_THREADS[u.id];
           if (t && t.messages.filter(m=>m.from!=="student").length === 0) {
-            t.messages.push({from:"teacher", text:"Siap, dicatat ya. Sampai jumpa di sesi berikutnya! (balasan otomatis demo)", at:new Date().toTimeString().slice(0,5)});
+            t.messages.push({from:"teacher", text:"Siap, dicatat ya. Sampai jumpa di sesi berikutnya! (balasan otomatis)", at:new Date().toTimeString().slice(0,5)});
             t.updated_at = new Date().toISOString();
             KolaseStore.saveDB(d);
             renderMine();

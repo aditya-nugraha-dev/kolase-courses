@@ -202,11 +202,11 @@ function fillStaffStats() {
   }
 })();
 // Class Area: Meet + materi TERKUNCI sampai enrollment VERIFIED (status ACTIVE).
-// URL materi diisi per kelas di data/classes.json; jika masih kosong, tombol menampilkan info demo.
-function materiBtn(label, url, demoMsg) {
+// URL materi diisi per kelas di data/classes.json; jika masih kosong, tombol menampilkan info bahwa link belum tersedia.
+function materiBtn(label, url, infoMsg) {
   return url
     ? `<a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${label}</a>`
-    : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${demoMsg}');return false">${label}</a>`;
+    : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${infoMsg}');return false">${label}</a>`;
 }
 const lockNote = `<div class="lock-note">🔒 Link terkunci — menunggu pembayaran <b>VERIFIED</b> untuk enrollment ini.</div>`;
 const escHtml = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -221,9 +221,9 @@ fetch("data/classes.json").then(r=>r.json()).then(classes=>{
     const meet = open
       ? (c.meet
         ? `<a class="btn btn-brand btn-sm" href="${c.meet}" target="_blank" rel="noopener">Join Meet</a>`
-        : `<a class="btn btn-brand btn-sm" href="#" onclick="alert('Join Google Meet (demo) — isi URL Meet di data/classes.json');return false">Join Meet</a>`)
+        : `<a class="btn btn-brand btn-sm" href="#" onclick="alert('Join Google Meet belum tersedia — isi URL Meet di data/classes.json');return false">Join Meet</a>`)
       : `<span class="pill p-locked">🔒 Butuh VERIFIED</span>`;
-    const mats = open ? materiBtn("Materi", c.slides, "File materi dari guru (demo)") : "";
+    const mats = open ? materiBtn("Materi", c.slides, "File materi dari guru belum tersedia — hubungi admin") : "";
     // CTA khusus Kelas Kids: GMeet besar + GForm absensi.
     const kidsCta = (open && isKids)
       ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${c.meet ? `<a class="btn btn-brand btn-sm" href="${c.meet}" target="_blank" rel="noopener">📹 Join GMeet Kelas Kids</a>` : meet}${c.gform ? `<a class="btn btn-brand btn-sm" href="${c.gform}" target="_blank" rel="noopener">📝 Isi GForm Absensi</a>` : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('GForm absensi & feedback dibagikan via WhatsApp grup kelas');return false">📝 GForm Absensi</a>`}</div>`
@@ -261,9 +261,9 @@ fetch("data/classes.json").then(r=>r.json()).then(classes=>{
   const gcal = (s) => "https://calendar.google.com/calendar/render?action=TEMPLATE"
     + "&text=" + encodeURIComponent(`KOLASE ${s.enrollment_id} — Sesi ${s.seq}/${totByEnr[s.enrollment_id]||s.seq}`)
     + `&dates=${s.tanggal.replace(/-/g,"")}T030000Z/${s.tanggal.replace(/-/g,"")}T040000Z`;
-  const link = (label, url, demo) => url
+  const link = (label, url, info) => url
     ? `<a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${label}</a>`
-    : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${demo}');return false">${label}</a>`;
+    : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${info}');return false">${label}</a>`;
   document.getElementById("learnList").innerHTML = mine.length ? mine.map(s=>{
     const m = enrById[s.enrollment_id] || {};
     const open = isVerifiedEnr(m);
@@ -271,9 +271,9 @@ fetch("data/classes.json").then(r=>r.json()).then(classes=>{
     const pill = s.hadir==="PRESENT"||s.hadir==="LATE" ? "p-present" : s.hadir==="ABSENT" ? "p-absent" : "p-pending";
     const total = totByEnr[s.enrollment_id] || s.seq;
     const isLast = s.seq === total; // GForm hanya di pertemuan terakhir (mis. sesi 4/4)
-    const gformBtn = (isLast && open) ? link("Kuis GForm", c.gform, "Kuis Google Form dari guru (demo)") : "";
+    const gformBtn = (isLast && open) ? link("Kuis GForm", c.gform, "Kuis Google Form dari guru belum tersedia — hubungi admin") : "";
     const mats = open
-      ? `${link("GMeet", c.meet, "Join Google Meet (demo)")}${link("Materi", c.slides, "File materi dari guru (demo)")}${gformBtn}<a class="small" style="align-self:center;color:var(--gold)" href="${gcal(s)}" target="_blank" rel="noopener">+ GCal</a>`
+      ? `${link("GMeet", c.meet, "Join Google Meet belum tersedia — hubungi admin")}${link("Materi", c.slides, "File materi dari guru belum tersedia — hubungi admin")}${gformBtn}<a class="small" style="align-self:center;color:var(--gold)" href="${gcal(s)}" target="_blank" rel="noopener">+ GCal</a>`
       : `<span class="pill p-locked">🔒 Butuh VERIFIED</span>`;
     return `<div class="cal-item"><div class="date-box"><b>${s.seq}</b><span class="small">${s.tanggal.slice(5)}</span></div>
     <div style="flex:1"><b>Sesi ${s.seq}/${total} • ${s.tanggal}</b><div class="small">${s.session_id}</div>

@@ -77,11 +77,22 @@ document.getElementById("payBtn").onclick = () => {
     const m = document.getElementById("method").value;
     const r = KolaseStore.checkout(CLS.id, CLS.harga, m);
     showPayBox(m, r.enrId, r.trxId);
-  } catch(e){ alert(e.message+" — buka login.html dulu & daftar sebagai Student."); location.href="login.html"; }
+  } catch(e){
+    alert(e.message);
+    try {
+      if (!KolaseStore.loadDB().sessionUser) location.href = "login.html";
+    } catch(_){}
+  }
 };
 document.getElementById("simulateWebhook").onclick = () => {
-  const p = KolaseStore.verifyPayment(TRX);
-  document.getElementById("verifyResult").innerHTML = `TRX <span class="id-mono">${p.trx_id}</span> • <span class="pill p-verified">VERIFIED</span> • +4 sesi dibuat (SES-000001 s/d SES-000004) • <a href="dashboard.html">Buka Dashboard →</a>`;
+  try {
+    const p = KolaseStore.verifyPayment(TRX);
+    document.getElementById("verifyResult").innerHTML = `TRX <span class="id-mono">${p.trx_id}</span> • <span class="pill p-verified">VERIFIED</span> • +4 sesi dibuat (SES-000001 s/d SES-000004) • <a href="dashboard.html">Buka Dashboard →</a>`;
+  } catch (e) {
+    const msg = String((e && e.message) || "Gagal verifikasi.");
+    // Verifikasi butuh hak penuh (founder/academic/systems): arahkan ke Staff Portal.
+    document.getElementById("verifyResult").innerHTML = `<span class="pill p-pending">PENDING</span> ${msg} Minta verifikasi di <a href="staff-portal.html">Staff Portal →</a>`;
+  }
 };
 </script>
 </body>

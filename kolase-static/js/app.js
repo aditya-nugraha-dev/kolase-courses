@@ -235,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const u = (JSON.parse(localStorage.getItem("kolase_db_v1") || "null") || {}).sessionUser || null;
     if (u) document.body.classList.add("is-logged-in");
   } catch (e) {}
-  // Keluar global: hapus sesi saja (data demo tetap), lalu ke home.
+  // Keluar global: hapus sesi saja (data tetap), lalu ke home.
   document.querySelectorAll("[data-logout]").forEach((a) => {
     a.addEventListener("click", (e) => {
       e.preventDefault();

@@ -66,10 +66,12 @@ document.getElementById("sessList").innerHTML = db.SESSIONS.length ? db.SESSIONS
   ${s.hadir?`<span class="pill p-present">${s.hadir}</span>`:`<select data-sess="${s.session_id}"><option>PRESENT</option><option>LATE</option><option>ABSENT</option><option>CANCELLED</option></select> <button class="btn btn-brand btn-sm" data-save="${s.session_id}">Simpan</button>`}
  </div>`).join("") : `<div class="card small">Belum ada sesi. Sesi dibuat otomatis saat pembayaran VERIFIED.</div>`;
 document.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>{
-  const sid=b.getAttribute("data-save");
-  const v=document.querySelector(`[data-sess="${sid}"]`).value;
-  const sisa=KolaseStore.recordAttendance(sid,v);
-  alert(`Tersimpan ${v}. Sisa kuota: ${sisa}`); location.reload();
+  try {
+    const sid=b.getAttribute("data-save");
+    const v=document.querySelector(`[data-sess="${sid}"]`).value;
+    const sisa=KolaseStore.recordAttendance(sid,v);
+    alert(`Tersimpan ${v}. Sisa kuota: ${sisa}`); location.reload();
+  } catch(e){ alert(e.message); }
 });
 // Jadwal mengajar saya: cocokkan ID teacher, lalu nama (data Sheets vs akun).
 (function(){
@@ -91,15 +93,15 @@ document.querySelectorAll("[data-save]").forEach(b=>b.onclick=()=>{
 })();
 // Kelas & materi: link aktif hanya bila ada enrollment VERIFIED (ACTIVE) di kelas itu.
 fetch("data/classes.json").then(r=>r.json()).then(classes=>{
-  const link = (label, url, demo) => url
+  const link = (label, url, info) => url
     ? `<a class="btn btn-ghost btn-sm" href="${url}" target="_blank" rel="noopener">${label}</a>`
-    : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${demo}');return false">${label}</a>`;
+    : `<a class="btn btn-ghost btn-sm" href="#" onclick="alert('${info}');return false">${label}</a>`;
   document.getElementById("classList").innerHTML = classes.map(c=>{
     const n = db.CLASS_MEMBERSHIP.filter(m=>m.class_id===c.id && m.status==="ACTIVE").length;
     const open = n > 0;
     return `<div class="card"><div class="meta"><span class="id-mono">${c.id}</span><span class="pill ${c.class_status==="OPEN"?"p-verified":"p-pending"}">${c.class_status||"OPEN"}</span><span>${n} VERIFIED</span></div>
     <b>${c.nama}</b><div class="small">${c.jadwal} • ${c.guru}</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${open ? link("GMeet", c.meet, "Join Google Meet (demo)") + link("Materi", c.slides, "File materi (demo)") : `<span class="pill p-locked">🔒 Butuh VERIFIED</span>`}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${open ? link("GMeet", c.meet, "Join Google Meet belum tersedia — hubungi admin") + link("Materi", c.slides, "File materi belum tersedia — hubungi admin") : `<span class="pill p-locked">🔒 Butuh VERIFIED</span>`}</div>
     ${open ? "" : `<div class="lock-note">🔒 Materi terkunci — verifikasi pembayaran dulu di Staff Portal.</div>`}</div>`;
   }).join("");
 }).catch(()=>{ document.getElementById("classList").innerHTML = `<div class="card small">Gagal memuat katalog.</div>`; });
@@ -116,10 +118,12 @@ document.getElementById("trialList").innerHTML = db.TRIALS.length ? db.TRIALS.ma
     <button class="btn btn-brand btn-sm" data-tsave="${t.trial_id}:${s.seq}">Simpan</button></div>`).join("") + `</div>`;
 }).join("") : `<div class="card small">Belum ada trial. Siswa memulai dari tombol "Coba 7 Trial Gratis".</div>`;
 document.querySelectorAll("[data-tsave]").forEach(b=>b.onclick=()=>{
-  const [tid, seq] = b.getAttribute("data-tsave").split(":");
-  const v = document.querySelector(`[data-trial="${tid}:${seq}"]`).value;
-  const done = KolaseStore.recordTrialAttendance(tid, seq, v);
-  alert(done ? `Trial ${tid} SELESAI 7/7 — form ulasan siswa terbuka!` : `Tersimpan ${v}.`); location.reload();
+  try {
+    const [tid, seq] = b.getAttribute("data-tsave").split(":");
+    const v = document.querySelector(`[data-trial="${tid}:${seq}"]`).value;
+    const done = KolaseStore.recordTrialAttendance(tid, seq, v);
+    alert(done ? `Trial ${tid} SELESAI 7/7 — form ulasan siswa terbuka!` : `Tersimpan ${v}.`); location.reload();
+  } catch(e){ alert(e.message); }
 });
 // Upload materi: pilih kelas + judul + (file kecil ATAU link)
 fetch("data/classes.json").then(r=>r.json()).then(classes=>{
@@ -135,8 +139,10 @@ function renderMatList(){
     : `<div class="card small">Belum ada materi untuk kelas ini.</div>`;
   document.querySelectorAll("[data-matdel]").forEach(b=>b.onclick=()=>{
     if (!confirm("Hapus materi ini? Murid tidak bisa lagi membukanya.")) return;
-    KolaseStore.deleteMaterial(b.getAttribute("data-matdel"));
-    renderMatList();
+    try {
+      KolaseStore.deleteMaterial(b.getAttribute("data-matdel"));
+      renderMatList();
+    } catch(e){ alert(e.message); }
   });
 }
 document.getElementById("matClass").addEventListener("change", renderMatList);
