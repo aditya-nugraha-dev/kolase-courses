@@ -56,10 +56,10 @@ export default function StudentSidebar({
       {/* Desktop sidebar ala referensi */}
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-paper px-5 py-6 lg:flex">
         <Image
-          src="/brand/kolase-wordmark-blue.png"
+          src="/brand/kolase-wordmark-black.png"
           alt="KOLASE English Academy"
           width={132}
-          height={38}
+          height={37}
           className="h-8 w-auto object-contain"
         />
 
@@ -121,10 +121,10 @@ export default function StudentSidebar({
       <div className="border-b border-sand/40 bg-paper lg:hidden">
         <div className="flex items-center gap-3 px-4 py-3">
           <Image
-            src="/brand/kolase-wordmark-blue.png"
+            src="/brand/kolase-wordmark-black.png"
             alt="KOLASE English Academy"
             width={116}
-            height={33}
+            height={32}
             className="h-7 w-auto object-contain"
           />
           <span className="ml-auto flex items-center gap-2">

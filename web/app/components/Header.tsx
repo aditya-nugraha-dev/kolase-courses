@@ -91,10 +91,10 @@ export default function Header() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4">
         <Link href={logoHref} className="flex items-center gap-3" aria-label="KOLASE English Academy — ke dashboard">
           <Image
-            src="/brand/kolase-wordmark-blue.png"
+            src="/brand/kolase-wordmark-black.png"
             alt="KOLASE English Academy"
             width={172}
-            height={49}
+            height={48}
             priority
             className="h-10 w-auto object-contain"
           />

@@ -29,7 +29,7 @@ h1{line-height:1.2}
 .topbar{position:sticky;top:0;z-index:50;background:#b29e84;border-bottom:1px solid var(--navy-d)}
 .topbar .wrap{display:flex;align-items:center;gap:12px;height:64px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-.brand img{height:38px;width:38px;object-fit:contain;border-radius:10px;border:0;background:transparent}
+.brand img{height:44px;width:auto;object-fit:contain;border-radius:0;border:0;background:transparent}
 .brand .logo-name{font-size:19px;color:#FFFFFF}
 .brand .logo-name small{display:block;font-family:system-ui;font-size:9px;letter-spacing:.3em;color:#FFFFFF}
 .nav{display:none;gap:4px;margin-left:auto}
@@ -261,5 +261,5 @@ hr{border:0;border-top:1px solid var(--line)}
   .section h2{font-size:19px}
   .stat b{font-size:16px}
   .topbar .wrap{height:58px}
-  .brand .logo-name{font-size:16px}
+  .brand img{height:38px}
 }

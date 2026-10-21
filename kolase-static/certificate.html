@@ -20,7 +20,7 @@
 </head>
 <body>
 <header class="topbar"><div class="wrap">
-  <a class="brand" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span class="logo-name">KOLASE<small>ENGLISH COURSE</small></span></a>
+  <a class="brand" href="home.html"><img src="assets/kolase-wordmark-black.png" alt="KOLASE English Academy"></a>
   <nav class="nav" data-nav><a href="home.html">Home</a><a href="catalog.html">Katalog</a><a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
   <button class="burger" data-burger>☰</button>
 </div></header>
@@ -48,7 +48,7 @@
   const t = (k) => (window.KolaseI18n ? KolaseI18n.t(k) : k);
   const escC = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   wrap.innerHTML = `<div class="cert-frame">
-    <div class="cbrand">KOLASE • ENGLISH COURSE</div>
+    <div class="cbrand">KOLASE • ENGLISH ACADEMY</div>
     <h1>${t("cert.title")}</h1>
     <p class="small">${t("cert.given")}</p>
     <div class="cert-name">${escC(b.student_name || b.student_id)}</div>

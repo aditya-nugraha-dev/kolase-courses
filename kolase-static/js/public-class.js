@@ -136,7 +136,7 @@
   try {
     const year = new Date().getFullYear();
     const fhtml = `<div class="wrap"><div class="kf-card"><div class="kf-grid">`
-      + `<div class="kf-brand"><a class="kf-logo" href="home.html"><img src="assets/kolase-logo.png" alt="KOLASE"><span>KOLASE</span></a>`
+      + `<div class="kf-brand"><a class="kf-logo" href="home.html"><img src="assets/kolase-wordmark-black.png" alt="KOLASE English Academy"></a>`
       + `<p class="kf-tag">We believe in the power of play to foster creativity, problem-solving skills, and imagination.</p>`
       + `<ul class="kf-contact">`
       + `<li><a href="mailto:kolaseenglish@gmail.com"><span class="kf-ico">✉</span><span>kolaseenglish@gmail.com</span></a></li>`

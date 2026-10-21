@@ -3,7 +3,7 @@
 .kf-card{background:#FFFFFF;border:1.5px solid #0F172A;border-radius:14px;box-shadow:4px 4px 0 #0F172A;padding:22px 22px 14px}
 .kf-grid{display:grid;gap:20px;grid-template-columns:1fr}
 .kf-brand .kf-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink);font-family:var(--serif);font-size:17px;letter-spacing:.06em}
-.kf-brand .kf-logo img{width:28px;height:28px;object-fit:contain;border-radius:8px}
+.kf-brand .kf-logo img{width:auto;height:30px;object-fit:contain;border-radius:0}
 .kf-tag{margin:10px 0 14px;line-height:1.6;max-width:32ch;color:#475569}
 .kf-contact{list-style:none;margin:0;padding:0;display:grid;gap:10px}
 .kf-contact a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
