@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { BookOpen, ClipboardList, Gift, Link2, Video } from "lucide-react";
+import { ArrowRight, BookOpen, ClipboardList, Gift, Link2, Video } from "lucide-react";
 import { Badge, Card } from "../../components/ui";
 import MateriPanel from "../../components/MateriPanel";
 
@@ -73,6 +73,12 @@ export default function KelasClient() {
             {typeof mem.sisa === "number" && <span className="ml-2">Sisa {String(mem.sisa)} sesi • {String(mem.status ?? "")}</span>}
           </p>
         )}
+        <Link
+          href="/student/kursus"
+          className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-sand bg-paper px-4 py-2.5 text-sm font-bold text-ink transition hover:border-navy"
+        >
+          Buka Kursus Saya <ArrowRight size={15} />
+        </Link>
       </div>
 
       {/* Checklist trial 7 sesi (belum jadi member berbayar) */}

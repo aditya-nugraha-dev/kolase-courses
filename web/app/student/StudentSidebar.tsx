@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   BookOpen,
   CalendarDays,
+  GraduationCap,
   LayoutDashboard,
   LifeBuoy,
   LogOut,
@@ -14,6 +16,7 @@ import {
 
 const NAV = [
   { href: "/student", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/student/kursus", label: "Kursus", icon: GraduationCap },
   { href: "/student/kelas", label: "Kelas Saya", icon: BookOpen },
   { href: "/student/progress", label: "Progres", icon: TrendingUp },
 ];
@@ -52,9 +55,13 @@ export default function StudentSidebar({
     <>
       {/* Desktop sidebar ala referensi */}
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-paper px-5 py-6 lg:flex">
-        <p className="font-display text-xl font-extrabold text-ink">
-          KOLASE<span className="text-sand-deep">.</span>
-        </p>
+        <Image
+          src="/brand/kolase-wordmark-blue.png"
+          alt="KOLASE English Academy"
+          width={132}
+          height={38}
+          className="h-8 w-auto object-contain"
+        />
 
         <div className="mt-5 flex items-center gap-3 rounded-2xl bg-ivory p-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy text-sm font-extrabold text-sand">
@@ -113,9 +120,13 @@ export default function StudentSidebar({
       {/* Mobile: bar atas + nav geser */}
       <div className="border-b border-sand/40 bg-paper lg:hidden">
         <div className="flex items-center gap-3 px-4 py-3">
-          <p className="font-display text-lg font-extrabold text-ink">
-            KOLASE<span className="text-sand-deep">.</span>
-          </p>
+          <Image
+            src="/brand/kolase-wordmark-blue.png"
+            alt="KOLASE English Academy"
+            width={116}
+            height={33}
+            className="h-7 w-auto object-contain"
+          />
           <span className="ml-auto flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-navy text-xs font-extrabold text-sand">
               {initial}

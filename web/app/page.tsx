@@ -161,8 +161,8 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-sand/40 bg-paper px-4 py-8 text-center text-xs text-ink/60">
-        <Image src="/kolase-primary-black-drive.png" alt="KOLASE" width={200} height={48} className="mx-auto mb-3 h-12 w-auto object-contain" />
+      <footer className="border-t border-violet/15 bg-paper px-4 py-8 text-center text-xs text-ink/60">
+        <Image src="/brand/kolase-wordmark-blue.png" alt="KOLASE English Academy" width={200} height={57} className="mx-auto mb-3 h-12 w-auto object-contain" />
         <p className="font-bold text-ink">KOLASE English • Belajar dengan Arah, Berkembang dengan Percaya Diri</p>
         <p className="mt-2">
           <Link href="/tentang" className="font-bold text-navy">Tentang & Visi Misi</Link> •{" "}

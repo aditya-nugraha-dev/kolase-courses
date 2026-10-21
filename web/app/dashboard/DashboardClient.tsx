@@ -448,7 +448,7 @@ export default function DashboardClient() {
               <Badge key="f" tone={fitTone(s.a2Fit)}>{s.a2Fit}</Badge>,
               <code key="c" className="rounded bg-ivory text-navy">{s.classId}</code>,
               s.attendance ? <Badge key="a" tone={s.attendance === "ATTENDED" ? "green" : "red"}>{s.attendance}</Badge> : <span key="a" className="text-ink/40">—</span>,
-              <b key="g" className={s.gainScore != null && s.gainScore > 0 ? "text-emerald-700" : ""}>
+              <b key="g" className={s.gainScore != null && s.gainScore > 0 ? "text-cyan-deep" : ""}>
                 {s.gainScore != null ? `+${s.gainScore}` : "—"}
               </b>,
               <Badge key="s" tone="blue">{s.status}</Badge>,
@@ -563,7 +563,7 @@ export default function DashboardClient() {
                   <span className="text-xs font-bold">{c.filled}/{c.kuota} • {c.occupancy_pct}%</span>
                   <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-ivory">
                     <span
-                      className={`block h-full rounded-full ${c.occupancy_pct >= 100 ? "bg-rose-500" : c.occupancy_pct >= 70 ? "bg-amber-500" : "bg-emerald-500"}`}
+                      className={`block h-full rounded-full ${c.occupancy_pct >= 100 ? "bg-rose-500" : c.occupancy_pct >= 70 ? "bg-sand" : "bg-cyan"}`}
                       style={{ width: `${Math.min(100, c.occupancy_pct)}%` }}
                     />
                   </span>

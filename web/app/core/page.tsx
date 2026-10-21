@@ -42,12 +42,12 @@ export default function CorePage() {
     try { setOut(label + "\n" + JSON.stringify(await p, null, 2)); }
     catch (e) { setOut(label + " ERROR: " + String(e)); }
   };
-  const inp = { width: "100%", boxSizing: "border-box" as const, padding: 12, margin: "6px 0", borderRadius: 10, border: "1px solid #B29E84", background: "#FFFFFF", color: "#121212", fontSize: 16 } as const;
-  const btn = { width: "100%", background: "#121212", color: "#F7F3EC", border: 0, borderRadius: 10, padding: "14px 16px", fontWeight: 700, cursor: "pointer", fontSize: 16, minHeight: 48 } as const;
+  const inp = { width: "100%", boxSizing: "border-box" as const, padding: 12, margin: "6px 0", borderRadius: 10, border: "1px solid #D0ACFA", background: "#FFFFFF", color: "#1A1038", fontSize: 16 } as const;
+  const btn = { width: "100%", background: "#4117A0", color: "#FAF8FF", border: 0, borderRadius: 10, padding: "14px 16px", fontWeight: 700, cursor: "pointer", fontSize: 16, minHeight: 48 } as const;
   return (
-    <main style={{ maxWidth: 720, width: "100%", margin: "0 auto", padding: "16px", color: "#121212", boxSizing: "border-box" }}>
-      <h1 style={{ fontFamily: "Georgia,serif", letterSpacing: 4, fontSize: "clamp(22px,5vw,32px)", margin: "8px 0" }}>KOLASE <span style={{ color: "#203248" }}>CORE</span></h1>
-      <p style={{ color: "#203248", fontSize: 14, lineHeight: 1.5 }}>Public Class 4 sesi @60 mnt, max 50 • Kids 50k / Teen 75k • wiring: {health} • <Link href="/" style={{ color: "#203248" }}>← home</Link></p>
+    <main style={{ maxWidth: 720, width: "100%", margin: "0 auto", padding: "16px", color: "#1A1038", boxSizing: "border-box" }}>
+      <h1 style={{ fontFamily: "Nunito,sans-serif", fontWeight: 900, letterSpacing: 2, fontSize: "clamp(22px,5vw,32px)", margin: "8px 0" }}>KOLASE <span style={{ color: "#7038F1" }}>CORE</span></h1>
+      <p style={{ color: "#4117A0", fontSize: 14, lineHeight: 1.5 }}>Public Class 4 sesi @60 mnt, max 50 • Kids 50k / Teen 75k • wiring: {health} • <Link href="/" style={{ color: "#4117A0" }}>← home</Link></p>
       {[
         { t: "1. Register (STU-###### seumur hidup)", k: ["role", "nama", "email", "wa"], fn: () => call("/api/register", { role: f.role, nama: f.nama, email: f.email, wa: f.wa }) },
         { t: "2. Checkout Public (ENR + TXN PENDING, max 50)", k: ["student_id", "class_id", "method"], fn: () => call("/api/checkout", { student_id: f.student_id, class_id: f.class_id, method: f.method }) },
@@ -58,7 +58,7 @@ export default function CorePage() {
         { t: "6. Post-class pilot (03 max 10 + minat)", k: ["pilot_student_id", "pilot_class_id", "post_check_total", "interest_status"], fn: () => call("/api/postclass", { pilot_student_id: f.pilot_student_id, pilot_class_id: f.pilot_class_id, post_check_total: Number(f.post_check_total), interest_status: f.interest_status }) },
         { t: "7. Observasi guru (06 skala 1-5)", k: ["pilot_student_id", "pilot_class_id"], fn: () => call("/api/observation", { pilot_student_id: f.pilot_student_id, pilot_class_id: f.pilot_class_id, attendance: "ATTENDED", participation: 4, grammar: 4, fluency: 4 }) },
       ].map((b) => (
-        <section key={b.t} style={{ border: "1px solid #B29E84", borderRadius: 12, padding: 14, margin: "12px 0", background: "#F7F3EC" }}>
+        <section key={b.t} style={{ border: "1px solid #D0ACFA", borderRadius: 12, padding: 14, margin: "12px 0", background: "#FAF8FF" }}>
           <b style={{ fontSize: 15, lineHeight: 1.4, display: "block", marginBottom: 8 }}>{b.t}</b>
           {b.k.map((k) => (
             <input key={k} style={inp} placeholder={k} value={(f as Record<string, string>)[k]}
@@ -67,7 +67,7 @@ export default function CorePage() {
           <button onClick={() => run(b.t, b.fn())} style={btn}>Kirim</button>
         </section>
       ))}
-      <pre style={{ background: "#FFFFFF", border: "1px solid #B29E84", borderRadius: 12, padding: 14, overflowX: "auto", minHeight: 120, fontSize: 13, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{out || "Hasil tampil di sini…"}</pre>
+      <pre style={{ background: "#FFFFFF", border: "1px solid #D0ACFA", borderRadius: 12, padding: 14, overflowX: "auto", minHeight: 120, fontSize: 13, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>{out || "Hasil tampil di sini…"}</pre>
     </main>
   );
 }

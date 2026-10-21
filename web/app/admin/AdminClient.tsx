@@ -149,7 +149,7 @@ export default function AdminClient() {
                 ? <Badge key="a" tone="red">NO_SHOW</Badge>
                 : <span key="a" className="text-ink/40">—</span>,
             <b key="p">{r.placement || "—"}</b>,
-            <b key="g" className="text-emerald-700">{r.gain ? `+${r.gain}` : "—"}</b>,
+            <b key="g" className="text-cyan-deep">{r.gain ? `+${r.gain}` : "—"}</b>,
             <Badge key="s" tone="blue">{r.status}</Badge>,
           ])}
         />

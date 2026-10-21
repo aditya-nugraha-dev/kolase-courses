@@ -108,7 +108,7 @@ export default function KatalogClient() {
                   <p className="text-xs font-bold text-ink/70">{c.filled}/{c.kuota} terisi • {c.occupancy_pct}%</p>
                   <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ivory">
                     <div
-                      className={`h-full rounded-full ${c.occupancy_pct >= 100 ? "bg-rose-500" : c.occupancy_pct >= 70 ? "bg-amber-500" : "bg-emerald-500"}`}
+                      className={`h-full rounded-full ${c.occupancy_pct >= 100 ? "bg-rose-500" : c.occupancy_pct >= 70 ? "bg-sand" : "bg-cyan"}`}
                       style={{ width: `${Math.min(100, c.occupancy_pct)}%` }}
                     />
                   </div>

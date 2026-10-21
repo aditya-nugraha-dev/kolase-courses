@@ -50,7 +50,7 @@ export default function TrialGratis() {
                 </Link>
               </div>
               <p className="mt-3 flex items-center gap-1.5 text-xs text-ink/60">
-                <BadgeCheck size={14} className="text-emerald-600" />
+                <BadgeCheck size={14} className="text-cyan-deep" />
                 Tanpa kartu / tanpa transfer • Kuota rombel terbatas • Min. 3 siswa untuk mulai
               </p>
             </div>

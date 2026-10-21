@@ -86,11 +86,18 @@ export default function Header() {
   const showTrialCta = !loggedIn || role === "student";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-navy-deep bg-navy/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-violet/15 bg-paper/95 backdrop-blur">
+      <div className="h-1 bg-gradient-to-r from-violet via-sand to-cyan" />
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4">
-        <Link href={logoHref} className="flex items-center gap-3" aria-label="KOLASE — ke dashboard">
-          <Image src="/kolase-icon-white.png" alt="Ikon KOLASE" width={36} height={36} className="h-9 w-9 rounded-lg object-contain" />
-          <span className="font-display text-lg font-extrabold tracking-[0.14em] text-ivory">KOLASE</span>
+        <Link href={logoHref} className="flex items-center gap-3" aria-label="KOLASE English Academy — ke dashboard">
+          <Image
+            src="/brand/kolase-wordmark-blue.png"
+            alt="KOLASE English Academy"
+            width={172}
+            height={49}
+            priority
+            className="h-10 w-auto object-contain"
+          />
         </Link>
         <nav className="ml-auto hidden items-center gap-1 lg:flex" aria-label="Navigasi utama">
           {links.map((l) => (
@@ -98,7 +105,11 @@ export default function Header() {
               key={l.href + l.label}
               href={l.href}
               aria-current={pathname === l.href ? "page" : undefined}
-              className={`rounded-lg px-3 py-2 text-sm hover:bg-white/10 hover:text-ivory ${pathname === l.href ? "font-bold text-ivory" : "text-ivory/85"}`}
+              className={`rounded-lg px-3 py-2 text-sm transition ${
+                pathname === l.href
+                  ? "bg-sand-soft font-extrabold text-navy"
+                  : "text-ink/65 hover:bg-sand-soft hover:text-ink"
+              }`}
             >
               {l.label}
             </Link>
@@ -107,20 +118,20 @@ export default function Header() {
         {showTrialCta && (
           <Link
             href="/daftar"
-            className={`hidden items-center gap-1.5 rounded-xl bg-sand px-4 py-2 text-sm font-bold text-ink hover:bg-sand-deep sm:inline-flex ${loggedIn ? "lg:hidden" : ""}`}
+            className={`hidden items-center gap-1.5 rounded-xl bg-sand px-4 py-2 text-sm font-bold text-ink transition hover:bg-sand-deep sm:inline-flex ${loggedIn ? "lg:hidden" : ""}`}
           >
             <Gift size={15} /> Trial 7 Sesi Gratis
           </Link>
         )}
         {!loggedIn && (
-          <Link href="/masuk" className="hidden rounded-xl border border-ivory/30 px-4 py-2 text-sm font-semibold text-ivory hover:bg-white/10 lg:inline-flex">
+          <Link href="/masuk" className="hidden rounded-xl border border-violet/25 px-4 py-2 text-sm font-semibold text-navy transition hover:bg-sand-soft lg:inline-flex">
             Masuk
           </Link>
         )}
         {loggedIn && (
           <button
             onClick={() => void logout()}
-            className="hidden items-center gap-1.5 rounded-xl border border-ivory/30 px-4 py-2 text-sm font-semibold text-ivory hover:bg-white/10 lg:inline-flex"
+            className="hidden items-center gap-1.5 rounded-xl border border-violet/25 px-4 py-2 text-sm font-semibold text-navy transition hover:bg-sand-soft lg:inline-flex"
           >
             <LogOut size={15} /> Keluar
           </button>

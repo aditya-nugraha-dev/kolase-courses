@@ -170,7 +170,7 @@ function BayarForm() {
         {done && (
           <Card className="mt-4 rounded-xl border-navy">
             <div className="flex items-center justify-between border-b border-sand/40 pb-3">
-              <Image src="/kolase-primary-black-drive.png" alt="KOLASE" width={160} height={40} className="h-10 w-auto object-contain" />
+              <Image src="/brand/kolase-wordmark-blue.png" alt="KOLASE English Academy" width={160} height={45} priority className="h-10 w-auto object-contain" />
               <Badge tone="amber">INVOICE • PENDING VERIFIKASI</Badge>
             </div>
             <div className="mt-3 grid gap-2 text-sm">

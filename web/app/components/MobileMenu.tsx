@@ -19,7 +19,7 @@ export default function MobileMenu({
   const [open, setOpen] = useState(false);
 
   const linkCls =
-    "block rounded-lg px-3 py-3 text-base text-ivory/85 hover:bg-white/10 hover:text-ivory";
+    "block rounded-lg px-3 py-3 text-base text-ink/70 hover:bg-sand-soft hover:text-ink";
 
   return (
     <div className="ml-auto lg:hidden">
@@ -29,7 +29,7 @@ export default function MobileMenu({
         aria-expanded={open}
         aria-controls="mobile-menu"
         onClick={() => setOpen((v) => !v)}
-        className="flex h-11 items-center gap-2 rounded-lg bg-sand px-4 text-sm font-bold text-ink hover:bg-sand-deep"
+        className="flex h-11 items-center gap-2 rounded-lg bg-sand px-4 text-sm font-bold text-ink transition hover:bg-sand-deep"
       >
         <span>{open ? "TUTUP" : "MENU"}</span>
         {open ? (
@@ -46,7 +46,7 @@ export default function MobileMenu({
       {open && (
         <nav
           id="mobile-menu"
-          className="absolute inset-x-4 top-16 rounded-xl border border-navy-deep bg-navy p-2 shadow-xl"
+          className="absolute inset-x-4 top-[4.25rem] rounded-xl border border-violet/20 bg-paper p-2 shadow-xl"
         >
           {links.map((l) => (
             <Link key={l.href + l.label} href={l.href} className={linkCls} onClick={() => setOpen(false)}>
@@ -68,7 +68,7 @@ export default function MobileMenu({
                 setOpen(false);
                 onLogout();
               }}
-              className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border border-ivory/30 px-3 py-3 text-center text-base font-semibold text-ivory"
+              className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-lg border border-violet/20 px-3 py-3 text-center text-base font-semibold text-navy hover:bg-sand-soft"
             >
               <LogOut size={17} /> Keluar
             </button>

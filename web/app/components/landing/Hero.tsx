@@ -4,8 +4,10 @@ import { Badge } from "../ui";
 
 export default function Hero() {
   return (
-    <section className="bg-navy text-ivory">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:py-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-20">
+    <section className="relative overflow-hidden bg-navy text-ivory">
+      <div aria-hidden className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-violet/40 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-24 h-80 w-80 rounded-full bg-cyan/20 blur-3xl" />
+      <div className="relative mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:py-14 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-20">
         <div>
           <div className="flex flex-wrap gap-2">
             <Badge tone="sand">A2 SPEAKING • PILOT SESSION 0</Badge>
@@ -50,7 +52,7 @@ export default function Hero() {
         <div className="rounded-2xl border border-sand/40 bg-paper p-5 text-ink shadow-2xl sm:p-6">
           <div className="flex items-center justify-between">
             <p className="text-xs font-extrabold tracking-[0.18em] text-navy">PILOT SESSION 0</p>
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">Pendaftaran dibuka</span>
+            <span className="rounded-full bg-cyan/15 px-3 py-1 text-xs font-bold text-cyan-deep">Pendaftaran dibuka</span>
           </div>
           <h2 className="font-display mt-2 text-xl font-extrabold text-ink">My Weekend (Past Simple)</h2>
           <p className="mt-1 text-sm text-ink/70">

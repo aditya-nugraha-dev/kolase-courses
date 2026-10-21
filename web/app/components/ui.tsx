@@ -77,14 +77,14 @@ export function Badge({
   children: ReactNode;
 }) {
   const tones: Record<string, string> = {
-    slate: "bg-ivory text-ink border-sand/50",
-    amber: "bg-sand-soft text-ink border-sand",
-    sand: "bg-sand-soft text-ink border-sand",
-    green: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    slate: "bg-ivory text-ink border-violet/15",
+    amber: "bg-sand-soft text-ink border-sand/40",
+    sand: "bg-sand-soft text-ink border-sand/40",
+    green: "bg-cyan/10 text-cyan-deep border-cyan/30",
     red: "bg-rose-100 text-rose-800 border-rose-200",
     indigo: "bg-navy text-ivory border-navy",
     navy: "bg-navy text-ivory border-navy",
-    blue: "bg-ivory text-navy border-navy/25",
+    blue: "bg-violet-soft text-navy border-violet/25",
   };
   return (
     <span className={cn("inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-bold", tones[tone], className)}>
@@ -127,7 +127,7 @@ export function Toast({ message, tone = "dark" }: { message: string; tone?: "dar
       className={cn(
         "fixed bottom-4 left-1/2 z-[70] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-xl px-4 py-3 text-sm font-semibold shadow-xl",
         tone === "dark" && "bg-ink text-ivory",
-        tone === "green" && "bg-emerald-600 text-white",
+        tone === "green" && "bg-cyan-deep text-white",
         tone === "red" && "bg-rose-600 text-white"
       )}
     >

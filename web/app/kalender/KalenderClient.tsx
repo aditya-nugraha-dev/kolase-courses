@@ -139,7 +139,7 @@ export default function KalenderClient() {
                       {list.length > 0 && (
                         <span className="mt-0.5 flex gap-0.5">
                           {list.slice(0, 3).map((s) => (
-                            <span key={s.session_id} className={`h-1.5 w-1.5 rounded-full ${selected === c.key ? "bg-sand" : "bg-orange-600"}`} />
+                            <span key={s.session_id} className={`h-1.5 w-1.5 rounded-full ${selected === c.key ? "bg-sand" : "bg-cyan"}`} />
                           ))}
                         </span>
                       )}

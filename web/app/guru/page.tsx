@@ -180,7 +180,7 @@ export default function GuruPage() {
                   </div>
                   <div className="mt-2 flex gap-1.5">
                     {Array.from({ length: 7 }, (_, i) => (
-                      <span key={i} className={`h-2 flex-1 rounded-full ${i < Number(t.sessions_delivered ?? 0) ? "bg-emerald-500" : "bg-ivory"}`} />
+                      <span key={i} className={`h-2 flex-1 rounded-full ${i < Number(t.sessions_delivered ?? 0) ? "bg-cyan" : "bg-ivory"}`} />
                     ))}
                   </div>
                   {t.status === "STARTED" && (

@@ -301,8 +301,8 @@ export default function StudentOverview() {
 
   const cards = [
     {
-      bg: "bg-emerald-50",
-      iconBg: "bg-white text-emerald-600",
+      bg: "bg-cyan/10",
+      iconBg: "bg-white text-cyan-deep",
       icon: BookOpen,
       title: clsName.length > 26 ? `${clsName.slice(0, 26)}…` : clsName,
       sub: classId ? `${sisa != null ? `${sisa} sesi tersisa` : jadwal}` : "Menunggu matching",
@@ -319,8 +319,8 @@ export default function StudentOverview() {
       href: "/student/kelas",
     },
     {
-      bg: "bg-indigo-50",
-      iconBg: "bg-white text-indigo-500",
+      bg: "bg-violet-soft",
+      iconBg: "bg-white text-violet",
       icon: TrendingUp,
       title: gain != null ? `Gain +${gain}` : "Belum ada gain",
       sub: `Placement ${placement}/50 • Pre ${pre}/10`,
@@ -388,8 +388,8 @@ export default function StudentOverview() {
         </div>
       )}
       {trial?.status === "COMPLETED" && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 sm:flex-row sm:items-center">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-600">
+        <div className="flex flex-col gap-3 rounded-2xl border border-cyan/30 bg-cyan/10 p-4 sm:flex-row sm:items-center">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-cyan-deep">
             <Gift size={20} />
           </span>
           <div className="min-w-0 flex-1">
@@ -464,20 +464,20 @@ export default function StudentOverview() {
             <ul className="mt-2 divide-y divide-ivory">
               {filteredTasks.map((t) => (
                 <li key={t.id} className="flex items-center gap-3 py-3">
-                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${t.done ? "bg-emerald-50 text-emerald-600" : "bg-sand-soft/60 text-sand-deep"}`}>
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${t.done ? "bg-cyan/10 text-cyan-deep" : "bg-sand-soft/60 text-sand-deep"}`}>
                     {t.done ? <CircleCheck size={17} /> : <t.icon size={17} />}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-bold text-ink">{t.title}</span>
                     <span className="block truncate text-[11px] text-ink/50">{t.sub}</span>
                   </span>
-                  <span className={`hidden rounded-full px-2.5 py-1 text-[10px] font-bold sm:inline ${t.kind === "Task" ? "bg-orange-100 text-orange-700" : "bg-ivory text-ink/55"}`}>
+                  <span className={`hidden rounded-full px-2.5 py-1 text-[10px] font-bold sm:inline ${t.kind === "Task" ? "bg-sand-soft text-ink" : "bg-ivory text-ink/55"}`}>
                     {t.kind === "Task" ? "• Task" : "• Theory"}
                   </span>
                   <Link
                     href={t.href}
                     className={`inline-flex min-h-[36px] shrink-0 items-center justify-center rounded-full px-3.5 py-1.5 text-xs font-bold ${
-                      t.done ? "bg-ivory text-ink/55 hover:text-ink" : "bg-orange-600 text-white hover:bg-orange-700"
+                      t.done ? "bg-ivory text-ink/55 hover:text-ink" : "bg-sand text-ink hover:bg-sand-deep"
                     }`}
                   >
                     {t.done && t.id !== "meet" ? "Mark as Done" : t.cta}
@@ -506,7 +506,7 @@ export default function StudentOverview() {
                     <span className="block truncate text-sm font-bold text-ink">Sesi {s.seq} • {fmtTanggal(String(s.tanggal).slice(0, 10))}</span>
                     <span className="block truncate text-[11px] text-ink/50"><code>{s.session_id}</code></span>
                   </span>
-                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${s.status === "DONE" ? "bg-emerald-100 text-emerald-700" : "bg-ivory text-ink/55"}`}>
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${s.status === "DONE" ? "bg-cyan/10 text-cyan-deep" : "bg-ivory text-ink/55"}`}>
                     {s.status}
                   </span>
                 </li>
@@ -578,7 +578,7 @@ export default function StudentOverview() {
                 >
                   <span
                     className={`flex h-7 w-7 items-center justify-center rounded-full ${
-                      isToday ? "bg-sand-deep text-white" : hasSes && !c.muted ? "bg-orange-600 text-white" : ""
+                      isToday ? "bg-sand-deep text-white" : hasSes && !c.muted ? "bg-sand text-ink" : ""
                     }`}
                   >
                     {c.d}
@@ -600,13 +600,13 @@ export default function StudentOverview() {
               {upcoming.map((s, i) => (
                 <li key={s.session_id} className="flex gap-3">
                   <span className="flex flex-col items-center">
-                    <span className={`mt-1.5 h-2 w-2 rounded-full ${i === 0 ? "bg-orange-600" : "border border-ink/25 bg-transparent"}`} />
+                    <span className={`mt-1.5 h-2 w-2 rounded-full ${i === 0 ? "bg-sand" : "border border-ink/25 bg-transparent"}`} />
                     {i < upcoming.length - 1 && <span className="w-px flex-1 bg-sand/40" />}
                   </span>
                   <span className="flex-1 pb-1">
                     <span className="flex items-start justify-between gap-2">
                       <b className="text-sm text-ink">Live Session S{s.seq}</b>
-                      <span className="text-right text-[11px] font-bold text-orange-700">{fmtTanggal(String(s.tanggal).slice(0, 10))}<br /><span className="font-semibold text-ink/50">60 Minutes</span></span>
+                      <span className="text-right text-[11px] font-bold text-sand-deep">{fmtTanggal(String(s.tanggal).slice(0, 10))}<br /><span className="font-semibold text-ink/50">60 Minutes</span></span>
                     </span>
                     <span className="mt-0.5 block text-[11px] text-ink/55">{clsName} • {guru}</span>
                   </span>
@@ -614,7 +614,7 @@ export default function StudentOverview() {
               ))}
             </ul>
           )}
-          <Link href="/student/kelas" className="mt-3 inline-flex items-center gap-1 text-xs font-extrabold text-orange-700 hover:underline">
+          <Link href="/student/kelas" className="mt-3 inline-flex items-center gap-1 text-xs font-extrabold text-sand-deep hover:underline">
             View all upcoming <ArrowRight size={13} />
           </Link>
         </div>

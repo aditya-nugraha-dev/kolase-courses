@@ -34,7 +34,7 @@ export default function SertifikatPage() {
 
         <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_0.6fr]">
           <div className="rounded-2xl border border-sand/50 bg-paper p-8 text-center shadow-sm">
-            <Image src="/kolase-primary-black-drive.png" alt="KOLASE" width={200} height={64} className="mx-auto h-16 w-auto object-contain" />
+            <Image src="/brand/kolase-wordmark-black.png" alt="KOLASE English Academy" width={200} height={55} priority className="mx-auto h-14 w-auto object-contain" />
             <p className="mt-4 text-xs font-extrabold tracking-[0.25em] text-navy">CERTIFICATE OF PARTICIPATION</p>
             <p className="font-display mt-2 text-3xl font-extrabold text-ink">{f.nama || "Nama Peserta"}</p>
             <p className="mt-1 text-sm text-ink/70">{f.studentId} • {f.program}</p>
@@ -44,7 +44,9 @@ export default function SertifikatPage() {
           </div>
           <div className="rounded-2xl bg-navy p-6 text-center text-ivory">
             <p className="text-xs font-extrabold tracking-[0.2em] text-sand">EBADGE</p>
-            <Image src="/kolase-icon-white.png" alt="eBadge" width={80} height={80} className="mx-auto mt-3 h-20 w-20 object-contain" />
+            <span className="mx-auto mt-3 flex h-24 w-24 items-center justify-center rounded-full bg-paper p-3">
+              <Image src="/brand/kolase-icon.png" alt="eBadge KOLASE" width={80} height={80} priority className="h-full w-full object-contain" />
+            </span>
             <p className="font-display mt-3 text-lg font-extrabold">{f.nama || "—"}</p>
             <p className="text-xs text-ivory/70">{f.studentId}</p>
           </div>

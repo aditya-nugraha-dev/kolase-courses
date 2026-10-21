@@ -284,7 +284,7 @@ export default function MasukClient() {
     return (
       <div>
         <Card className="rounded-xl text-center">
-          <CheckCircle2 size={40} className="mx-auto text-emerald-600" />
+          <CheckCircle2 size={40} className="mx-auto text-cyan-deep" />
           <h2 className="font-display mt-2 text-xl font-extrabold text-ink">Pendaftaran {roleLabel} Berhasil</h2>
           <p className="mt-1 text-sm text-ink/70">
             ID kamu sudah di-stack otomatis dari database:
@@ -326,8 +326,8 @@ export default function MasukClient() {
             <div
               className={`rounded-xl border px-3 py-2.5 text-xs leading-relaxed ${
                 nameHint.role === role
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                  : "border-amber-200 bg-amber-50 text-amber-900"
+                  ? "border-cyan/30 bg-cyan/10 text-cyan-deep"
+                  : "border-sand/40 bg-sand-soft text-ink"
               }`}
             >
               {nameHint.role === role ? (

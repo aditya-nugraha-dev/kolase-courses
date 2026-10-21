@@ -213,7 +213,7 @@ export default function RegistrationWizard() {
         ].map((s) => (
           <li
             key={s.n}
-            className={`rounded-xl border px-2 py-2.5 ${step === s.n ? "border-ink bg-ink text-ivory" : step > s.n ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-sand/40 bg-paper text-ink/60"}`}
+            className={`rounded-xl border px-2 py-2.5 ${step === s.n ? "border-ink bg-ink text-ivory" : step > s.n ? "border-cyan/30 bg-cyan/10 text-cyan-deep" : "border-sand/40 bg-paper text-ink/60"}`}
           >
             {s.n}. {s.t}
           </li>
@@ -230,7 +230,7 @@ export default function RegistrationWizard() {
           <Card className="space-y-4 rounded-xl">
             <h2 className="font-display text-lg font-extrabold text-ink">Step 1 — Student Registration (GForm 1)</h2>
             {leadershipHint && (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-relaxed text-amber-900">
+              <div className="rounded-xl border border-sand/40 bg-sand-soft px-3 py-2.5 text-xs leading-relaxed text-ink">
                 Nama <b>{leadershipHint.displayName}</b> terdaftar untuk peran <b>{leadershipHint.title}</b> — wizard ini khusus Student.
                 Silakan masuk via <button type="button" onClick={() => router.push("/masuk")} className="font-bold text-navy hover:underline">/masuk</button> dengan peran yang sesuai saja.
               </div>
@@ -380,7 +380,7 @@ export default function RegistrationWizard() {
 
       {step === 3 && confirm && (
         <Card className="mt-6 rounded-xl text-center">
-          <CheckCircle2 size={40} className="mx-auto text-emerald-600" />
+          <CheckCircle2 size={40} className="mx-auto text-cyan-deep" />
           <h2 className="font-display mt-2 text-xl font-extrabold text-ink">Pendaftaran & Placement Terkirim</h2>
           <p className="mx-auto mt-1 max-w-md text-sm text-ink/70">
             {confirm.offline

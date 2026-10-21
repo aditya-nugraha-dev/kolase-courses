@@ -28,7 +28,7 @@ npm run dev
 1. Isi `.env` (Supabase URL + service role, SESSION_SECRET 32 char, ADMIN_KEY, Sheets, Calendar, Turnstile).
 2. Jalankan schema + seed di Supabase, buat akun teacher/staff via `/masuk` → Daftar.
 3. Verifikasi alur: daftar (adult + kids), placement, checkout `/core`, konfirmasi `/bayar`, laporan `/guru`, cek `/admin` + Sheets.
-4. Ganti logo bila ada update di `public/kolase-*` (primary black/white, icon black/white).
+4. Logo 2026 ada di `public/brand/` (`kolase-icon.png`, `kolase-wordmark-blue.png`, `kolase-wordmark-black.png`). Palet warna brand didefinisikan di `app/globals.css`.
 
 ## QA
 ```bash
