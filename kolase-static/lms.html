@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LMS Anak - Little Speakers | KOLASE</title>
+<meta name="description" content="Peta 12 misi Little Speakers untuk anak 6-12 tahun: bintang, streak, lencana, frasa kunci, dan tombol dengar.">
+<link rel="stylesheet" href="css/style.css?v=7">
+<link rel="icon" href="assets/kolase-logo.png">
+<style>
+.lms-page{--k-navy:#4117a0;--k-navy-d:#2f0f7a;--k-ink:#241a3d;--k-muted:#6b6380;--k-ivory:#faf8ff;--k-line:#e7e1f2;--k-sand:#fd8204;--k-sand-d:#b85a00;--k-sand-soft:#fff1df;--k-cyan:#0d7f7c;--k-cyan-d:#075e5c;--k-cyan-soft:#e3f7f4;--k-violet:#6b3fd4;--k-violet-soft:#efe9ff;--k-rose-soft:#fff0f0;background:#fbfaff;color:var(--k-ink)}
+.lms-page .wrap{max-width:1120px}
+.lms-hero{display:grid;grid-template-columns:1.35fr .9fr;gap:18px;padding:26px 0 6px;align-items:stretch}
+.lms-hero-card{position:relative;overflow:hidden;border:1px solid var(--k-line);border-radius:28px;padding:24px;background:linear-gradient(135deg,#ffffff 0%,#f3eeff 58%,#fff2e0 100%);box-shadow:0 18px 40px -30px #4117a055}
+.lms-hero-card:before,.lms-hero-card:after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.lms-hero-card:before{width:210px;height:210px;right:-70px;top:-80px;background:radial-gradient(circle,#fd820433,#fd820400 70%)}
+.lms-hero-card:after{width:170px;height:170px;left:-60px;bottom:-80px;background:radial-gradient(circle,#4117a01f,#4117a000 70%)}
+.lms-kicker{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--k-navy);background:#fff;border:1px solid var(--k-line);border-radius:999px;padding:6px 10px}
+.lms-hero h1{font-family:var(--serif);font-size:clamp(30px,4.6vw,46px);line-height:1.05;letter-spacing:.01em;margin:14px 0 10px;position:relative;z-index:1}
+.lms-hero h1 em{font-style:normal;color:var(--k-navy);background:linear-gradient(transparent 62%,#fd820455 62%)}
+.lms-hero p.lead{margin:0;max-width:52ch;font-size:15px;line-height:1.65;color:#4d4363;position:relative;z-index:1}
+.lms-hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;position:relative;z-index:1}
+.lms-page .btn{border-radius:999px;font-family:inherit;font-weight:800;letter-spacing:.01em;min-height:46px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.lms-page .btn-brand{background:var(--k-navy);border-color:var(--k-navy);color:#fff}
+.lms-page .btn-brand:hover{background:var(--k-navy-d);border-color:var(--k-navy-d)}
+.lms-page .btn-ghost{background:#fff;color:var(--k-ink);border-color:#d9d1ea}
+.lms-page .btn-ghost:hover{border-color:var(--k-navy);color:var(--k-navy)}
+.lms-page .btn:disabled{opacity:.5}
+.lms-tiny{margin:10px 0 0;font-size:11.5px;color:var(--k-muted);position:relative;z-index:1}
+.reward-panel{background:#fff;border:1px solid var(--k-line);border-radius:28px;padding:18px;box-shadow:0 18px 40px -32px #4117a055;display:flex;flex-direction:column;gap:14px;align-self:start}
+.reward-top{display:flex;align-items:center;gap:10px}
+.level-orb{width:52px;height:52px;flex:none;border-radius:18px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--k-violet),var(--k-navy));box-shadow:inset 0 -4px 0 #0002}
+.level-orb .ico{width:26px;height:26px}
+.level-name{font-weight:800;font-size:15px;line-height:1.2}
+.level-sub{font-size:11px;color:var(--k-muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.reward-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.r-chip{border:1px solid var(--k-line);background:var(--k-ivory);border-radius:16px;padding:10px 8px;text-align:center}
+.r-chip .ico{width:17px;height:17px;color:var(--k-sand-d)}
+.r-chip b{display:block;font-size:19px;line-height:1.1;margin-top:2px}
+.r-chip span{display:block;font-size:10px;font-weight:800;color:var(--k-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.r-bar{height:10px;border-radius:999px;background:var(--k-ivory);border:1px solid var(--k-line);overflow:hidden}
+.r-bar i{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--k-sand),#ffb257);transition:width .5s ease}
+.r-next{font-size:11.5px;line-height:1.5;color:var(--k-muted);margin:0}
+.r-badge{display:flex;align-items:center;gap:10px;border-top:1px dashed var(--k-line);padding-top:12px}
+.r-badge-ico{width:38px;height:38px;flex:none;border-radius:50%;background:var(--k-sand-soft);color:var(--k-sand-d);display:grid;place-items:center}
+.r-badge-ico .ico{width:19px;height:19px}
+.r-badge b{display:block;font-size:12px;line-height:1.25}
+.r-badge p{margin:2px 0 0;font-size:10.5px;line-height:1.45;color:var(--k-muted)}
+.lms-section{padding:22px 0 4px}
+.lms-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.lms-head h2{font-family:var(--serif);font-size:clamp(21px,3vw,28px);margin:0;letter-spacing:.01em}
+.lms-head p{margin:2px 0 0;font-size:13px;color:var(--k-muted)}
+.lms-head .count{font-size:12px;font-weight:800;color:var(--k-navy);background:var(--k-violet-soft);border-radius:999px;padding:7px 12px;white-space:nowrap}
+.stage{position:relative;overflow:hidden;background:#fff;border:1px solid var(--k-line);border-radius:24px;padding:16px;margin-bottom:14px}
+.stage:before{content:"";position:absolute;inset:0 0 auto;height:5px;background:var(--tone,#ccc)}
+.stage-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.stage-icon{width:48px;height:48px;flex:none;border-radius:16px;display:grid;place-items:center;color:#fff;background:var(--tone,#555);box-shadow:inset 0 -4px 0 #0002}
+.stage-icon .ico{width:24px;height:24px}
+.stage-title{min-width:0;flex:1}
+.stage-title small{display:block;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--tone-text,var(--k-muted))}
+.stage-title h3{margin:1px 0 0;font-family:var(--serif);font-size:19px;line-height:1.2}
+.stage-count{text-align:right;font-family:var(--serif);font-size:20px;line-height:1}
+.stage-count span{font-size:12px;color:var(--k-muted)}
+.stage-count small{display:block;font:800 9px/1.4 system-ui;letter-spacing:.12em;text-transform:uppercase;color:var(--k-muted);margin-top:3px}
+.stage-obj{margin:8px 0 0;font-size:12px;line-height:1.55;color:var(--k-muted)}
+.stage-bar{height:7px;border-radius:999px;background:var(--k-ivory);border:1px solid var(--k-line);overflow:hidden;margin-top:10px}
+.stage-bar i{display:block;height:100%;border-radius:999px;background:var(--tone,#555);transition:width .4s ease}
+.mission-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.mission{display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-height:118px;text-align:left;background:var(--k-ivory);border:1px solid var(--k-line);border-radius:16px;padding:12px;cursor:pointer;font:inherit;color:inherit;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.mission:hover{transform:translateY(-2px);box-shadow:0 12px 24px -18px #241a3d66;border-color:#cfc4e8}
+.mission:focus-visible{outline:3px solid #4117a055;outline-offset:2px}
+.mission.done{background:var(--k-cyan-soft);border-color:#a8ded7}
+.mission.next{border-color:var(--k-sand);box-shadow:0 0 0 3px #fd820433;background:#fffaf3}
+.mission-top{display:flex;align-items:flex-start;gap:8px}
+.mission-num{width:32px;height:32px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;background:#fff;color:var(--k-muted);border:1px solid var(--k-line)}
+.mission.done .mission-num{background:var(--k-cyan);border-color:var(--k-cyan);color:#fff}
+.mission.next .mission-num{background:var(--k-sand);border-color:var(--k-sand);color:#241a3d}
+.mission-num .ico{width:16px;height:16px}
+.mission-name{font-size:14px;font-weight:800;line-height:1.3;margin:0}
+.mission-time{font-size:10.5px;color:var(--k-muted);font-weight:700;margin:2px 0 0}
+.mission-name,.mission-time{display:block}
+.mission-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10.5px;font-weight:800;color:var(--k-muted)}
+.mission-foot .stars{display:inline-flex;align-items:center;gap:4px}
+.mission-foot .ico{width:12px;height:12px;color:var(--k-sand-d)}
+.mission-foot .go{color:var(--k-navy);opacity:0;transition:opacity .15s ease;display:inline-flex;align-items:center;gap:3px}
+.mission:hover .go,.mission.next .go{opacity:1}
+.mission.next .go{color:var(--k-sand-d)}
+.mission-foot .go .ico{width:11px;height:11px;color:currentColor}
+.map-note{display:flex;align-items:center;gap:7px;background:var(--k-ivory);border:1px solid var(--k-line);border-radius:14px;padding:9px 12px;font-size:11.5px;color:var(--k-muted);margin-top:4px}
+.map-note .ico{width:14px;height:14px;flex:none;color:var(--k-navy)}
+.badge-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.badge-card{background:#fff;border:1px solid var(--k-line);border-radius:18px;padding:14px 10px;text-align:center;opacity:.62;filter:grayscale(1);transition:opacity .2s ease,filter .2s ease}
+.badge-card.earned{opacity:1;filter:none;border-color:#d8cdf0;background:linear-gradient(180deg,#fff,#fbf8ff)}
+.badge-medal{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;margin:0 auto 8px;color:#fff;background:var(--tone,#666);box-shadow:inset 0 -4px 0 #0002}
+.badge-medal .ico{width:25px;height:25px}
+.badge-card h3{font-size:12.5px;margin:0;line-height:1.25}
+.badge-card p{font-size:10.5px;line-height:1.45;color:var(--k-muted);margin:4px 0 0;min-height:30px}
+.badge-state{display:inline-block;margin-top:7px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:999px;background:var(--k-ivory);color:var(--k-muted)}
+.badge-card.earned .badge-state{background:var(--k-cyan-soft);color:var(--k-cyan-d)}
+.tone-cyan{--tone:var(--k-cyan);--tone-text:var(--k-cyan-d)}
+.tone-violet{--tone:var(--k-violet);--tone-text:var(--k-violet)}
+.tone-sand{--tone:var(--k-sand);--tone-text:var(--k-sand-d)}
+.tone-navy{--tone:var(--k-navy);--tone-text:var(--k-navy)}
+.lms-note{margin:22px 0 8px;background:linear-gradient(135deg,#fff,var(--k-violet-soft));border:1px solid var(--k-line);border-radius:22px;padding:18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.lms-note div{flex:1;min-width:220px}
+.lms-note b{font-family:var(--serif);font-size:17px}
+.lms-note p{margin:3px 0 0;font-size:12.5px;line-height:1.6;color:var(--k-muted)}
+.lms-loading{padding:26px;text-align:center;color:var(--k-muted);font-size:13px;background:#fff;border:1px dashed #d9d1ea;border-radius:20px}
+.lms-error{padding:18px;border-radius:18px;background:var(--k-rose-soft);border:1px solid #f0b4b4;color:#8a1f1f;font-size:13px;line-height:1.6}
+.lms-footer{border-top:1px solid var(--k-line);margin-top:28px;padding:18px 0 90px;font-size:12px;color:var(--k-muted)}
+.lms-footer .wrap{display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.lms-footer a{font-weight:700;color:var(--k-navy);text-decoration:none}
+.modal{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-end;justify-content:center}
+.modal[hidden]{display:none}
+.modal-backdrop{position:absolute;inset:0;background:#1c1233cc;backdrop-filter:blur(3px)}
+.modal-card{position:relative;z-index:1;width:min(780px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:24px 24px 0 0;padding:20px;box-shadow:0 -20px 60px #0004;outline:none}
+body.modal-open{overflow:hidden}
+.modal-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.icon-btn{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--k-line);background:var(--k-ivory);color:var(--k-ink);display:grid;place-items:center;cursor:pointer}
+.icon-btn:hover{background:#fff;border-color:var(--k-navy);color:var(--k-navy)}
+.icon-btn .ico{width:18px;height:18px}
+.modal-card h2{font-family:var(--serif);font-size:clamp(23px,4vw,30px);line-height:1.15;margin:8px 0 8px}
+.lesson-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;background:var(--k-ivory);border:1px solid var(--k-line);padding:5px 9px;font-size:10.5px;font-weight:800;color:var(--k-muted)}
+.pill-done{background:var(--k-cyan-soft);border-color:#a8ded7;color:var(--k-cyan-d)}
+.lesson-objective{margin:0 0 16px;font-size:14px;line-height:1.65;color:#4d4363}
+.lesson-block{margin:0 0 18px}
+.lesson-block h3{font-family:var(--serif);font-size:16px;margin:0 0 8px}
+.muted{font-size:11.5px;color:var(--k-muted);margin:-2px 0 9px;line-height:1.5}
+.phrase-list{display:grid;gap:8px}
+.phrase{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--k-ivory);border:1px solid var(--k-line);border-radius:14px;padding:9px 11px}
+.phrase b{display:block;font-size:14px;line-height:1.35}
+.phrase small{display:block;font-size:11.5px;color:var(--k-muted);margin-top:2px}
+.speak{min-width:44px;min-height:44px;border-radius:12px;border:1px solid #d9d1ea;background:#fff;color:var(--k-navy);font:800 11px/1 system-ui;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 10px;cursor:pointer;white-space:nowrap}
+.speak:hover{border-color:var(--k-navy);background:#f7f3ff}
+.speak.speaking{background:var(--k-violet-soft);border-color:var(--k-violet)}
+.speak .ico{width:15px;height:15px}
+.mission-box{border:1px solid #f3d3a8;background:linear-gradient(135deg,#fffaf2,#fff3e2);border-radius:18px;padding:14px;margin:0 0 18px}
+.mission-box .lms-kicker{background:#fff;border-color:#f3d3a8;color:var(--k-sand-d)}
+.mission-box p{margin:8px 0 0;font-size:14px;line-height:1.6;font-weight:700}
+.example{margin-top:10px;background:#fff;border:1px solid #f3d3a8;border-radius:12px;padding:10px 11px}
+.example span{display:block;font-size:9.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--k-muted)}
+.example b{display:block;font-size:13.5px;line-height:1.5;margin:3px 0 7px;font-weight:700}
+.check-list{display:grid;gap:7px}
+.check{display:flex;align-items:flex-start;gap:10px;background:var(--k-ivory);border:1px solid var(--k-line);border-radius:12px;padding:10px 11px;font-size:12.5px;line-height:1.5;cursor:pointer}
+.check input{width:20px;height:20px;flex:none;margin:1px 0 0;accent-color:var(--k-navy)}
+.quiz-q{border:1px solid var(--k-line);border-radius:16px;padding:12px;margin-bottom:9px;background:#fff}
+.quiz-prompt{font-size:13px;line-height:1.55;margin:0 0 9px;font-weight:700}
+.opts{display:grid;gap:6px}
+.opt{width:100%;text-align:left;border:1px solid var(--k-line);background:var(--k-ivory);border-radius:11px;padding:10px 11px;font:600 12.5px/1.45 system-ui;color:var(--k-ink);cursor:pointer;min-height:44px}
+.opt:hover:not(:disabled){border-color:var(--k-navy);background:#f7f3ff}
+.opt:disabled{cursor:default}
+.opt.correct{background:var(--k-cyan-soft);border-color:#7bcabf;font-weight:800}
+.opt.wrong{background:var(--k-rose-soft);border-color:#e8a3a3}
+.fb{font-size:11.5px;line-height:1.55;margin:8px 0 0;padding:8px 10px;border-radius:10px;background:var(--k-rose-soft);color:#8a1f1f}
+.fb.good{background:var(--k-cyan-soft);color:var(--k-cyan-d)}
+.lesson-actions{border-top:1px dashed var(--k-line);padding-top:14px;margin-top:6px}
+.lesson-actions .btn{width:100%}
+.lesson-actions .tiny{font-size:11px;color:var(--k-muted);text-align:center;margin:8px 0 0;line-height:1.5}
+.lesson-reward{margin-top:12px;background:var(--k-sand-soft);border:1px solid #f3d3a8;border-radius:14px;padding:11px 12px;font-size:11.5px;line-height:1.55;color:#6b4413}
+.lesson-reward b{display:block;font-size:12.5px;color:var(--k-ink);margin-bottom:2px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);z-index:200;background:#241a3d;color:#fff;border-radius:999px;padding:11px 18px;font-size:12.5px;font-weight:700;box-shadow:0 14px 30px #0004;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.ico{width:18px;height:18px;display:inline-block;vertical-align:-3px;flex:none}
+@media(min-width:720px){.modal{align-items:center;padding:24px}.modal-card{border-radius:24px}.lms-footer{padding-bottom:24px}}
+@media(max-width:900px){.lms-hero{grid-template-columns:1fr}.reward-chips{grid-template-columns:repeat(3,1fr)}.badge-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:720px){.mission-grid{grid-template-columns:1fr}.mission{min-height:0}.lms-hero-card,.reward-panel{border-radius:22px;padding:18px}.lms-head .count{display:none}}
+@media(max-width:520px){.badge-grid{grid-template-columns:repeat(2,1fr)}.stage{padding:13px}.stage-icon{width:44px;height:44px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body class="lms-page">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="ico-star" viewBox="0 0 24 24"><path d="M12 2.6l2.85 5.9 6.5.95-4.7 4.6 1.1 6.45L12 17.45 6.25 20.5l1.1-6.45-4.7-4.6 6.5-.95z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ico-flame" viewBox="0 0 24 24"><path d="M12.4 2c1.7 3.2 5.3 4.6 5.3 8.9a5.7 5.7 0 11-11.4 0c0-2.3 1-3.8 2.3-5.4.4 1.7 1.2 2.7 2.4 3.2-.5-2.6-.2-4.9 1.4-6.7z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ico-medal" viewBox="0 0 24 24"><path d="M7 2h4l1.5 4h-4zM13 2h4l-1.5 4h-4z" fill="currentColor" stroke="none"/><circle cx="12" cy="15" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11.6l1.2 2.4 2.6.4-1.9 1.8.45 2.6-2.35-1.25-2.35 1.25.45-2.6-1.9-1.8 2.6-.4z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ico-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ico-hammer" viewBox="0 0 24 24"><path d="M13.8 3.2l7 7-2.6 2.6-7-7z" fill="currentColor" stroke="none"/><path d="M11.7 8.2L3.4 16.5a2.2 2.2 0 003.1 3.1l8.3-8.3z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ico-mic" viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="11" rx="3" fill="currentColor" stroke="none"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3.5M8.5 21.5h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ico-chat" viewBox="0 0 24 24"><path d="M4 4h16a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0120 16h-8l-5 4v-4H4a1.5 1.5 0 01-1.5-1.5v-9A1.5 1.5 0 014 4z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ico-book" viewBox="0 0 24 24"><path d="M12 6C9 3.5 5 3.5 3 5v14c2-1.5 6-1.5 9 1 3-2.5 7-2.5 9-1V5c-2-1.5-6-1.5-9 1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 6v14" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="ico-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ico-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ico-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z" fill="currentColor" stroke="none"/></symbol>
+<symbol id="ico-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+<symbol id="ico-sound" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none"/><path d="M16 8.5a5 5 0 010 7M18.5 5.5a8.5 8.5 0 010 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="ico-undo" viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M4 12h9a6 6 0 016 6v.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ico-map" viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 4v14M15 6v14" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+</defs></svg>
+
+<header class="topbar"><div class="wrap">
+  <a class="brand" href="home.html"><img src="assets/kolase-wordmark-black.png" alt="KOLASE English Academy"></a>
+  <nav class="nav" data-nav id="mainNav">
+    <a href="home.html">Home</a><a href="catalog.html">Katalog</a>
+    <a href="dashboard.html">Dashboard</a><a href="lms.html" class="active">LMS Anak</a>
+    <a href="schedule.html">Kalender</a><a href="profile.html">Profil</a>
+    <a href="login.html" data-guest-only>Masuk</a>
+  </nav>
+  <button class="burger" data-burger aria-expanded="false" aria-controls="mainNav" aria-label="Buka menu">&#9776;</button>
+</div></header>
+
+<main class="wrap">
+  <section class="lms-hero">
+    <div class="lms-hero-card">
+      <span class="lms-kicker"><svg class="ico"><use href="#ico-star"></use></svg> KOLASE Kids &middot; Little Speakers</span>
+      <h1>Misi kecil, <em>keberanian besar.</em></h1>
+      <p class="lead">12 misi 20 menit untuk anak 6&ndash;12 tahun. Dengar frasa, tirukan, kerjakan misi singkat, lalu kumpulkan bintang dan lencana. Tanpa hafalan panjang.</p>
+      <div class="lms-hero-actions">
+        <button class="btn btn-brand" id="continueBtn" type="button"><svg class="ico"><use href="#ico-play"></use></svg> Mulai misi pertama</button>
+        <a class="btn btn-ghost" href="catalog.html">Lihat kelas</a>
+      </div>
+      <p class="lms-tiny">Progres tersimpan di browser ini. Login murid membuat progres terpisah per akun.</p>
+    </div>
+
+    <aside class="reward-panel" aria-label="Ringkasan hadiah">
+      <div class="reward-top">
+        <span class="level-orb"><svg class="ico"><use href="#ico-medal"></use></svg></span>
+        <div>
+          <div class="level-name" id="rLevel">Word Explorer</div>
+          <div class="level-sub" id="rLevelNo">Level 1 dari 5</div>
+        </div>
+      </div>
+      <div class="reward-chips">
+        <div class="r-chip"><svg class="ico"><use href="#ico-star"></use></svg><b id="rStars">0</b><span>Bintang</span></div>
+        <div class="r-chip"><svg class="ico"><use href="#ico-flame"></use></svg><b id="rStreak">0</b><span>Streak hari</span></div>
+        <div class="r-chip"><svg class="ico"><use href="#ico-check"></use></svg><b id="rMissions">0</b><span>Misi selesai</span></div>
+      </div>
+      <div>
+        <div class="r-bar" role="progressbar" aria-label="Progres bintang" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="rBarWrap"><i id="rBar"></i></div>
+        <p class="r-next" id="rNext">Kumpulkan bintang untuk naik level.</p>
+      </div>
+      <div class="r-badge" id="rNextBadge">
+        <span class="r-badge-ico" id="rNextBadgeIco"><svg class="ico"><use href="#ico-star"></use></svg></span>
+        <div><b id="rNextBadgeTitle">Lencana berikutnya</b><p id="rNextBadgeHint">Selesaikan misi pertama.</p></div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="lms-section" aria-labelledby="mapTitle">
+    <div class="lms-head">
+      <div>
+        <h2 id="mapTitle">Peta Misi</h2>
+        <p>Empat tahap, tiga misi setiap tahap. Buka misi mana pun, kapan pun.</p>
+      </div>
+      <span class="count" id="mapCount">Memuat...</span>
+    </div>
+    <div id="missionMap"><div class="lms-loading">Memuat peta misi...</div></div>
+    <div class="map-note"><svg class="ico"><use href="#ico-map"></use></svg> Setiap misi selesai = 10 bintang. Setiap jawaban kuis benar = 3 bintang.</div>
+  </section>
+
+  <section class="lms-section" aria-labelledby="badgeTitle">
+    <div class="lms-head">
+      <div>
+        <h2 id="badgeTitle">Rak Lencana</h2>
+        <p>Lencana terbuka otomatis saat kamu menyelesaikan misi dan kuis.</p>
+      </div>
+      <span class="count" id="badgeCount">0/10 terbuka</span>
+    </div>
+    <div class="badge-grid" id="badgeShelf">
+      <div class="lms-loading" style="grid-column:1/-1">Memuat lencana...</div>
+    </div>
+  </section>
+
+  <section class="lms-note">
+    <div>
+      <b>Untuk pendamping &amp; guru</b>
+      <p>Halaman ini versi demo yang berjalan tanpa server. Progres dan bintang disimpan di browser perangkat. Untuk kelas penuh dengan akun, pembayaran, dan laporan guru, gunakan dashboard KOLASE.</p>
+    </div>
+    <a class="btn btn-brand" href="dashboard.html">Buka Dashboard</a>
+  </section>
+</main>
+
+<nav class="mobile-tabs">
+  <a href="home.html">Home</a><a href="catalog.html">Katalog</a>
+  <a href="lms.html" class="active">LMS</a><a href="dashboard.html">Kelas</a><a href="profile.html">Profil</a>
+</nav>
+
+<footer class="lms-footer"><div class="wrap">
+  <span>KOLASE English Academy &middot; Little Speakers</span>
+  <span><a href="catalog.html">Katalog kelas</a> &middot; <a href="trust-legal.html">Ketentuan &amp; Privasi</a></span>
+</div></footer>
+
+<div class="modal" id="lessonModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card" id="modalCard" role="dialog" aria-modal="true" aria-labelledby="lessonTitle" tabindex="-1">
+    <div id="lessonBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var OWNER = getOwner();
+  var PROGRESS_KEY = "kolase.lms.v1:" + OWNER;
+  var REWARD_KEY = "kolase.lms.rewards.v1:" + OWNER;
+  var STARS_PER_MISSION = 10;
+  var STARS_PER_CORRECT = 3;
+  var STARS_PER_LEVEL = 60;
+  var LEVELS = ["Word Explorer", "Sentence Builder", "Brave Speaker", "Star Communicator", "Little Legend"];
+  var BADGES = [
+    { id: "first-hello", title: "First Hello", description: "Menyelesaikan misi pertama.", hint: "Selesaikan 1 misi apa saja.", tone: "cyan", icon: "mic" },
+    { id: "explorer", title: "Explorer", description: "Menuntaskan tahap Explorer.", hint: "Selesaikan semua misi Explorer.", tone: "cyan", icon: "compass" },
+    { id: "builder", title: "Builder", description: "Menuntaskan tahap Builder.", hint: "Selesaikan semua misi Builder.", tone: "violet", icon: "hammer" },
+    { id: "speaker", title: "Speaker", description: "Menuntaskan tahap Speaker.", hint: "Selesaikan semua misi Speaker.", tone: "sand", icon: "mic" },
+    { id: "communicator", title: "Communicator", description: "Menuntaskan tahap Communicator.", hint: "Selesaikan semua misi Communicator.", tone: "navy", icon: "chat" },
+    { id: "quiz-whiz", title: "Quiz Whiz", description: "Menjawab kuis dengan rata-rata 80% atau lebih.", hint: "Kumpulkan minimal 4 jawaban benar.", tone: "violet", icon: "book" },
+    { id: "perfect-quiz", title: "Perfect Quiz", description: "Mendapat skor penuh di satu kuis.", hint: "Jawab semua soal benar dalam satu kuis.", tone: "sand", icon: "star" },
+    { id: "three-day-streak", title: "3-Day Streak", description: "Belajar 3 hari berturut-turut.", hint: "Buka LMS tiga hari berurutan.", tone: "cyan", icon: "flame" },
+    { id: "star-collector", title: "Star Collector", description: "Mengumpulkan 100 bintang.", hint: "Kumpulkan 100 bintang dari misi dan kuis.", tone: "sand", icon: "star" },
+    { id: "all-missions", title: "Little Legend", description: "Menuntaskan seluruh 12 misi.", hint: "Selesaikan semua misi di semua tahap.", tone: "navy", icon: "medal" }
+  ];
+  var TONES = ["tone-cyan", "tone-violet", "tone-sand", "tone-navy"];
+
+  var course = null;
+  var lessonsFlat = [];
+  var progress = {};
+  var streakStore = { streakDays: 0, bestStreak: 0, lastVisit: "" };
+  var modalKey = null;
+  var modalCheck = [];
+  var lastFocus = null;
+
+  var mapEl = document.getElementById("missionMap");
+  var badgeEl = document.getElementById("badgeShelf");
+  var mapCount = document.getElementById("mapCount");
+  var badgeCount = document.getElementById("badgeCount");
+  var modal = document.getElementById("lessonModal");
+  var modalCard = document.getElementById("modalCard");
+  var lessonBody = document.getElementById("lessonBody");
+  var continueBtn = document.getElementById("continueBtn");
+
+  function getOwner() {
+    try {
+      var raw = localStorage.getItem("kolase_db_v1");
+      var db = raw ? JSON.parse(raw) : null;
+      var u = db && db.sessionUser;
+      if (!u) return "tamu";
+      var id = u.id || u.student_id || u.staff_id || u.teacher_id || u.username;
+      return id ? String(id) : "tamu";
+    } catch (e) {
+      return "tamu";
+    }
+  }
+
+  function claimGuest() {
+    if (OWNER === "tamu") return;
+    try {
+      if (!localStorage.getItem(PROGRESS_KEY)) {
+        var gp = localStorage.getItem("kolase.lms.v1:tamu");
+        if (gp) localStorage.setItem(PROGRESS_KEY, gp);
+      }
+      if (!localStorage.getItem(REWARD_KEY)) {
+        var gr = localStorage.getItem("kolase.lms.rewards.v1:tamu");
+        if (gr) localStorage.setItem(REWARD_KEY, gr);
+      }
+    } catch (e) {}
+  }
+
+  function loadProgress() {
+    try {
+      var raw = localStorage.getItem(PROGRESS_KEY);
+      var parsed = raw ? JSON.parse(raw) : {};
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveProgress() {
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+    } catch (e) {
+      toast("Browser memblokir penyimpanan. Progres hanya berlaku di sesi ini.");
+    }
+  }
+
+  function loadStreak() {
+    try {
+      var raw = localStorage.getItem(REWARD_KEY);
+      if (!raw) return { streakDays: 0, bestStreak: 0, lastVisit: "" };
+      var p = JSON.parse(raw) || {};
+      return {
+        streakDays: typeof p.streakDays === "number" ? p.streakDays : 0,
+        bestStreak: typeof p.bestStreak === "number" ? p.bestStreak : 0,
+        lastVisit: typeof p.lastVisit === "string" ? p.lastVisit : ""
+      };
+    } catch (e) {
+      return { streakDays: 0, bestStreak: 0, lastVisit: "" };
+    }
+  }
+
+  function todayKey(date) {
+    var d = date || new Date();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return d.getFullYear() + "-" + m + "-" + day;
+  }
+
+  function dayDiff(from, to) {
+    var a = Date.parse(from + "T00:00:00");
+    var b = Date.parse(to + "T00:00:00");
+    if (!isFinite(a) || !isFinite(b)) return 0;
+    return Math.round((b - a) / 86400000);
+  }
+
+  function touchStreak() {
+    var today = todayKey();
+    var s = loadStreak();
+    if (s.lastVisit === today) {
+      streakStore = s;
+      return s;
+    }
+    var gap = s.lastVisit ? dayDiff(s.lastVisit, today) : Infinity;
+    var days = gap === 1 ? s.streakDays + 1 : 1;
+    var next = {
+      streakDays: days,
+      bestStreak: Math.max(s.bestStreak || 0, days),
+      lastVisit: today
+    };
+    streakStore = next;
+    try {
+      localStorage.setItem(REWARD_KEY, JSON.stringify(next));
+    } catch (e) {}
+    return next;
+  }
+
+  function flatten() {
+    lessonsFlat = [];
+    course.modules.forEach(function (m, mi) {
+      (m.lessons || []).forEach(function (l, li) {
+        lessonsFlat.push({ module: m, moduleIndex: mi, lesson: l, lessonIndex: li, key: m.slug + "/" + l.slug });
+      });
+    });
+  }
+
+  function compute() {
+    var completed = 0;
+    var quizCorrect = 0;
+    var quizAnswered = 0;
+    var totalQuiz = 0;
+    var hasPerfect = false;
+
+    lessonsFlat.forEach(function (item) {
+      var p = progress[item.key] || {};
+      var qLen = (item.lesson.quiz || []).length;
+      totalQuiz += qLen;
+      if (p.completed) completed += 1;
+      if (typeof p.quizScore === "number" && typeof p.quizTotal === "number" && p.quizTotal > 0) {
+        quizCorrect += p.quizScore;
+        quizAnswered += p.quizTotal;
+        if (p.quizScore === p.quizTotal) hasPerfect = true;
+      }
+    });
+
+    var stars = completed * STARS_PER_MISSION + quizCorrect * STARS_PER_CORRECT;
+    var maxStars = lessonsFlat.length * STARS_PER_MISSION + totalQuiz * STARS_PER_CORRECT;
+    var level = Math.min(LEVELS.length, Math.floor(stars / STARS_PER_LEVEL) + 1);
+    var isMax = level >= LEVELS.length;
+    var earned = [];
+
+    if (completed >= 1) earned.push("first-hello");
+    course.modules.forEach(function (m, index) {
+      var allDone = m.lessons.length > 0 && m.lessons.every(function (l) {
+        var p = progress[m.slug + "/" + l.slug];
+        return p && p.completed;
+      });
+      if (allDone) {
+        var ids = ["explorer", "builder", "speaker", "communicator"];
+        if (ids[index]) earned.push(ids[index]);
+      }
+    });
+    if (quizAnswered >= 4 && quizCorrect / quizAnswered >= 0.8) earned.push("quiz-whiz");
+    if (hasPerfect) earned.push("perfect-quiz");
+    if (streakStore.streakDays >= 3) earned.push("three-day-streak");
+    if (stars >= 100) earned.push("star-collector");
+    if (completed === lessonsFlat.length && lessonsFlat.length > 0) earned.push("all-missions");
+
+    var nextBadge = BADGES.find(function (b) { return earned.indexOf(b.id) === -1; }) || null;
+
+    return {
+      stars: stars,
+      maxStars: maxStars,
+      level: level,
+      levelTitle: LEVELS[level - 1] || LEVELS[0],
+      starsIntoLevel: isMax ? STARS_PER_LEVEL : stars % STARS_PER_LEVEL,
+      nextLevelTitle: isMax ? null : LEVELS[level],
+      completedMissions: completed,
+      totalMissions: lessonsFlat.length,
+      quizCorrect: quizCorrect,
+      quizAnswered: quizAnswered,
+      earnedBadges: earned,
+      nextBadge: nextBadge
+    };
+  }
+
+  function nextLesson() {
+    for (var i = 0; i < lessonsFlat.length; i += 1) {
+      var p = progress[lessonsFlat[i].key];
+      if (!p || !p.completed) return lessonsFlat[i];
+    }
+    return null;
+  }
+
+  function renderReward() {
+    var r = compute();
+    document.getElementById("rStars").textContent = r.stars;
+    document.getElementById("rStreak").textContent = streakStore.streakDays;
+    document.getElementById("rMissions").textContent = r.completedMissions + "/" + r.totalMissions;
+    document.getElementById("rLevel").textContent = r.levelTitle;
+    document.getElementById("rLevelNo").textContent = "Level " + r.level + " dari " + LEVELS.length;
+    var pct = Math.round((r.stars / Math.max(1, r.maxStars)) * 100);
+    document.getElementById("rBar").style.width = pct + "%";
+    document.getElementById("rBarWrap").setAttribute("aria-valuenow", String(pct));
+    var next = r.nextLevelTitle;
+    var into = r.starsIntoLevel;
+    document.getElementById("rNext").textContent = next
+      ? into + "/" + STARS_PER_LEVEL + " bintang menuju " + next + "."
+      : "Level tertinggi tercapai. Terus kumpulkan bintang!";
+    var badgeBox = document.getElementById("rNextBadge");
+    if (badgeBox) {
+      if (r.nextBadge) {
+        badgeBox.hidden = false;
+        document.getElementById("rNextBadgeIco").innerHTML = svg(r.nextBadge.icon);
+        document.getElementById("rNextBadgeTitle").textContent = "Lencana berikutnya: " + r.nextBadge.title;
+        document.getElementById("rNextBadgeHint").textContent = r.nextBadge.hint;
+      } else {
+        badgeBox.hidden = true;
+      }
+    }
+    if (continueBtn) {
+      var item = nextLesson();
+      continueBtn.innerHTML = item
+        ? '<svg class="ico"><use href="#ico-play"></use></svg> ' + (r.completedMissions > 0 ? "Lanjutkan misi" : "Mulai misi pertama")
+        : '<svg class="ico"><use href="#ico-check"></use></svg> Semua misi selesai';
+    }
+  }
+
+  function renderMap() {
+    var r = compute();
+    var next = nextLesson();
+    mapCount.textContent = r.completedMissions + " dari " + r.totalMissions + " misi selesai";
+    mapEl.innerHTML = course.modules.map(function (m, mi) {
+      var tone = TONES[mi % TONES.length];
+      var done = m.lessons.filter(function (l) {
+        var p = progress[m.slug + "/" + l.slug];
+        return p && p.completed;
+      }).length;
+      var pct = m.lessons.length ? Math.round((done / m.lessons.length) * 100) : 0;
+      var stageIcons = ["compass", "hammer", "mic", "chat"];
+      var lessonsHtml = m.lessons.map(function (l, li) {
+        var key = m.slug + "/" + l.slug;
+        var p = progress[key] || {};
+        var isDone = !!p.completed;
+        var isNext = next && next.key === key;
+        var starCount = (isDone ? STARS_PER_MISSION : 0) + (typeof p.quizScore === "number" ? p.quizScore * STARS_PER_CORRECT : 0);
+        var cls = "mission" + (isDone ? " done" : "") + (isNext ? " next" : "");
+        return '<button type="button" class="' + cls + '" data-lesson="' + escAttr(key) + '" aria-label="' +
+          escAttr(l.title + ", misi " + (li + 1) + " tahap " + m.title + (isDone ? ", selesai" : "")) + '">' +
+          '<span class="mission-top"><span class="mission-num">' + (isDone ? svg("check") : String(li + 1)) + '</span>' +
+          '<span><span class="mission-name">' + esc(l.title) + '</span><span class="mission-time">' + l.duration + ' menit</span></span></span>' +
+          '<span class="mission-foot"><span class="stars">' + svg("star") +
+          (starCount > 0 ? starCount + " bintang" : (isDone ? "Selesai" : "Belum dimulai")) + '</span>' +
+          '<span class="go">' + (isNext ? "LANJUT" : "BUKA") + svg("arrow") + '</span></span></button>';
+      }).join("");
+
+      return '<article class="stage ' + tone + '">' +
+        '<div class="stage-head">' +
+        '<span class="stage-icon">' + svg(stageIcons[mi % stageIcons.length]) + '</span>' +
+        '<div class="stage-title"><small>Tahap ' + (mi + 1) + ' &middot; ' + esc(stageSessions(m)) + '</small><h3>' + esc(m.title) + '</h3></div>' +
+        '<div class="stage-count">' + done + '<span>/' + m.lessons.length + '</span><small>misi</small></div>' +
+        '</div>' +
+        '<p class="stage-obj">' + esc(m.objective || "") + '</p>' +
+        '<div class="stage-bar" role="progressbar" aria-label="Progres tahap ' + escAttr(m.title) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="mission-grid">' + lessonsHtml + '</div>' +
+        '</article>';
+    }).join("");
+
+    Array.prototype.forEach.call(mapEl.querySelectorAll("[data-lesson]"), function (btn) {
+      btn.addEventListener("click", function () { openLesson(btn.getAttribute("data-lesson")); });
+    });
+  }
+
+  function stageSessions(m) {
+    if (m.sessions) return m.sessions;
+    var n = (m.lessons || []).length;
+    return n + " misi";
+  }
+
+  function renderBadges() {
+    var r = compute();
+    badgeCount.textContent = r.earnedBadges.length + "/" + BADGES.length + " terbuka";
+    badgeEl.innerHTML = BADGES.map(function (b) {
+      var earned = r.earnedBadges.indexOf(b.id) !== -1;
+      return '<article class="badge-card tone-' + b.tone + (earned ? " earned" : "") + '" title="' + escAttr(b.hint) + '">' +
+        '<div class="badge-medal">' + svg(b.icon) + '</div>' +
+        '<h3>' + esc(b.title) + '</h3>' +
+        '<p>' + esc(earned ? b.description : b.hint) + '</p>' +
+        '<span class="badge-state">' + (earned ? "Terbuka" : "Belum terbuka") + '</span>' +
+        '</article>';
+    }).join("");
+  }
+
+  function renderAll() {
+    renderReward();
+    renderMap();
+    renderBadges();
+  }
+
+  function openLesson(key) {
+    var item = null;
+    for (var i = 0; i < lessonsFlat.length; i += 1) {
+      if (lessonsFlat[i].key === key) { item = lessonsFlat[i]; break; }
+    }
+    if (!item) return;
+    modalKey = key;
+    lastFocus = document.activeElement;
+    var p = progress[key] || {};
+    var quiz = item.lesson.quiz || [];
+    var answers = p.answers || {};
+    var done = !!p.completed;
+    var flatIndex = lessonsFlat.indexOf(item);
+    var quizScore = quiz.reduce(function (n, q) { return n + (answers[q.id] === q.correct ? 1 : 0); }, 0);
+
+    modalCheck = (item.lesson.selfCheck || []).map(function () { return done; });
+
+    var stageTone = TONES[item.moduleIndex % TONES.length];
+    var phrases = (item.lesson.keyPhrases || []).map(function (k, ki) {
+      return '<div class="phrase"><div><b>' + esc(k.phrase) + '</b><small>' + esc(k.meaning) + '</small></div>' +
+        '<button type="button" class="speak" data-phrase="' + ki + '" aria-label="Dengar ' + escAttr(k.phrase) + '">' + svg("sound") + ' Dengar</button></div>';
+    }).join("");
+
+    var checks = (item.lesson.selfCheck || []).map(function (s, ci) {
+      return '<label class="check"><input type="checkbox" data-check="' + ci + '"' + (done ? " checked disabled" : "") + '><span>' + esc(s) + '</span></label>';
+    }).join("");
+
+    var quizHtml = quiz.map(function (q, qi) {
+      var chosen = answers[q.id];
+      var answered = typeof chosen === "string";
+      var opts = q.options.map(function (o) {
+        var cls = "opt";
+        if (answered) {
+          if (o.id === q.correct) cls += " correct";
+          else if (o.id === chosen) cls += " wrong";
+        }
+        return '<button type="button" class="' + cls + '" data-opt="' + escAttr(o.id) + '"' + (answered ? " disabled" : "") + '>' + esc(o.text) + '</button>';
+      }).join("");
+      var fbText = "";
+      var fbClass = "fb";
+      if (answered) {
+        var correctText = (q.options.find(function (o) { return o.id === q.correct; }) || {}).text || "";
+        if (chosen === q.correct) {
+          fbText = q.feedback || "Benar!";
+          fbClass += " good";
+        } else {
+          fbText = "Belum tepat. Jawaban benar: " + correctText + ". " + (q.feedback || "");
+        }
+      }
+      return '<div class="quiz-q" data-q="' + escAttr(q.id) + '">' +
+        '<p class="quiz-prompt"><b>' + (qi + 1) + '.</b> ' + esc(q.prompt) + '</p>' +
+        '<div class="opts">' + opts + '</div>' +
+        '<p class="' + fbClass + '"' + (answered ? "" : " hidden") + '>' + esc(fbText) + '</p></div>';
+    }).join("");
+
+    lessonBody.innerHTML =
+      '<div class="modal-top"><span class="lms-kicker ' + stageTone + '">Tahap ' + (item.moduleIndex + 1) + ' &middot; ' + esc(item.module.title) + '</span>' +
+      '<button type="button" class="icon-btn" data-close aria-label="Tutup misi">' + svg("close") + '</button></div>' +
+      '<h2 id="lessonTitle">' + esc(item.lesson.title) + '</h2>' +
+      '<div class="lesson-meta"><span class="pill">' + item.lesson.duration + ' menit</span><span class="pill">Misi ' + (flatIndex + 1) + ' dari ' + lessonsFlat.length + '</span>' +
+      (done ? '<span class="pill pill-done">' + svg("check") + ' Selesai</span>' : "") + '</div>' +
+      '<p class="lesson-objective">' + esc(item.lesson.objective) + '</p>' +
+      '<section class="lesson-block"><h3>Frasa kunci</h3><div class="phrase-list">' + phrases + '</div></section>' +
+      '<section class="mission-box"><span class="lms-kicker">Misi hari ini</span><p>' + esc(item.lesson.mission) + '</p>' +
+      '<div class="example"><span>Contoh</span><b>' + esc(item.lesson.missionExample) + '</b>' +
+      '<button type="button" class="speak" data-example="1" aria-label="Dengar contoh misi">' + svg("sound") + ' Dengar contoh</button></div></section>' +
+      '<section class="lesson-block"><h3>Self-check</h3><p class="muted">Jujur saja. Checklist ini alat bantu, bukan ujian.</p><div class="check-list">' + checks + '</div></section>' +
+      '<section class="lesson-block"><h3>Kuis kilat</h3><p class="muted">Pilih satu jawaban. Jawaban benar memberimu ' + STARS_PER_CORRECT + ' bintang.</p>' + quizHtml + '</section>' +
+      '<div class="lesson-actions">' +
+      (done
+        ? '<button type="button" class="btn btn-ghost" data-undo="1">' + svg("undo") + ' Batalkan status selesai</button><p class="tiny">Misi ini sudah selesai.</p>'
+        : '<button type="button" class="btn btn-brand" data-complete="1"' + (modalCheck.every(Boolean) ? "" : " disabled") + '>' + svg("check") + ' Tandai misi selesai</button><p class="tiny">Centang semua self-check untuk menyelesaikan misi.</p>') +
+      '</div>' +
+      '<div class="lesson-reward"><b>' + (done ? "Misi selesai!" : "Hadiah misi ini") + '</b>' +
+      (done
+        ? 'Kamu mengumpulkan ' + (STARS_PER_MISSION + quizScore * STARS_PER_CORRECT) + ' bintang dari misi ini (' + STARS_PER_MISSION + ' dari misi + ' + STARS_PER_CORRECT + ' per jawaban benar).'
+        : 'Selesaikan misi = ' + STARS_PER_MISSION + ' bintang. Setiap jawaban kuis benar = ' + STARS_PER_CORRECT + ' bintang.') +
+      '</div>';
+
+    bindModal(item, quiz, answers);
+
+    modal.hidden = false;
+    document.body.classList.add("modal-open");
+    modalCard.focus();
+    setTimeout(function () {
+      var closeBtn = lessonBody.querySelector("[data-close]");
+      if (closeBtn) closeBtn.focus();
+    }, 30);
+  }
+
+  function bindModal(item, quiz, answers) {
+    Array.prototype.forEach.call(lessonBody.querySelectorAll("[data-close]"), function (btn) {
+      btn.addEventListener("click", closeModal);
+    });
+
+    Array.prototype.forEach.call(lessonBody.querySelectorAll("[data-phrase]"), function (btn) {
+      btn.addEventListener("click", function () {
+        var idx = Number(btn.getAttribute("data-phrase"));
+        var k = (item.lesson.keyPhrases || [])[idx];
+        if (k) speak(k.phrase, btn);
+      });
+    });
+
+    var ex = lessonBody.querySelector("[data-example]");
+    if (ex) ex.addEventListener("click", function () { speak(item.lesson.missionExample, ex); });
+
+    Array.prototype.forEach.call(lessonBody.querySelectorAll("[data-check]"), function (cb) {
+      cb.addEventListener("change", function () {
+        modalCheck[Number(cb.getAttribute("data-check"))] = cb.checked;
+        var completeBtn = lessonBody.querySelector("[data-complete]");
+        if (completeBtn) completeBtn.disabled = !modalCheck.every(Boolean);
+      });
+    });
+
+    Array.prototype.forEach.call(lessonBody.querySelectorAll("[data-opt]"), function (btn) {
+      btn.addEventListener("click", function () {
+        var qEl = btn.closest(".quiz-q");
+        if (!qEl) return;
+        var qid = qEl.getAttribute("data-q");
+        var q = quiz.find(function (x) { return x.id === qid; });
+        if (!q) return;
+        var p = progress[modalKey] || {};
+        var current = p.answers || {};
+        if (current[qid]) return;
+        var chosen = btn.getAttribute("data-opt");
+        var nextAnswers = {};
+        Object.keys(current).forEach(function (k) { nextAnswers[k] = current[k]; });
+        nextAnswers[qid] = chosen;
+        p.answers = nextAnswers;
+        p.quizTotal = quiz.length;
+        p.quizScore = quiz.reduce(function (n, x) { return n + (nextAnswers[x.id] === x.correct ? 1 : 0); }, 0);
+        progress[modalKey] = p;
+        saveProgress();
+
+        Array.prototype.forEach.call(qEl.querySelectorAll("[data-opt]"), function (b) {
+          b.disabled = true;
+          var id = b.getAttribute("data-opt");
+          if (id === q.correct) b.classList.add("correct");
+          else if (id === chosen) b.classList.add("wrong");
+        });
+        var correctOpt = q.options.find(function (o) { return o.id === q.correct; }) || { text: "" };
+        var fb = qEl.querySelector(".fb");
+        fb.hidden = false;
+        fb.className = "fb" + (chosen === q.correct ? " good" : "");
+        fb.textContent = chosen === q.correct
+          ? (q.feedback || "Benar!")
+          : "Belum tepat. Jawaban benar: " + correctOpt.text + ". " + (q.feedback || "");
+        if (chosen === q.correct && typeof btn.animate === "function") {
+          btn.animate([{ transform: "scale(1)" }, { transform: "scale(1.02)" }, { transform: "scale(1)" }], { duration: 220 });
+        }
+        renderReward();
+        renderMap();
+        renderBadges();
+      });
+    });
+
+    var completeBtn = lessonBody.querySelector("[data-complete]");
+    if (completeBtn) {
+      completeBtn.addEventListener("click", function () {
+        var p = progress[modalKey] || {};
+        p.completed = true;
+        progress[modalKey] = p;
+        saveProgress();
+        renderAll();
+        openLesson(modalKey);
+        toast("Misi selesai! +" + STARS_PER_MISSION + " bintang");
+      });
+    }
+
+    var undoBtn = lessonBody.querySelector("[data-undo]");
+    if (undoBtn) {
+      undoBtn.addEventListener("click", function () {
+        var p = progress[modalKey] || {};
+        p.completed = false;
+        progress[modalKey] = p;
+        saveProgress();
+        renderAll();
+        openLesson(modalKey);
+        toast("Status selesai dibatalkan");
+      });
+    }
+  }
+
+  function closeModal() {
+    if (modal.hidden) return;
+    modal.hidden = true;
+    document.body.classList.remove("modal-open");
+    modalKey = null;
+    modalCheck = [];
+    if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+    lastFocus = null;
+  }
+
+  function speak(text, btn) {
+    if (!text) return;
+    if (!("speechSynthesis" in window)) {
+      toast("Browser ini belum mendukung suara. Coba Chrome atau Edge.");
+      return;
+    }
+    try {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-US";
+      u.rate = 0.85;
+      u.pitch = 1.05;
+      if (btn) {
+        btn.classList.add("speaking");
+        u.onend = function () { btn.classList.remove("speaking"); };
+        u.onerror = function () { btn.classList.remove("speaking"); };
+      }
+      window.speechSynthesis.speak(u);
+    } catch (e) {
+      toast("Suara belum bisa diputar di browser ini.");
+    }
+  }
+
+  var toastTimer = null;
+  function toast(message) {
+    var el = document.getElementById("toast");
+    if (!el) return;
+    el.textContent = message;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2800);
+  }
+
+  function svg(name) {
+    return '<svg class="ico" aria-hidden="true"><use href="#ico-' + name + '"></use></svg>';
+  }
+
+  function esc(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function escAttr(value) {
+    return esc(value);
+  }
+
+  function bindChrome() {
+    var burger = document.querySelector("[data-burger]");
+    var nav = document.querySelector("[data-nav]");
+    if (burger && nav) {
+      burger.addEventListener("click", function () {
+        nav.classList.toggle("open");
+        burger.setAttribute("aria-expanded", nav.classList.contains("open") ? "true" : "false");
+      });
+    }
+    try {
+      var raw = localStorage.getItem("kolase_db_v1");
+      var db = raw ? JSON.parse(raw) : null;
+      if (db && db.sessionUser) {
+        Array.prototype.forEach.call(document.querySelectorAll("[data-guest-only]"), function (el) {
+          el.hidden = true;
+        });
+      }
+    } catch (e) {}
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !modal.hidden) closeModal();
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-close]"), function (el) {
+      el.addEventListener("click", closeModal);
+    });
+
+    if (continueBtn) {
+      continueBtn.addEventListener("click", function () {
+        var item = nextLesson();
+        if (item) openLesson(item.key);
+        else toast("Semua misi sudah selesai. Hebat!");
+      });
+    }
+  }
+
+  claimGuest();
+  progress = loadProgress();
+  streakStore = touchStreak();
+  bindChrome();
+
+  fetch("data/lms-course.json", { cache: "no-cache" })
+    .then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      course = data;
+      flatten();
+      renderAll();
+    })
+    .catch(function (err) {
+      mapEl.innerHTML = '<div class="lms-error"><b>Peta misi belum bisa dimuat.</b><br>Periksa koneksi lalu muat ulang halaman. (' + esc(err.message) + ')</div>';
+      badgeEl.innerHTML = "";
+      mapCount.textContent = "Gagal memuat";
+    });
+})();
+</script>
+</body>
+</html>
