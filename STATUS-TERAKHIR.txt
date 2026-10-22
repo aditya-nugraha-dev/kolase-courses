@@ -1,0 +1,38 @@
+STATUS TERAKHIR — KOLASE LMS (diupdate tiap akhir kerja)
+Repo: aditya-nugraha-dev/kolase-courses | Branch: main
+Commit terakhir: 7df8f0c "katalog resmi 4 program, hapus trial, LMS Little Speakers + sync progres"
+Deploy: sukses (run 39735888206). Live terverifikasi: home 200, katalog 4 program, tanpa trial.
+
+SUDAH SELESAI:
+1. Auth cloud HP-PC (Supabase RPC kolase_register/login/reset) — secrets SUPABASE_URL + ANON_KEY benar & live.
+2. Label login "User name" -> "Gmail" (backend tetap terima ID/nama lama).
+3. Foto profil sinkron HP-PC (photo_url + RPC set/get).
+4. Bayar manual lintas perangkat: pay_orders, payment_methods, auth_logins + RPC;
+   modul js/cloud-orders.js; checkout (instruksi + upload bukti); staff portal
+   (antrean cloud + kelola rekening/QRIS); dashboard murid (tarik status otomatis).
+5. SHEETS_ENDPOINT belum diisi -> cermin Sheets nonaktif (sengaja, pakai Supabase).
+6. Katalog resmi §2.1: Kids Public, Kids Term, Teen Beginner, Small Group
+   (data/classes.json + landing + katalog + checkout paket).
+7. Trial 7 sesi dihapus dari web, landing, dashboard, portal guru/staff,
+   checkout, store, cloud order, dan skema. Tidak ada alur trial aktif.
+8. LMS Little Speakers 6-12: 4 tahap, 12 misi, kuis, glosarium, resource.
+9. Progress LMS disinkronkan ke Supabase via /api/course-progress
+   (tabel baru supabase/course_progress.sql).
+10. Dashboard murid + progres dirapikan untuk anak (tanpa A2/placement/gain)
+    dan statistik staff memakai paket, bukan funnel trial.
+
+TUGAS OWNER (belum dikonfirmasi selesai):
+[ ] Jalankan supabase/course_progress.sql di SQL Editor (BELUM: tabel masih 404,
+    mesin ini tidak punya Supabase CLI / kredensial database).
+[ ] Jalankan ulang SELURUH supabase/auth_sync.sql di SQL Editor (wajib utk RPC baru).
+[ ] Staff Portal -> isi Metode Pembayaran (rekening + foto QRIS).
+[ ] Uji end-to-end: checkout+kirim bukti (HP) -> verifikasi (PC) -> dashboard aktif.
+[ ] Uji paket Small Group 6 & 45 sesi, lalu cek sisa sesi di dashboard.
+[ ] Cek tabel auth_accounts, pay_orders, auth_logins, course_progress di Supabase.
+
+BATAS YANG DIKETAHUI (fase 2 bila mau):
+- Presensi/chat/materi masih localStorage per-perangkat.
+- Tulis RPC dijaga client-side saja (bukan RLS per-peran).
+- Sesi paket lintas-perangkat diinfer dari class + nominal (RPC order lama
+  belum menyimpan jumlah sesi eksplisit).
+- Sebelum uang besar: pindah ke Supabase Auth + RLS + backup terjadwal.
