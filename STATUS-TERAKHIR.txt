@@ -1,9 +1,11 @@
 STATUS TERAKHIR - KOLASE LMS (diupdate tiap akhir kerja)
 Repo: aditya-nugraha-dev/kolase-courses | Branch: main
-Commit terakhir: be1adcb "update status deploy katalog resmi + LMS Little Speakers"
-Deploy: sukses (run 39735888206). Live terverifikasi: home 200, katalog 4 program, tanpa trial.
+Commit terakhir: 2def9c0 "LMS anak: peta misi, bintang/streak/badge, tombol dengar"
+Deploy: GitHub Pages HANYA memuat kolase-static (situs lama). Aplikasi Next.js
+di web/ (termasuk fitur LMS anak) BELUM punya host/deploy otomatis.
+Live statis terakhir: run 39735888206 (katalog 4 program).
 
-SESI INI (belum di-commit) - KID-FRIENDLY LMS LAYER:
+SESI INI (commit 2def9c0, sudah di-push ke main) - KID-FRIENDLY LMS LAYER:
 1. lib/rewards.ts - mesin reward anak: bintang, level (Word Explorer ->
    Little Legend), streak harian, dan 10 badge. Bintang DIHITUNG dari progres
    (10/misi + 3/jawaban kuis benar), jadi tidak bisa dobel.
@@ -68,3 +70,7 @@ CARA MELIHAT HASIL (untuk pemula):
 2. Buka http://localhost:3000/program/little-speakers (pratinjau publik 12 misi).
 3. Login sebagai murid -> /student (bintang+streak), /student/kursus (peta misi),
    /student/progress (badge).
+
+DEPLOY BERIKUTNYA (pilih saat siap):
+- Vercel: import repo, Root Directory = web, isi env dari web/.env -> app lengkap live.
+- Atau port versi demo LMS ke kolase-static agar langsung tampil di GitHub Pages.
