@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import PosterCard from "../../components/PosterCard";
+import MissionPreview from "../../components/kids/MissionPreview";
 import { Badge, Card, SectionHeading } from "../../components/ui";
 
 export const metadata: Metadata = {
@@ -51,6 +52,8 @@ export default function LittleSpeakersPage() {
             ))}
           </div>
         </div>
+
+        <MissionPreview />
 
         <Card className="mt-6 rounded-xl border-navy bg-navy text-ivory">
           <h2 className="font-display text-lg font-extrabold">Mulai dari Entry Assessment</h2>

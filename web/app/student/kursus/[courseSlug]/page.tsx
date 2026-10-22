@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  ClipboardCheck,
   Clock3,
   Layers,
   LibraryBig,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react";
 import { Badge, Card } from "@/app/components/ui";
 import { flattenLessons, getCourse, totalLessons } from "@/lib/course-content";
+import MissionMap from "@/app/components/kids/MissionMap";
 import CourseProgress from "../CourseProgress";
 
 export async function generateMetadata({
@@ -80,73 +80,21 @@ export default async function CourseDetailPage({
         </ul>
       </Card>
 
-      <section aria-labelledby="modules" className="space-y-3">
-        <div>
-          <p className="text-xs font-extrabold tracking-[0.2em] text-navy">STRUKTUR</p>
-          <h2 id="modules" className="font-display mt-1 text-xl font-extrabold text-ink">
-            Modul dan lesson
-          </h2>
-        </div>
-
-        {course.modules.map((module, moduleIndex) => (
-          <Card key={module.slug} className="rounded-2xl">
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sand-soft font-display text-base font-extrabold text-ink">
-                {moduleIndex + 1}
-              </span>
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone="slate">{module.sessions}</Badge>
-                  <span className="text-[11px] font-bold text-ink/45">
-                    {module.lessons.length} lesson
-                  </span>
-                </div>
-                <h3 className="font-display mt-2 text-lg font-extrabold text-ink">{module.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-ink/70">{module.objective}</p>
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-xl bg-ivory px-4 py-3">
-              <p className="flex items-start gap-2 text-xs leading-relaxed text-ink/65">
-                <ClipboardCheck size={15} className="mt-0.5 shrink-0 text-navy" />
-                <span>
-                  <span className="font-extrabold text-ink">Exit performance: </span>
-                  {module.exit}
-                </span>
-              </p>
-            </div>
-
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
-              {module.lessons.map((lesson, lessonIndex) => {
-                const href = `/student/kursus/${course.slug}/${module.slug}/${lesson.slug}`;
-                return (
-                  <Link
-                    key={lesson.slug}
-                    href={href}
-                    className="group flex items-start gap-3 rounded-xl border border-sand/40 bg-paper px-4 py-3 transition hover:border-navy hover:bg-ivory"
-                  >
-                    <span className="mt-0.5 font-display text-sm font-extrabold text-sand-deep">
-                      {moduleIndex + 1}.{lessonIndex + 1}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-extrabold text-ink group-hover:text-navy">
-                        {lesson.title}
-                      </span>
-                      <span className="mt-0.5 block text-[11px] leading-relaxed text-ink/55">
-                        {lesson.duration} menit • {lesson.format}
-                      </span>
-                    </span>
-                    <ArrowRight
-                      size={15}
-                      className="mt-0.5 shrink-0 text-ink/30 transition group-hover:text-navy"
-                    />
-                  </Link>
-                );
-              })}
-            </div>
-          </Card>
-        ))}
-      </section>
+      <MissionMap
+        courseSlug={course.slug}
+        modules={course.modules.map((module) => ({
+          slug: module.slug,
+          title: module.title,
+          sessions: module.sessions,
+          objective: module.objective,
+          lessons: module.lessons.map((lesson) => ({
+            slug: lesson.slug,
+            title: lesson.title,
+            duration: lesson.duration,
+            format: lesson.format,
+          })),
+        }))}
+      />
 
       <Card className="rounded-2xl border-navy bg-navy text-ivory">
         <div className="flex items-start gap-3">

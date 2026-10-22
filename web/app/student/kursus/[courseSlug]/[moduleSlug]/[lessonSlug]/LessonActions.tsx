@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, Circle, Undo2 } from "lucide-react";
+import { CheckCircle2, Circle, Star, Undo2 } from "lucide-react";
 import { Badge, Button } from "@/app/components/ui";
 import {
   getLessonProgress,
   PROGRESS_EVENT,
   setLessonCompleted,
 } from "@/lib/course-progress";
+import { STARS_PER_CORRECT, STARS_PER_MISSION } from "@/lib/rewards";
 
 export default function LessonActions({
   courseSlug,
@@ -20,11 +21,13 @@ export default function LessonActions({
 }) {
   const [checked, setChecked] = useState<boolean[]>(() => selfCheck.map(() => false));
   const [completed, setCompleted] = useState(false);
+  const [quizScore, setQuizScore] = useState(0);
 
   useEffect(() => {
     const sync = () => {
       const progress = getLessonProgress(courseSlug, lessonKey);
       setCompleted(Boolean(progress?.completed));
+      setQuizScore(progress?.quizScore ?? 0);
       if (progress?.completed) setChecked(selfCheck.map(() => true));
     };
     sync();
@@ -95,6 +98,23 @@ export default function LessonActions({
           </p>
         ) : null}
       </div>
+
+      {completed ? (
+        <div className="mt-3 rounded-xl border border-sand/50 bg-sand-soft p-3">
+          <p className="flex items-center gap-1.5 text-sm font-extrabold text-ink">
+            <Star size={15} className="text-sand-deep" fill="currentColor" /> Misi selesai!
+          </p>
+          <p className="mt-0.5 text-xs leading-relaxed text-ink/65">
+            Kamu mengumpulkan {STARS_PER_MISSION + quizScore * STARS_PER_CORRECT} bintang dari misi
+            ini ({STARS_PER_MISSION} dari misi + {STARS_PER_CORRECT} per jawaban kuis benar).
+          </p>
+        </div>
+      ) : (
+        <p className="mt-3 flex items-center gap-1.5 rounded-xl bg-ivory px-3 py-2 text-[11px] font-bold text-ink/55">
+          <Star size={12} className="text-sand-deep" /> Selesaikan misi ini untuk mendapat{" "}
+          {STARS_PER_MISSION} bintang + {STARS_PER_CORRECT} per jawaban kuis benar.
+        </p>
+      )}
     </div>
   );
 }

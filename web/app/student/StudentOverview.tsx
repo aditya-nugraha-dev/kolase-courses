@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Video,
 } from "lucide-react";
+import { RewardBar } from "@/app/components/kids/RewardBar";
 
 // Portal murid: kelas saya, misi LMS, kalender, dan jadwal mendatang.
 // Data live dari /api/student/me (student, class, membership, sessions).
@@ -234,7 +235,7 @@ export default function StudentOverview() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search for anything…"
+            placeholder="Cari misi atau tugas…"
             aria-label="Cari tugas"
             className="w-full rounded-full border-0 bg-ivory py-2.5 pl-10 pr-4 text-sm text-ink outline-none placeholder:text-ink/35 focus:ring-2 focus:ring-sand lg:bg-ivory"
           />
@@ -266,11 +267,13 @@ export default function StudentOverview() {
         </Link>
       </div>
 
+      <RewardBar />
+
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         {/* Kolom utama */}
         <div className="min-w-0">
           <h1 className="font-display text-xl font-extrabold text-ink">
-            My Classes<span className="text-sand-deep">.</span>
+            Kelasku<span className="text-sand-deep">.</span>
           </h1>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
             {cards.map((c) => (
@@ -291,7 +294,7 @@ export default function StudentOverview() {
           </div>
 
           <h2 className="font-display mt-6 text-xl font-extrabold text-ink">
-            Today Tasks<span className="text-sand-deep">.</span>
+            Tugas Hari Ini<span className="text-sand-deep">.</span>
           </h2>
           <div className="mt-2 flex gap-5 border-b border-sand/40 text-sm" role="tablist" aria-label="Tugas">
             {(["tugas", "jadwal", "info"] as const).map((t) => (

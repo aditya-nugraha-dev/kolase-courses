@@ -14,6 +14,7 @@ import {
   Volume2,
 } from "lucide-react";
 import { Badge, Card } from "@/app/components/ui";
+import SpeakButton from "@/app/components/kids/SpeakButton";
 import { flattenLessons, getCourse, getLesson } from "@/lib/course-content";
 import LessonActions from "./LessonActions";
 import QuizPanel from "./QuizPanel";
@@ -96,10 +97,13 @@ export default async function LessonPage({
                   key={item.phrase}
                   className="rounded-xl border border-sand/30 bg-ivory px-4 py-3"
                 >
-                  <p className="flex items-start gap-2 text-sm font-extrabold text-ink">
-                    <Quote size={14} className="mt-0.5 shrink-0 text-sand-deep" />
-                    {item.phrase}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="flex items-start gap-2 text-sm font-extrabold text-ink">
+                      <Quote size={14} className="mt-0.5 shrink-0 text-sand-deep" />
+                      {item.phrase}
+                    </p>
+                    <SpeakButton text={item.phrase} compact />
+                  </div>
                   <p className="mt-1 pl-5 text-xs leading-relaxed text-ink/60">{item.meaning}</p>
                 </div>
               ))}
@@ -153,7 +157,10 @@ export default async function LessonPage({
               <div className="mt-3 divide-y divide-sand/30">
                 {lesson.glossary.map((term) => (
                   <div key={term.term} className="py-3 first:pt-0 last:pb-0">
-                    <p className="text-sm font-extrabold text-ink">{term.term}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-extrabold text-ink">{term.term}</p>
+                      <SpeakButton text={term.term} compact />
+                    </div>
                     <p className="mt-0.5 flex items-center gap-1 text-[11px] font-semibold text-navy/70">
                       <Volume2 size={12} /> /{term.pronunciation}/
                     </p>
@@ -187,9 +194,12 @@ export default async function LessonPage({
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-ivory/80">{lesson.mission}</p>
             <div className="mt-3 rounded-xl bg-ivory/10 p-3">
-              <p className="text-[10px] font-extrabold tracking-wide text-sand">CONTOH</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10px] font-extrabold tracking-wide text-sand">CONTOH</p>
+                <SpeakButton text={lesson.missionExample} compact className="border-ivory/25 bg-ivory/15 text-ivory hover:bg-ivory/25" />
+              </div>
               <p className="mt-1 text-xs italic leading-relaxed text-ivory/75">
-                “{lesson.missionExample}”
+                &ldquo;{lesson.missionExample}&rdquo;
               </p>
             </div>
             <p className="mt-3 flex items-center gap-1.5 text-[11px] text-ivory/55">

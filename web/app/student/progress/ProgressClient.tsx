@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Circle, ClipboardCheck, Mic, Target } from "lucide-react";
 import { Badge, Card } from "../../components/ui";
+import { BadgeShelf, RewardBar } from "../../components/kids/RewardBar";
 import { COURSES, flattenLessons } from "@/lib/course-content";
 import {
   countCompleted,
@@ -79,6 +80,8 @@ export default function ProgressClient() {
         </Link>
       </div>
 
+      <RewardBar />
+
       <div className="grid gap-3 sm:grid-cols-3">
         <Card className="rounded-xl">
           <CheckCircle2 size={18} className="text-navy" />
@@ -118,6 +121,8 @@ export default function ProgressClient() {
         </div>
         <p className="mt-3 rounded-xl bg-sand-soft p-3 text-sm leading-relaxed text-ink/80">{reco}</p>
       </Card>
+
+      <BadgeShelf />
 
       <div className="space-y-3">
         {course.modules.map((module, index) => {
