@@ -1,9 +1,8 @@
 STATUS TERAKHIR - KOLASE LMS (diupdate tiap akhir kerja)
 Repo: aditya-nugraha-dev/kolase-courses | Branch: main
-Commit terakhir: 2def9c0 "LMS anak: peta misi, bintang/streak/badge, tombol dengar"
-Deploy: GitHub Pages HANYA memuat kolase-static (situs lama). Aplikasi Next.js
-di web/ (termasuk fitur LMS anak) BELUM punya host/deploy otomatis.
-Live statis terakhir: run 39735888206 (katalog 4 program).
+Commit terakhir: fe4d503 "LMS anak versi statis: peta 12 misi, bintang, lencana"
+Deploy: SUKSES run 39800755669. Live: /kolase-courses/lms.html (LMS anak statis).
+Aplikasi Next.js di web/ (auth, pembayaran, laporan guru) BELUM punya host.
 
 SESI INI (commit 2def9c0, sudah di-push ke main) - KID-FRIENDLY LMS LAYER:
 1. lib/rewards.ts - mesin reward anak: bintang, level (Word Explorer ->
@@ -25,8 +24,20 @@ SESI INI (commit 2def9c0, sudah di-push ke main) - KID-FRIENDLY LMS LAYER:
 VERIFIKASI SESI INI:
 - npm run lint  -> 0 error (5 warning lama: <img> & react-hook-form).
 - npm run build -> sukses.
-- npm run test:e2e -> 3/3 lulus (landing, daftar, /api/health).
+- npm run test:e2e -> 4/4 lulus (landing, daftar, /api/health, pratinjau LMS kids).
 - Screenshot manual /program/little-speakers (mobile + desktop) rapi.
+
+SESI INI JUGA - LMS ANAK STATIS LIVE (commit fe4d503):
+1. kolase-static/lms.html - halaman mandiri tanpa server: hero, peta 4 tahap x
+   3 misi, rak 10 lencana, modal misi (frasa kunci + tombol Dengar, contoh misi,
+   self-check, kuis kilat), toast, dan continue otomatis ke misi berikutnya.
+2. kolase-static/data/lms-course.json - data 12 misi diekstrak dari
+   web/lib/course-content.ts supaya isi statis = isi app.
+3. Bintang/streak/lencana dihitung dari progres, disimpan di localStorage per
+   akun statis (sessionUser) atau "tamu"; progres tamu dipindah saat login.
+4. Link "LMS Anak" di navbar home + dashboard, plus kartu promo di home.
+5. Terverifikasi live: 4 tahap, 12 misi, 10 lencana, kuis benar, misi selesai
+   (16 bintang), tanpa error console, desktop + mobile.
 
 SUDAH SELESAI (sebelumnya):
 1. Auth cloud HP-PC (Supabase RPC kolase_register/login/reset) - secrets SUPABASE_URL + ANON_KEY benar & live.
@@ -60,17 +71,21 @@ TUGAS OWNER (belum dikonfirmasi selesai):
 BATAS YANG DIKETAHUI (fase 2 bila mau):
 - Presensi/chat/materi masih localStorage per-perangkat.
 - Reward/streak juga localStorage per akun (belum tabel Supabase).
+- LMS statis (lms.html) menyimpan progres di browser perangkat, bukan cloud.
 - Tulis RPC dijaga client-side saja (bukan RLS per-peran).
 - Sesi paket lintas-perangkat diinfer dari class + nominal (RPC order lama
   belum menyimpan jumlah sesi eksplisit).
 - Sebelum uang besar: pindah ke Supabase Auth + RLS + backup terjadwal.
 
 CARA MELIHAT HASIL (untuk pemula):
+0. LANGSUNG (tanpa install): https://aditya-nugraha-dev.github.io/kolase-courses/lms.html
 1. Buka PowerShell di folder web:  cd web  lalu  npm run dev
 2. Buka http://localhost:3000/program/little-speakers (pratinjau publik 12 misi).
 3. Login sebagai murid -> /student (bintang+streak), /student/kursus (peta misi),
    /student/progress (badge).
 
 DEPLOY BERIKUTNYA (pilih saat siap):
-- Vercel: import repo, Root Directory = web, isi env dari web/.env -> app lengkap live.
-- Atau port versi demo LMS ke kolase-static agar langsung tampil di GitHub Pages.
+- Vercel: import repo, Root Directory = web, isi env dari web/.env -> app lengkap live
+  (login, pembayaran, dashboard guru). Ini langkah besar berikutnya.
+- LMS statis sudah live; reset demo = hapus localStorage "kolase.lms.v1:*"
+  di browser (DevTools > Application > Local Storage).
