@@ -43,9 +43,6 @@
     <p class="small">Prototype menampilkan semua sesi; production difilter per kelas yang diajar guru ini.</p>
     <div id="sessList" class="cal-list"></div>
   </div>
-  <div class="section"><h2>Presensi Trial 7 Sesi (boleh dikoreksi bila ABSENT)</h2>
-    <div id="trialList" class="cal-list"></div>
-  </div>
   <div class="section"><h2>Rekap Enrollment</h2>
     <div class="table-wrap"><table><thead><tr><th>ENR</th><th>Student</th><th>Kelas</th><th>Bayar</th><th>Status</th><th>Sisa</th></tr></thead><tbody id="rekap"></tbody></table></div>
   </div>
@@ -105,26 +102,6 @@ fetch("data/classes.json").then(r=>r.json()).then(classes=>{
     ${open ? "" : `<div class="lock-note">🔒 Materi terkunci — verifikasi pembayaran dulu di Staff Portal.</div>`}</div>`;
   }).join("");
 }).catch(()=>{ document.getElementById("classList").innerHTML = `<div class="card small">Gagal memuat katalog.</div>`; });
-// Presensi trial: 7/7 PRESENT/LATE membuka form ulasan siswa
-document.getElementById("trialList").innerHTML = db.TRIALS.length ? db.TRIALS.map(t=>{
-  const p = KolaseStore.trialProgress(t);
-  const stu=(db.MST_STUDENTS.find(x=>x.student_id===t.student_id)||{}).nama||t.student_id;
-  const sessPill = (h) => h==="PRESENT"||h==="LATE" ? "p-present" : h==="ABSENT" ? "p-absent" : h==="CANCELLED" ? "p-pending" : "p-trial";
-  const sessLabel = (h) => h || "TRIAL_ACTIVE";
-  return `<div class="card"><div class="meta"><span class="id-mono">${t.trial_id}</span><span>${stu}</span><span>${t.class_id}</span><span class="pill ${p.complete?"p-verified":"p-pending"}">${p.doneCount}/7</span></div>` +
-  t.sessions.map(s=>`<div class="cal-item" style="margin-top:6px"><div class="date-box"><b>${s.seq}</b><span class="small">${s.tanggal.slice(5)}</span></div>
-    <div style="flex:1" class="small">${s.tanggal} • <span class="pill ${sessPill(s.hadir)}">${sessLabel(s.hadir)}</span></div>
-    <select data-trial="${t.trial_id}:${s.seq}"><option>PRESENT</option><option>LATE</option><option>ABSENT</option><option>CANCELLED</option></select>
-    <button class="btn btn-brand btn-sm" data-tsave="${t.trial_id}:${s.seq}">Simpan</button></div>`).join("") + `</div>`;
-}).join("") : `<div class="card small">Belum ada trial. Siswa memulai dari tombol "Coba 7 Trial Gratis".</div>`;
-document.querySelectorAll("[data-tsave]").forEach(b=>b.onclick=()=>{
-  try {
-    const [tid, seq] = b.getAttribute("data-tsave").split(":");
-    const v = document.querySelector(`[data-trial="${tid}:${seq}"]`).value;
-    const done = KolaseStore.recordTrialAttendance(tid, seq, v);
-    alert(done ? `Trial ${tid} SELESAI 7/7 — form ulasan siswa terbuka!` : `Tersimpan ${v}.`); location.reload();
-  } catch(e){ alert(e.message); }
-});
 // Upload materi: pilih kelas + judul + (file kecil ATAU link)
 fetch("data/classes.json").then(r=>r.json()).then(classes=>{
   const sel = document.getElementById("matClass");

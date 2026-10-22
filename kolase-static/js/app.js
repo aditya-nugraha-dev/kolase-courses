@@ -165,23 +165,6 @@ function renderRoleNav() {
 }
 /* Alih bahasa bawaan DIMATIKAN: situs selalu Indonesia, terjemahan via
    Google Translate browser. (Tombol EN/ID lama dihapus.) */
-/* CTA global "Trial 7 Sesi Gratis" ([data-trial="CLS-ID"]): student → mulai
-   trial lalu ke dashboard; tamu/peran lain → login/register dulu. */
-function handleTrialCta(cid) {
-  try {
-    var db = JSON.parse(localStorage.getItem("kolase_db_v1") || "null");
-    var u = (db && db.sessionUser) || null;
-    if (!u || u.role !== "student") { location.href = "login.html?mode=register"; return; }
-    if (window.KolaseStore && KolaseStore.startTrial) KolaseStore.startTrial(cid);
-    location.href = "dashboard.html";
-  } catch (err) { alert(err && err.message ? err.message : "Gagal memulai trial."); }
-}
-document.addEventListener("click", function (e) {
-  var b = e.target && e.target.closest ? e.target.closest("[data-trial]") : null;
-  if (!b) return;
-  e.preventDefault();
-  handleTrialCta(b.getAttribute("data-trial"));
-});
 /* Penanda link aktif (satu-satunya hal yang boleh beda antar halaman). */
 function markActiveNav() {
   var path = (location.pathname.split("/").pop() || "home.html").split("?")[0];
@@ -292,30 +275,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const grid = document.querySelector("[data-catalog]");
   if (grid) {
     fetch("data/classes.json").then((r) => r.json()).then((classes) => {
-      const level = new URLSearchParams(location.search).get("level") || "";
-      const list = level ? classes.filter((c) => c.level === level) : classes;
+      const params = new URLSearchParams(location.search);
+      const level = params.get("level") || "";
+      const max = Number(params.get("max") || 0);
+      const list = classes.filter((c) =>
+        (!level || c.level === level) && (!max || Number(c.harga) <= max)
+      );
       grid.innerHTML = list.map(cardHTML).join("");
     });
   }
 });
 
 function cardHTML(c) {
-  const sesi = c.sesi_count ?? 4;
+  const sesi = c.sesi_label || (c.sesi_count ?? 4);
   const coret = Number(c.harga_coret || 0) > 0 ? `<s>Rp ${Number(c.harga_coret).toLocaleString("id-ID")}</s>` : ``;
   const open = (c.class_status || "OPEN") === "OPEN";
+  const hasPkg = Array.isArray(c.packages) && c.packages.length > 0;
+  const price = hasPkg && Number(c.harga_max || 0) > Number(c.harga || 0)
+    ? `<span class="price">Rp ${Math.round(Number(c.harga) / 1000)}rb – Rp ${(Number(c.harga_max) / 1000000).toLocaleString("id-ID", { maximumFractionDigits: 2 })}jt</span>`
+    : `<span class="price">Rp ${Number(c.harga).toLocaleString("id-ID")}</span>`;
   const cta = open
-    ? `<a class="btn btn-ghost btn-sm" href="checkout.html?id=${c.id}">${navT("card.checkout")}</a>`
+    ? `<a class="btn btn-ghost btn-sm" href="${hasPkg ? `class-details.html?id=${c.id}` : `checkout.html?id=${c.id}`}">${hasPkg ? navT("card.package") : navT("card.checkout")}</a>`
     : `<span class="pill p-pending">${navT("card.soon")}</span>`;
-  const trial = open ? `<button class="btn btn-ghost btn-sm" data-trial="${c.id}">${navT("card.trial")}</button>` : ``;
   return `<div class="card">
     <div class="meta"><span class="pill p-verified">${c.level}</span><span>${c.jadwal}</span>${open ? `` : `<span class="pill p-pending">${navT("card.soon")}</span>`}</div>
     <h3>${c.nama}</h3>
     <div class="small">${c.guru} • ${c.kuota} kursi • ${sesi} sesi</div>
-    <div style="margin:8px 0"><span class="price">Rp ${Number(c.harga).toLocaleString("id-ID")}</span>${coret}</div>
+    <div style="margin:8px 0">${price}${coret}</div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <a class="btn btn-brand btn-sm" href="class-details.html?id=${c.id}">${navT("card.detail")}</a>
       ${cta}
-      ${trial}
     </div>
   </div>`;
 }

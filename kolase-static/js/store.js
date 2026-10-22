@@ -49,7 +49,6 @@ function seed() {
     SESSIONS: [],
     CLASS_SESSIONS: [],
     SESSION_ATTENDANCE: [],
-    TRIALS: [],
     REVIEWS: [],
     MATERIALS: [],
     CHAT_THREADS: {},
@@ -58,7 +57,7 @@ function seed() {
     DELETED_IDS: [],
     STAFF_REQUESTS: [],
     CHAT: [
-      { from: "them", text: "Halo! Selamat datang di kelas A2. Perkenalkan diri ya.", at: "09:00" }
+      { from: "them", text: "Halo! Selamat datang di KOLASE. Perkenalkan diri ya.", at: "09:00" }
     ],
     PILOT_REGISTRATIONS: [],
     PILOT_PLACEMENTS: [],
@@ -73,11 +72,10 @@ function loadDB() {
     const raw = localStorage.getItem(DB_KEY);
     if (!raw) { const s = seed(); localStorage.setItem(DB_KEY, JSON.stringify(s)); return s; }
     const db = JSON.parse(raw);
-    // Migrasi: DB lama belum punya TRIALS/REVIEWS/PILOT
+    // Migrasi: DB lama belum punya REVIEWS/PILOT
     if (!Array.isArray(db.MST_STUDENTS)) db.MST_STUDENTS = [];
     if (!Array.isArray(db.MST_TEACHERS)) db.MST_TEACHERS = [];
     if (!Array.isArray(db.MST_STAFF)) db.MST_STAFF = [];
-    if (!Array.isArray(db.TRIALS)) db.TRIALS = [];
     if (!Array.isArray(db.REVIEWS)) db.REVIEWS = [];
     if (!Array.isArray(db.PILOT_REGISTRATIONS)) db.PILOT_REGISTRATIONS = [];
     if (!Array.isArray(db.PILOT_PLACEMENTS)) db.PILOT_PLACEMENTS = [];
@@ -411,7 +409,7 @@ function resetPassword(query, newPassword) {
   return true;
 }
 
-function checkout(classId, nominal, method) {
+function checkout(classId, nominal, method, sessions) {
   const db = loadDB();
   const user = db.sessionUser;
   if (!user || user.role !== "student") throw new Error("Login sebagai student dulu (Page Auth).");
@@ -420,10 +418,11 @@ function checkout(classId, nominal, method) {
   const cap = isPublic ? 50 : 5;
   const occupied = (db.CLASS_MEMBERSHIP || []).filter((x) => x.class_id === classId && (x.status === "PENDING" || x.status === "ACTIVE")).length;
   if (occupied >= cap) throw new Error(`Kelas penuh (${occupied}/${cap})`);
+  const qty = Math.max(0, Number(sessions) || 0);
   const enrId = nextId("ENR", db.CLASS_MEMBERSHIP, "enrollment_id");
   const trxId = nextTxnId(db.TXN_PAYMENTS); // TXN-YYYY-#### (KOL-POL-COD-001 §3.4)
-  db.TXN_PAYMENTS.push({ trx_id: trxId, enrollment_id: enrId, student_id: user.id, class_id: classId, nominal, method, status: "PENDING", tgl: new Date().toISOString() });
-  db.CLASS_MEMBERSHIP.push({ enrollment_id: enrId, student_id: user.id, class_id: classId, status: "PENDING", sisa: 0 });
+  db.TXN_PAYMENTS.push({ trx_id: trxId, enrollment_id: enrId, student_id: user.id, class_id: classId, nominal, method, sessions: qty || null, status: "PENDING", tgl: new Date().toISOString() });
+  db.CLASS_MEMBERSHIP.push({ enrollment_id: enrId, student_id: user.id, class_id: classId, status: "PENDING", sisa: 0, sesi_package: qty || null });
   saveDB(db);
   const payment = db.TXN_PAYMENTS.find((t) => t.trx_id === trxId);
   const membership = db.CLASS_MEMBERSHIP.find((x) => x.enrollment_id === enrId);
@@ -431,9 +430,9 @@ function checkout(classId, nominal, method) {
   return { enrId, trxId };
 }
 
-/* Webhook simulation PUBLIC 2026-09-15: PENDING -> VERIFIED = 4 sesi @60 mnt, sisa 4.
-   CORE lama: tanpa trial +15/15 sesi, dengan trial +15-7=8 sesi (exactly once). */
-function verifyPayment(trxId, trialId) {
+/* Webhook simulation: PENDING -> VERIFIED = paket sesi @60 mnt.
+   Jumlah sesi mengikuti paket yang dipilih, fallback 4 untuk PUBLIC dan 10 untuk kelas lain. */
+function verifyPayment(trxId) {
   requireFullPower();
   const db = loadDB();
   const pay = db.TXN_PAYMENTS.find((t) => t.trx_id === trxId);
@@ -443,22 +442,14 @@ function verifyPayment(trxId, trialId) {
   pay.tgl_verifikasi = new Date().toISOString();
   const m = db.CLASS_MEMBERSHIP.find((x) => x.enrollment_id === pay.enrollment_id);
   const isPublic = String(pay.class_id || "").startsWith("CLS-PUB-");
-  // Kredit trial exactly-once: hanya CORE. PUBLIC tanpa trial.
-  let trial = null;
-  let withTrial = false;
-  let sisa = isPublic ? 4 : 15;
-  if (!isPublic) {
-  if (trialId) trial = (db.TRIALS || []).find((x) => x.trial_id === trialId && x.status !== "CONVERTED");
-  if (!trial) trial = (db.TRIALS || []).find((x) => x.student_id === pay.student_id && x.class_id === pay.class_id && trialProgress(x).complete && !x.converted && x.decision !== "berhenti");
-  withTrial = Boolean(trial && trialProgress(trial).complete);
-  sisa = withTrial ? 8 : 15;
-  }
+  const sisa = Math.max(1, Number(pay.sessions || m.sesi_package) || (isPublic ? 4 : 10));
   m.status = "ACTIVE";
   m.sisa = sisa;
-  m.trial_id = withTrial ? trial.trial_id : (m.trial_id || null);
-  m.trial_credit_applied = withTrial;
   m.activated_at = new Date().toISOString();
-  const exp = new Date(); exp.setMonth(exp.getMonth() + (isPublic ? 1 : 2));
+  // Masa berlaku mengikuti jadwal 1x/minggu: Public 1 bulan, paket lain sampai sesi terakhir + 1 minggu.
+  const exp = new Date();
+  if (isPublic) exp.setMonth(exp.getMonth() + 1);
+  else exp.setDate(exp.getDate() + sisa * 7 + 7);
   m.expires_at = exp.toISOString().slice(0, 10);
   // N sesi dinamis, 1x/minggu, 60 mnt seragam (KOL-MAN-CORP-001).
   // Kanonikal: SES-XXXXXX per jadwal KELAS; SESSIONS per-enrollment dipertahankan sebagai proyeksi UI.
@@ -486,29 +477,20 @@ function verifyPayment(trxId, trialId) {
     });
   }
   db.SESSIONS.push(...newSessions);
-  const grant = isPublic ? sisa : 15;
   const ledgerRow = {
     enrollment_id: pay.enrollment_id, student_id: pay.student_id,
-    delta: grant, reason: "PAYMENT_VERIFIED", at: new Date().toISOString(), balance_after: sisa
+    delta: sisa, reason: "PAYMENT_VERIFIED", at: new Date().toISOString(), balance_after: sisa
   };
   db.TXN_ENTITLEMENT_LEDGER.push(ledgerRow);
-  let ledgerRow2 = null;
-  if (withTrial) {
-    ledgerRow2 = { enrollment_id: pay.enrollment_id, student_id: pay.student_id, delta: -7, reason: "TRIAL_RECOGNITION", at: new Date().toISOString(), balance_after: sisa };
-    db.TXN_ENTITLEMENT_LEDGER.push(ledgerRow2);
-    trial.converted = true;
-    trial.status = "CONVERTED";
-  }
   saveDB(db);
   // Auto-save ke Sheets: TXN_PAYMENTS->VERIFIED, membership->ACTIVE, N SES kelas + proyeksi, ledger.
   postSheets({
     action: "verify",
     payment: { trx_id: pay.trx_id },
-    membership: { enrollment_id: m.enrollment_id, sisa: m.sisa, activated_at: m.activated_at, expires_at: m.expires_at, trial_id: m.trial_id, trial_credit_applied: m.trial_credit_applied },
+    membership: { enrollment_id: m.enrollment_id, sisa: m.sisa, activated_at: m.activated_at, expires_at: m.expires_at },
     sessions: newSessions,
     class_sessions: newClassSessions,
-    ledger: ledgerRow,
-    ledger2: ledgerRow2
+    ledger: ledgerRow
   });
   return pay;
 }
@@ -564,108 +546,9 @@ function recordAttendance(sessionId, hadir, studentId) {
   return m.sisa;
 }
 
-/* Trial gratis 7 sesi -> ulasan. Trial dibuka per siswa per kelas, selesai saat
-   7 sesi tercatat PRESENT/LATE (guru boleh mengoreksi ABSENT), lalu form ulasan terbuka. */
-function startTrial(classId) {
-  const db = loadDB();
-  const user = db.sessionUser;
-  if (!user || user.role !== "student") throw new Error("Login sebagai student dulu (Page Auth).");
-  let t = db.TRIALS.find((x) => x.student_id === user.id && x.class_id === classId && !trialProgress(x).complete);
-  if (t) return t.trial_id;
-  const trial_id = nextId("TRL", db.TRIALS, "trial_id");
-  const today = new Date();
-  t = { trial_id, student_id: user.id, class_id: classId, done: false, reviewed: false, status: "STARTED", sessions: [] };
-  for (let i = 1; i <= 7; i++) {
-    const d = new Date(today); d.setDate(d.getDate() + (i - 1) * 7);
-    t.sessions.push({ seq: i, tanggal: d.toISOString().slice(0, 10), hadir: null });
-  }
-  db.TRIALS.push(t);
-  saveDB(db);
-  postSheets({ tab: "TRIALS", payload: { trial_id, student_id: user.id, class_id: classId, status: "STARTED", at: new Date().toISOString() } });
-  return trial_id;
-}
-
-function trialProgress(t) {
-  const n = (t.sessions || []).filter((s) => s.hadir === "PRESENT" || s.hadir === "LATE").length;
-  return { doneCount: n, complete: n >= 7 };
-}
-
-function recordTrialAttendance(trialId, seq, hadir) {
-  const db = loadDB();
-  const t = db.TRIALS.find((x) => x.trial_id === trialId);
-  if (!t) throw new Error("Trial tidak ditemukan");
-  const s = t.sessions.find((x) => x.seq === Number(seq));
-  if (!s) throw new Error("Sesi trial tidak ditemukan");
-  s.hadir = hadir; // trial boleh dikoreksi guru bila sebelumnya ABSENT
-  t.done = trialProgress(t).complete;
-  if (t.done) t.status = "COMPLETED";
-  saveDB(db);
-  // issueBadge SETELAH save agar tidak tertimpa (baca-tulis ulang dari storage).
-  if (t.done) {
-    try { issueBadge("TRIAL", t.trial_id, t.student_id, "7 Sesi Trial Gratis — " + t.class_id); } catch (e) {}
-  }
-  return t.done;
-}
-
-/* Keputusan setelah 7/7: "lanjut" = buatkan enrollment Kids (PENDING) lalu ke
-   checkout/pembayaran; "berhenti" = trial DROPPED (tidak dikonversi saat verify). */
-function decideTrial(trialId, decision, classId, nominal) {
-  const db = loadDB();
-  const t = (db.TRIALS || []).find((x) => x.trial_id === trialId);
-  if (!t) throw new Error("Trial tidak ditemukan");
-  const u = db.sessionUser;
-  const PRIV = ["staff", "admin", "owner", "author", "founder", "academic", "systems"];
-  if (!u || (u.role === "student" && u.id !== t.student_id)) throw new Error("Ini bukan trial-mu.");
-  if (!trialProgress(t).complete) throw new Error("Selesaikan 7 sesi dulu.");
-  if (decision === "berhenti") {
-    t.decision = "berhenti";
-    t.status = "DROPPED";
-    saveDB(db);
-    return { stopped: true };
-  }
-  if (decision !== "lanjut") throw new Error("Keputusan tidak dikenal.");
-  t.decision = "lanjut";
-  const cid = classId || t.class_id;
-  let m = (db.CLASS_MEMBERSHIP || []).find((x) => x.student_id === t.student_id && x.class_id === cid && (x.status === "PENDING" || x.status === "ACTIVE"));
-  if (!m) {
-    const isPublic = String(cid || "").startsWith("CLS-PUB-");
-    const cap = isPublic ? 50 : 5;
-    const occupied = (db.CLASS_MEMBERSHIP || []).filter((x) => x.class_id === cid && (x.status === "PENDING" || x.status === "ACTIVE")).length;
-    if (occupied >= cap) throw new Error(`Kelas penuh (${occupied}/${cap})`);
-    const enrId = nextId("ENR", db.CLASS_MEMBERSHIP, "enrollment_id");
-    const trxId = nextTxnId(db.TXN_PAYMENTS);
-    const pay = { trx_id: trxId, enrollment_id: enrId, student_id: t.student_id, class_id: cid, nominal: Number(nominal || 0), method: "QRIS", status: "PENDING", tgl: new Date().toISOString() };
-    m = { enrollment_id: enrId, student_id: t.student_id, class_id: cid, status: "PENDING", sisa: 0, trial_id: t.trial_id, trial_credit_applied: false };
-    db.TXN_PAYMENTS.push(pay);
-    db.CLASS_MEMBERSHIP.push(m);
-    postSheets({ action: "checkout", payment: pay, membership: m });
-  }
-  t.enrollment_id = m.enrollment_id;
-  saveDB(db);
-  const trx = (db.TXN_PAYMENTS || []).filter((x) => x.enrollment_id === m.enrollment_id).pop() || null;
-  return { enrId: m.enrollment_id, trxId: trx ? trx.trx_id : null, status: m.status };
-}
-
-function submitReview(trialId, rating, teks) {
-  const db = loadDB();
-  const t = db.TRIALS.find((x) => x.trial_id === trialId);
-  if (!t) throw new Error("Trial tidak ditemukan");
-  if (!trialProgress(t).complete) throw new Error("Selesaikan 7 trial dulu.");
-  if (t.reviewed) throw new Error("Ulasan sudah dikirim.");
-  const r = Number(rating);
-  if (!(r >= 1 && r <= 5) || !String(teks || "").trim()) throw new Error("Rating 1-5 dan isi ulasan wajib.");
-  const user = db.sessionUser;
-  const rev = { nama: (user ? user.nama + " • " : "") + t.class_id, rating: r, teks: String(teks).trim(), class_id: t.class_id, at: new Date().toISOString().slice(0, 10) };
-  db.REVIEWS.unshift(rev);
-  t.reviewed = true;
-  saveDB(db);
-  postSheets({ tab: "REVIEWS", payload: rev });
-  return rev;
-}
-
 /* Ulasan 1 paket: terbuka setelah siswa menyelesaikan semua sesi dalam 1 enrollment.
    Penilaian bintang per aspek: kelas, guru, pembelajaran, materi (1-5).
-   Overall = rata-rata 4 aspek. REVIEWS lama (rating tunggal trial) tetap terbaca. */
+   Overall = rata-rata 4 aspek. */
 const REVIEW_ASPECTS = [
   { key: "rating_kelas", label: "Kelas" },
   { key: "rating_guru", label: "Guru" },
@@ -917,7 +800,7 @@ function teacherSendChat(sid, text, asStaff) {
 }
 
 /* Pengumuman (announcement): tulis oleh teacher/staff, dibaca semua di home.
-   eBadge: terbit otomatis saat trial 7/7 & saat ulasan 1 paket dikirim
+   eBadge: terbit otomatis saat ulasan 1 paket dikirim
    (cermin kolom "Pending badge issuance" di Master Database V2.0). */
 function addAnnouncement(title, body) {
   const db = loadDB();
@@ -961,7 +844,7 @@ function issueBadge(kind, refId, studentId, label) {
     id: nextId("BDG", db.EBADGES, "id"),
     kind, ref_id: refId, student_id: studentId,
     student_name: studentNameOf(studentId),
-    label: label || (kind === "TRIAL" ? "7 Sesi Trial Gratis" : "1 Paket Selesai"),
+    label: label || "1 Paket Selesai",
     at: new Date().toISOString().slice(0, 10),
   };
   db.EBADGES.unshift(row);
@@ -975,14 +858,11 @@ function badgesFor(studentId) {
 function pendingBadgeCount() {
   const db = loadDB();
   const issued = new Set((db.EBADGES || []).map((b) => b.kind + "|" + b.ref_id));
-  let trial = 0, paket = 0;
-  (db.TRIALS || []).forEach((t) => {
-    if (trialProgress(t).complete && !issued.has("TRIAL|" + t.trial_id)) trial++;
-  });
+  let paket = 0;
   (db.CLASS_MEMBERSHIP || []).forEach((m) => {
     if (packageProgress(m.enrollment_id).complete && !issued.has("PAKET|" + m.enrollment_id)) paket++;
   });
-  return { trial, paket, total: trial + paket };
+  return { paket, total: paket };
 }
 /* Pemeriksaan ringan ala 99_AUDIT: peringatan sebelum pelaporan. */
 function auditWarnings() {
@@ -1000,15 +880,6 @@ function auditWarnings() {
   });
   (db.CLASS_SESSIONS || []).forEach((s) => {
     if (s.status === "SCHEDULED" && String(s.tanggal || "") < today) out.push({ level: "WARN", text: `Sesi lewat belum dicatat: ${s.session_id} (${s.class_id} • ${s.tanggal})` });
-  });
-  (db.TRIALS || []).forEach((t) => {
-    if (t.status === "STARTED") {
-      const n = (t.sessions || []).filter((x) => x.hadir === "PRESENT" || x.hadir === "LATE").length;
-      if (n === 0) {
-        const age = Math.floor((Date.now() - new Date(t.sessions && t.sessions[0] ? t.sessions[0].tanggal : Date.now()).getTime()) / 86400000);
-        if (age > 30) out.push({ level: "WARN", text: `Trial macet ${t.trial_id} (${t.student_id}, 0/7, >30 hari)` });
-      }
-    }
   });
   return out.slice(0, 30);
 }
@@ -1051,7 +922,6 @@ function deleteStudent(studentId) {
   db.TXN_ENTITLEMENT_LEDGER = (db.TXN_ENTITLEMENT_LEDGER || []).filter((l) => !enrs.has(l.enrollment_id));
   db.SESSIONS = (db.SESSIONS || []).filter((s) => !enrs.has(s.enrollment_id));
   db.SESSION_ATTENDANCE = (db.SESSION_ATTENDANCE || []).filter((a) => a.student_id !== studentId);
-  db.TRIALS = (db.TRIALS || []).filter((t) => t.student_id !== studentId);
   db.PILOT_REGISTRATIONS = (db.PILOT_REGISTRATIONS || []).filter((p) => (p.student_id || p.pilot_student_id) !== studentId);
   db.PILOT_PLACEMENTS = (db.PILOT_PLACEMENTS || []).filter((p) => (p.student_id || p.pilot_student_id) !== studentId);
   db.PILOT_POSTCLASS = (db.PILOT_POSTCLASS || []).filter((p) => (p.student_id || p.pilot_student_id) !== studentId);
@@ -1062,4 +932,4 @@ function deleteStudent(studentId) {
   saveDB(db);
   return true;
 }
-window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, startTrial, trialProgress, recordTrialAttendance, decideTrial, submitReview, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, deleteStaff, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance, listStaffRequests, pendingStaffRequestCount, decideStaffRequest, SYSTEMS_PIN, STAFF_PIN, hashPassword };
+window.KolaseStore = { loadDB, saveDB, registerPerson, portalFor, loginPerson, findUserByLogin, resetPassword, checkout, verifyPayment, recordAttendance, balanceOf, queueSheetsSync, postSheets, sheetsEndpoint, packageProgress, eligiblePackages, submitPackageReview, REVIEW_ASPECTS, submitPlacement, submitPostclass, submitEntryAssessment, recordObservation, materialsFor, addMaterialLink, addMaterialFile, deleteMaterial, chatThread, listChatThreads, sendChat, teacherSendChat, deleteTeacher, deleteStudent, deleteStaff, isFullPowerUser, FULL_POWER_IDS, addAnnouncement, listAnnouncements, deleteAnnouncement, issueBadge, badgesFor, pendingBadgeCount, auditWarnings, outstandingBalance, listStaffRequests, pendingStaffRequestCount, decideStaffRequest, SYSTEMS_PIN, STAFF_PIN, hashPassword };

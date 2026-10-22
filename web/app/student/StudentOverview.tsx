@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   BookOpen,
@@ -13,27 +12,18 @@ import {
   CircleCheck,
   ClipboardList,
   FileText,
-  Gift,
   Search,
   TrendingUp,
   Video,
 } from "lucide-react";
-import { Button, Modal, Toast } from "../components/ui";
 
-// Portal murid ala referensi: Kelas Saya + Tugas Hari Ini + kalender + Upcoming.
-// Data live dari /api/student/me (student, class, membership, sessions, tasks, trial).
+// Portal murid: kelas saya, misi LMS, kalender, dan jadwal mendatang.
+// Data live dari /api/student/me (student, class, membership, sessions).
 interface SessionRow {
   session_id: string;
   seq: number;
   tanggal: string;
   status: string;
-}
-
-interface TrialRow {
-  trial_id: string;
-  class_id: string;
-  status: string;
-  sessions_delivered: number;
 }
 
 interface MeData {
@@ -43,8 +33,6 @@ interface MeData {
   class: Record<string, unknown> | null;
   membership?: Record<string, unknown> | null;
   sessions?: SessionRow[];
-  tasks?: { placement: boolean; postclass: boolean; observed: boolean };
-  trial?: TrialRow | null;
 }
 
 const getStr = (o: Record<string, unknown>, ...keys: string[]): string => {
@@ -54,14 +42,6 @@ const getStr = (o: Record<string, unknown>, ...keys: string[]): string => {
     if (typeof v === "number") return String(v);
   }
   return "";
-};
-
-const getNum = (o: Record<string, unknown>, ...keys: string[]): number | null => {
-  for (const k of keys) {
-    const v = o[k];
-    if (typeof v === "number") return v;
-  }
-  return null;
 };
 
 const BULAN = [
@@ -106,15 +86,9 @@ export default function StudentOverview() {
   const cls = (data?.class ?? {}) as Record<string, unknown>;
   const mem = (data?.membership ?? {}) as Record<string, unknown>;
   const sessions = useMemo(() => data?.sessions ?? [], [data]);
-  const flags = data?.tasks ?? { placement: false, postclass: false, observed: false };
 
   const name = getStr(st, "preferred_name", "full_name", "nama") || "Murid";
   const sid = getStr(st, "student_id") || "STU-XXXXXX";
-  const placement = getNum(st, "placement_total", "placementScore") ?? 0;
-  const pre = getNum(st, "pre_check_score", "preCheck") ?? 0;
-  const post = getNum(st, "post_check_score", "postCheck");
-  const gain = getNum(st, "gain_score", "gainScore") ?? (post != null ? post - pre : null);
-  const fit = getStr(st, "a2_fit", "a2Fit") || "PLACEMENT_PENDING";
 
   const clsName = getStr(cls, "nama", "name") || "Menunggu class matching";
   const jadwal = getStr(cls, "jadwal", "schedule") || "Jadwal menyusul via WhatsApp";
@@ -124,105 +98,27 @@ export default function StudentOverview() {
   const sisa = typeof mem.sisa === "number" ? mem.sisa : null;
   const memStatus = getStr(mem, "status");
 
-  const hasPlacement = flags.placement || placement > 0;
-  const hasPre = pre > 0;
-  const hasPost = flags.postclass || post != null;
-
-  // Trial 7 sesi gratis → prompt lanjut/berhenti setelah sesi 7.
-  const router = useRouter();
-  const trial = data?.trial ?? null;
-  const trialDone = Number(trial?.sessions_delivered ?? 0);
-  const [showDecision, setShowDecision] = useState(false);
-  const [deciding, setDeciding] = useState(false);
-  const [starting, setStarting] = useState(false);
-  const [toast, setToast] = useState("");
-  const [toastTone, setToastTone] = useState<"dark" | "green" | "red">("dark");
-  const show = (m: string, t: "dark" | "green" | "red" = "dark") => {
-    setToast(m);
-    setToastTone(t);
-    window.setTimeout(() => setToast(""), 3500);
-  };
-  const reloadMe = async () => {
-    try {
-      const r = await fetch("/api/student/me");
-      const j = await r.json();
-      if (j.ok) setData(j as MeData);
-    } catch { /* abaikan */ }
-  };
-  const startTrial = async () => {
-    setStarting(true);
-    try {
-      const r = await fetch("/api/trial", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
-      const j = await r.json();
-      if (j.ok) {
-        show(j.existing ? "Trial aktif ditemukan — lanjutkan sesimu." : `Trial dimulai (${j.trial_id}). Selamat belajar!`, "green");
-        await reloadMe();
-      } else {
-        show("Gagal memulai trial.", "red");
-      }
-    } catch {
-      show("Jaringan gagal.", "red");
-    } finally {
-      setStarting(false);
-    }
-  };
-  const decide = async (action: "lanjut" | "berhenti") => {
-    if (!trial) return;
-    setDeciding(true);
-    try {
-      const r = await fetch("/api/trial", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ trial_id: trial.trial_id, action, method: "QRIS" }),
-      });
-      const j = await r.json();
-      if (!j.ok) {
-        show(typeof j.error === "string" ? j.error : "Gagal menyimpan keputusan.", "red");
-        return;
-      }
-      if (action === "berhenti") {
-        show("Trial ditutup. Terima kasih sudah mencoba!", "dark");
-        setShowDecision(false);
-        await reloadMe();
-        return;
-      }
-      if (j.already === "active") {
-        show("Kamu sudah aktif di Kelas Kids — membuka kelas…", "green");
-        router.push("/student/kelas");
-        return;
-      }
-      const sidQ = encodeURIComponent(sid);
-      const progQ = encodeURIComponent(String(j.program ?? "Little Speakers (Kids)"));
-      const nomQ = encodeURIComponent(String(j.nominal ?? 50000));
-      router.push(`/bayar?studentId=${sidQ}&program=${progQ}&nominal=${nomQ}&method=QRIS`);
-    } catch {
-      show("Jaringan gagal.", "red");
-    } finally {
-      setDeciding(false);
-    }
-  };
-
   const tasks = useMemo(
     () => [
       {
-        id: "placement",
+        id: "explorer",
         icon: ClipboardList,
-        title: "Placement Check 0–50",
-        sub: `${clsName} • ${guru}`,
+        title: "Misi Explorer",
+        sub: "Little Speakers • Modul 1",
         kind: "Task" as const,
-        done: hasPlacement,
-        href: hasPlacement ? "/student/progress" : "/daftar",
-        cta: hasPlacement ? "Lihat Skor" : "Kerjakan",
+        done: false,
+        href: "/student/kursus",
+        cta: "Mulai Misi",
       },
       {
-        id: "pre",
+        id: "quiz",
         icon: FileText,
-        title: "Pre-Check recount 0–10",
-        sub: `${clsName} • Tulis 4–6 kalimat`,
+        title: "Kuis modul",
+        sub: "Cek pemahaman tiap modul",
         kind: "Theory" as const,
-        done: hasPre,
-        href: hasPre ? "/student/progress" : "/daftar",
-        cta: hasPre ? `Skor ${pre}` : "Kerjakan",
+        done: false,
+        href: "/student/kursus",
+        cta: "Kerjakan Kuis",
       },
       {
         id: "meet",
@@ -235,27 +131,27 @@ export default function StudentOverview() {
         cta: meet ? "Join Meet" : "Cek Link",
       },
       {
-        id: "post",
-        icon: FileText,
-        title: "Post-Check 0–10 + minat",
-        sub: `${clsName} • Setelah sesi`,
-        kind: "Theory" as const,
-        done: hasPost,
-        href: "/student/progress",
-        cta: hasPost ? "Terkirim" : "Isi Post",
-      },
-      {
-        id: "gain",
+        id: "report",
         icon: TrendingUp,
-        title: "Progress Test & Gain",
-        sub: `Gain ${gain != null ? `+${gain}` : "—"} • ${fit.replace("_", " ")}`,
+        title: "Progress Report",
+        sub: "Lihat capaian & nilai kuis",
         kind: "Theory" as const,
-        done: gain != null && gain > 0,
+        done: false,
         href: "/student/progress",
         cta: "Lihat Progres",
       },
+      {
+        id: "show",
+        icon: BookOpen,
+        title: "Show & Tell",
+        sub: "Misi bicara 60 detik",
+        kind: "Task" as const,
+        done: false,
+        href: "/student/kursus",
+        cta: "Buka Misi",
+      },
     ],
-    [clsName, guru, jadwal, meet, hasPlacement, hasPre, hasPost, pre, gain, fit]
+    [jadwal, meet]
   );
 
   const filteredTasks = tasks.filter((t) =>
@@ -313,8 +209,8 @@ export default function StudentOverview() {
       bg: "bg-sand-soft",
       iconBg: "bg-white text-sand-deep",
       icon: CalendarDays,
-      title: memStatus || "Trial 7 Sesi",
-      sub: sisa != null ? `${sisa} sesi • ${getStr(mem, "expires_at").slice(0, 10) || "aktif"}` : "6 belajar + 1 progress test",
+      title: memStatus || "Kelas Aktif",
+      sub: sisa != null ? `${sisa} sesi • ${getStr(mem, "expires_at").slice(0, 10) || "aktif"}` : "Membership belum aktif",
       cta: "Lihat Jadwal",
       href: "/student/kelas",
     },
@@ -322,10 +218,10 @@ export default function StudentOverview() {
       bg: "bg-violet-soft",
       iconBg: "bg-white text-violet",
       icon: TrendingUp,
-      title: gain != null ? `Gain +${gain}` : "Belum ada gain",
-      sub: `Placement ${placement}/50 • Pre ${pre}/10`,
-      cta: "Lihat Progres",
-      href: "/student/progress",
+      title: "LMS Little Speakers",
+      sub: "4 tahap • 12 misi",
+      cta: "Buka LMS",
+      href: "/student/kursus",
     },
   ];
 
@@ -351,71 +247,24 @@ export default function StudentOverview() {
         </span>
       </div>
 
-      {/* Banner trial 7 sesi gratis */}
-      {(!trial || trial.status === "STARTED") && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-sand/40 bg-sand-soft p-4 sm:flex-row sm:items-center">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-sand-deep">
-            <Gift size={20} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-extrabold text-ink">
-              {trial ? `Trial gratis: sesi ${trialDone} dari 7 ${trial.trial_id ? `• ${trial.trial_id}` : ""}` : "Belum ikut trial? Coba 7 sesi gratis dulu."}
-            </p>
-            {trial ? (
-              <>
-                <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/70">
-                  <div className="h-full rounded-full bg-sand-deep" style={{ width: `${Math.round((trialDone / 7) * 100)}%` }} />
-                </div>
-                <p className="mt-1 text-[11px] text-ink/60">6 sesi belajar + Sesi 7 Progress Test. Selesai 7/7 → pilih lanjut ke Kelas Kids atau berhenti.</p>
-              </>
-            ) : (
-              <p className="mt-1 text-[11px] text-ink/60">6 sesi belajar + 1 Progress Test, Rp 0. Guru menandai tiap sesi selesai.</p>
-            )}
-          </div>
-          {!trial ? (
-            <Button onClick={() => void startTrial()} disabled={starting} className="shrink-0">
-              {starting ? "Memulai…" : "Mulai Trial Gratis"}
-            </Button>
-          ) : trial.status === "STARTED" && trialDone >= 7 ? (
-            <Button onClick={() => setShowDecision(true)} className="shrink-0">
-              Lihat Hasil Trial
-            </Button>
-          ) : (
-            <Link href="/student/kelas" className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-xl bg-ink px-5 py-3 text-sm font-bold text-ivory hover:bg-navy">
-              Buka Kelasku
-            </Link>
-          )}
+      {/* Banner LMS Little Speakers */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-sand/40 bg-sand-soft p-4 sm:flex-row sm:items-center">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-sand-deep">
+          <BookOpen size={20} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-extrabold text-ink">
+            Little Speakers — jalur Kids 6–12
+          </p>
+          <p className="mt-1 text-[11px] text-ink/60">
+            4 tahap: Explorer, Builder, Speaker, Communicator. Selesaikan misi
+            dan kuis untuk mengisi Progress Report.
+          </p>
         </div>
-      )}
-      {trial?.status === "COMPLETED" && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-cyan/30 bg-cyan/10 p-4 sm:flex-row sm:items-center">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-cyan-deep">
-            <Gift size={20} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-extrabold text-ink">Selamat! 7 sesi gratis selesai 🎉</p>
-            <p className="mt-1 text-[11px] text-ink/60">Mau lanjut ke Kelas Kids berbayar atau berhenti di sini?</p>
-          </div>
-          <Button onClick={() => setShowDecision(true)} className="shrink-0">
-            Pilih: Lanjut / Berhenti
-          </Button>
-        </div>
-      )}
-
-      <Modal open={showDecision} onClose={() => setShowDecision(false)} title="Lanjut ke Kelas Kids?">
-        <p className="text-sm leading-relaxed text-ink/70">
-          Trial 7 sesi (<b>{trial?.trial_id}</b>) selesai. Kalau lanjut, sistem buatkan tagihan Kelas Kids
-          (<b>Little Speakers</b>) dan kamu diarahkan ke halaman pembayaran. Kalau berhenti, trial ditutup.
-        </p>
-        <div className="mt-4 grid gap-2">
-          <Button onClick={() => void decide("lanjut")} disabled={deciding}>
-            {deciding ? "Memproses…" : "Ya, Lanjut → Bayar Kelas Kids"}
-          </Button>
-          <Button variant="secondary" onClick={() => void decide("berhenti")} disabled={deciding}>
-            Tidak, Berhenti
-          </Button>
-        </div>
-      </Modal>
+        <Link href="/student/kursus" className="inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-xl bg-ink px-5 py-3 text-sm font-bold text-ivory hover:bg-navy">
+          Buka LMS
+        </Link>
+      </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         {/* Kolom utama */}
@@ -619,7 +468,6 @@ export default function StudentOverview() {
           </Link>
         </div>
       </div>
-      <Toast message={toast} tone={toastTone} />
     </div>
   );
 }

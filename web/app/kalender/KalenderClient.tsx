@@ -100,7 +100,7 @@ export default function KalenderClient() {
           Kalender Kelas
         </h1>
         <p className="mx-auto mt-2 max-w-xl text-center text-sm text-ink/70">
-          Klik tanggal bertitik untuk melihat sesi. Ingin ikut? <Link href="/daftar" className="font-bold text-navy underline">Mulai trial gratis</Link>.
+          Klik tanggal bertitik untuk melihat sesi. Ingin ikut? <Link href="/katalog" className="font-bold text-navy underline">Lihat katalog program</Link>.
         </p>
 
         <Card className="mx-auto mt-6 max-w-3xl rounded-xl">

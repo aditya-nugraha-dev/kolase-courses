@@ -27,6 +27,7 @@
   const stageSelect = document.getElementById("stage");
   const form = document.getElementById("registerForm");
   const formStatus = document.getElementById("formStatus");
+  const stageField = stageSelect ? stageSelect.closest(".field") : null;
 
   const state = {
     program: "kids",
@@ -50,10 +51,15 @@
     if (selectedSummary) {
       selectedSummary.innerHTML = `Dipilih: <strong>${state.programName}</strong> — ${state.programPrice}`;
     }
+    if (stageField) stageField.style.display = state.program === "adult-teen" ? "none" : "";
     if (programSelect) programSelect.value = state.program;
   }
 
   function revealStages() {
+    if (state.program === "adult-teen") {
+      location.href = "class-details.html?id=CLS-PUB-TEEN-01";
+      return;
+    }
     if (!stagesSection) return;
     stagesSection.hidden = false;
     stagesSection.classList.remove("is-hidden");
@@ -120,12 +126,7 @@
         formStatus.textContent = "Isi nomor WhatsApp yang valid.";
         return;
       }
-      if (state.program === "adult-teen") {
-        formStatus.textContent = "Beginner English (Adult/Teen) COMING SOON — pendaftaran belum dibuka. Silakan pilih Kids Public Class.";
-        return;
-      }
-
-      formStatus.textContent = `Terima kasih, ${nama}. Pendaftaran ${state.programName} dan ${state.stageName} dicatat. Tim KOLASE akan menghubungi via WhatsApp.`;
+      formStatus.textContent = `Terima kasih, ${nama}. Pendaftaran ${state.programName} dicatat. Tim KOLASE akan menghubungi via WhatsApp.`;
       form.reset();
       if (programSelect) programSelect.value = state.program;
       if (stageSelect) stageSelect.value = state.stage;

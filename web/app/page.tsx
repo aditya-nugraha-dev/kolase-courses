@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import Hero from "./components/landing/Hero";
-import TrialGratis from "./components/landing/TrialGratis";
 import ValueProps from "./components/landing/ValueProps";
+import ProgramKatalog from "./components/landing/ProgramKatalog";
 import ProgramDetails from "./components/landing/ProgramDetails";
 import Curriculum from "./components/landing/Curriculum";
 import PosterCard from "./components/PosterCard";
@@ -13,7 +13,7 @@ import { SectionHeading } from "./components/ui";
 // Tiap poster punya caption + link topik agar tak membingungkan.
 const GALERI_BELAJAR: GalleryItem[] = [
   { src: "/poster/metode-scaffolding.jpeg", alt: "Nggak harus langsung bisa sendiri — dengar contoh, coba bersama, pelan-pelan bantuan dikurangi", caption: "Cara kami mengajar: scaffolding", href: "/#keunggulan", linkLabel: "Lihat kenapa KOLASE", badge: "MENGAJAR" },
-  { src: "/poster/bahasa-dipakai.jpeg", alt: "Bukan cuma mendengarkan penjelasan — bahasa perlu dipakai, bukan cuma dipelajari", caption: "Bahasa dipakai, bukan cuma dipelajari", href: "/#program", linkLabel: "Lihat program 90 menit", badge: "PROGRAM" },
+  { src: "/poster/bahasa-dipakai.jpeg", alt: "Bukan cuma mendengarkan penjelasan — bahasa perlu dipakai, bukan cuma dipelajari", caption: "Bahasa dipakai, bukan cuma dipelajari", href: "/#program", linkLabel: "Lihat cara belajar 60 menit", badge: "PROGRAM" },
   { src: "/poster/kids-bermain.jpeg", alt: "Dekat dengan keseharian — ada ruang untuk mencoba, ada arahan untuk berkembang", caption: "Little Speakers: belajar lewat bermain", href: "/program/little-speakers", linkLabel: "Lihat Little Speakers", badge: "KIDS" },
   { src: "/poster/berani-mencoba.jpeg", alt: "Bukan cuma hari ini belajar apa, tapi hari ini berani mencoba apa", caption: "Berani mencoba setiap sesi", href: "/orang-tua", linkLabel: "Info untuk orang tua", badge: "MINDSET" },
   { src: "/poster/cerita-awal.jpeg", alt: "Cerita sederhana bisa jadi awal — belajar bermakna saat bahasa terhubung dengan hidup kita", caption: "Mulai dari ceritamu sendiri", href: "/daftar", linkLabel: "Mulai placement check", badge: "MULAI" },
@@ -36,6 +36,7 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <ValueProps />
+        <ProgramKatalog />
         <ProgramDetails />
         <Curriculum />
 
@@ -71,13 +72,12 @@ export default function Home() {
           </div>
         </section>
 
-        <TrialGratis />
         <section className="bg-paper">
           <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:py-16">
             <SectionHeading
-              eyebrow="PROGRAM"
-              title="Dua jalur: Kids & Teens/Adults"
-              desc="Little Speakers untuk <13 dengan Entry Assessment ramah anak. A2 Discovery untuk 13+ dengan placement terstruktur."
+              eyebrow="JALUR BELAJAR"
+              title="Dari kelas publik sampai kelompok kecil"
+              desc="Kids 6–12 mulai dari observasi informal, lalu Entry Assessment untuk Term Program. Teens & Adults 13+ mulai langsung, lalu Diagnostic Placement untuk Small Group."
             />
             <div className="mx-auto mt-6 grid max-w-4xl items-center gap-5 sm:grid-cols-[240px_1fr]">
               <PosterCard
@@ -89,14 +89,14 @@ export default function Home() {
               />
               <div className="grid gap-3">
                 <Link href="/program/little-speakers" className="rounded-xl border border-sand/40 bg-ivory p-5 hover:border-ink">
-                  <p className="text-xs font-extrabold text-navy">KIDS • &lt;13</p>
+                  <p className="text-xs font-extrabold text-navy">KIDS • 6–12 TAHUN</p>
                   <p className="font-display mt-1 text-lg font-extrabold text-ink">Little Speakers</p>
-                  <p className="mt-1 text-sm text-ink/70">Batch kecil, attendance, session report, parent update tiap sesi.</p>
+                  <p className="mt-1 text-sm text-ink/70">Kids Public Class 4 sesi Rp50.000, lalu Kids Term Program 10 sesi Rp650.000 alumni / Rp750.000 reguler.</p>
                 </Link>
-                <Link href="/daftar" className="rounded-xl border border-sand/40 bg-ivory p-5 hover:border-ink">
-                  <p className="text-xs font-extrabold text-navy">13+ • A2 PILOT</p>
-                  <p className="font-display mt-1 text-lg font-extrabold text-ink">Speaking Discovery Session</p>
-                  <p className="mt-1 text-sm text-ink/70">Placement 0–50, kelas 3–5, gain pre→post 0–10.</p>
+                <Link href="/katalog" className="rounded-xl border border-sand/40 bg-ivory p-5 hover:border-ink">
+                  <p className="text-xs font-extrabold text-navy">13+ • TEENS & ADULTS</p>
+                  <p className="font-display mt-1 text-lg font-extrabold text-ink">Beginner English → Small Group</p>
+                  <p className="mt-1 text-sm text-ink/70">Beginner English 4 sesi Rp75.000. Small Group 6–45 sesi Rp450.000–Rp3.150.000.</p>
                 </Link>
               </div>
             </div>
@@ -120,10 +120,10 @@ export default function Home() {
             />
             <div className="mx-auto mt-6 grid max-w-3xl gap-3">
               {[
-                { q: "Apakah satu sesi bisa menaikkan level CEFR?", a: "Tidak. Pilot 90 menit hanya mengukur Gain pada satu learning objective (pre → post 0–10). Tidak untuk klaim kenaikan CEFR." },
-                { q: "Bagaimana placement dinilai?", a: "Placement 0–50 (Language Use, Vocabulary, Reading, Listening + Writing) terpisah dari Pre-Check 0–10. Tiap pengerjaan dapat ATM-###### baru dengan STU yang sama." },
-                { q: "Bolehkah usia <13 ikut placement dewasa?", a: "Placement 50 poin khusus 13+. Untuk Kids gunakan Entry Assessment ramah anak 10–15 menit. Pilih Age Group yang benar saat daftar." },
-                { q: "Apa yang saya butuhkan untuk kelas?", a: "Perangkat Google Meet-ready, komitmen penuh 90 menit, ruangan tenang + earphone. Link Meet dibagikan setelah class matching." },
+                { q: "Berapa lama satu sesi?", a: "Semua program KOLASE berdurasi 60 menit per sesi. Kids Public Class dan Beginner English 4 sesi; Kids Term Program 10 sesi; Small Group 6–45 sesi." },
+                { q: "Bagaimana penempatan siswa?", a: "Kids 6–12 memakai observasi kelas informal atau Kids Entry Assessment lisan 10–15 menit. Teens & Adults 13+ memakai Diagnostic Placement Test 50 poin (+ wawancara lisan 5 menit bila borderline)." },
+                { q: "Bolehkah usia <13 ikut placement dewasa?", a: "Tidak. Placement 50 poin khusus 13+. Untuk Kids gunakan Entry Assessment ramah anak. Pilih Age Group yang benar saat daftar." },
+                { q: "Apa yang saya butuhkan untuk kelas?", a: "Perangkat Google Meet-ready, ruangan tenang + earphone. Link Meet dibagikan setelah class matching." },
               ].map((f) => (
                 <details key={f.q} className="rounded-xl border border-sand/40 bg-ivory px-4 py-3">
                   <summary className="cursor-pointer text-sm font-bold text-ink">{f.q}</summary>
@@ -146,11 +146,11 @@ export default function Home() {
             <div className="text-center lg:text-left">
               <p className="text-xs font-extrabold tracking-[0.2em] text-sand">SIAP MULAI?</p>
               <h2 className="font-display mx-auto mt-2 max-w-2xl text-2xl font-extrabold sm:text-3xl lg:mx-0">
-                Amankan kursi pilot 3–5 siswa — mulai dari Placement Check hari ini
+                Pilih program yang sesuai usia — mulai dari katalog resmi
               </h2>
               <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-                <Link href="/daftar" className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-sand px-6 py-3.5 text-base font-bold text-ink hover:bg-sand-deep">
-                  Daftar Pilot Class / Placement Check
+                <Link href="/katalog" className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-sand px-6 py-3.5 text-base font-bold text-ink hover:bg-sand-deep">
+                  Lihat Katalog & Harga
                 </Link>
                 <Link href="/dashboard" className="inline-flex min-h-[52px] items-center justify-center rounded-xl border border-ivory/30 px-6 py-3.5 text-base font-semibold text-ivory hover:bg-white/10">
                   Lihat Dashboard Tracker
@@ -176,7 +176,7 @@ export default function Home() {
           Instagram: <a href="https://instagram.com/kolaseacademy" target="_blank" rel="noreferrer" className="font-bold text-navy">@kolaseacademy</a> •{" "}
           <Link href="/konten" className="font-bold text-navy">Arsip Konten</Link>
         </p>
-        <p className="mt-2 text-ink/40">© 2026 KOLASE Academy • Pilot Session 0</p>
+        <p className="mt-2 text-ink/40">© 2026 KOLASE Academy • Katalog Resmi 2026</p>
       </footer>
     </div>
   );

@@ -18,7 +18,6 @@ const TABS = {
   payments: { table: "txn_payments", order: "tgl", desc: true, file: "pembayaran", cols: ["trx_id", "enrollment_id", "student_id", "class_id", "nominal", "method", "status", "tgl"] },
   membership: { table: "class_membership", order: "enrollment_id", desc: false, file: "membership", cols: ["enrollment_id", "student_id", "class_id", "status", "sisa", "activated_at", "expires_at"] },
   ledger: { table: "txn_entitlement_ledger", order: "at", desc: true, file: "ledger", cols: ["at", "enrollment_id", "student_id", "delta", "reason", "balance_after"] },
-  trials: { table: "trials", order: "created_at", desc: true, file: "trial", cols: ["trial_id", "student_id", "class_id", "status", "sessions_delivered", "created_at"] },
   placements: { table: "pilot_placements", order: "created_at", desc: true, file: "placement", cols: ["pilot_student_id", "placement_total", "pre_check_score", "created_at"] },
   attendance: { table: "session_attendance", order: "recorded_at", desc: true, file: "absensi", cols: ["session_id", "student_id", "hadir", "recorded_by", "recorded_at"] },
 } as const;

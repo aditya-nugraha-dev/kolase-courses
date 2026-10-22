@@ -24,8 +24,8 @@
   <div class="layout-2">
     <aside class="card sidebar">
       <b data-i18n="cat.filter">Filter</b>
-      <div class="field"><label data-i18n="cat.level">Level</label><select id="fLevel"><option value="" data-i18n="cat.all">Semua</option><option>KIDS</option><option>TEEN</option></select></div>
-      <div class="field"><label data-i18n="cat.maxprice">Harga maks</label><select id="fPrice"><option value="" data-i18n="cat.all">Semua</option><option value="700000">≤ Rp 700rb</option><option value="1000000">≤ Rp 1jt</option></select></div>
+      <div class="field"><label data-i18n="cat.level">Level</label><select id="fLevel"><option value="" data-i18n="cat.all">Semua</option><option>KIDS</option><option>TEEN</option><option>CORE</option></select></div>
+      <div class="field"><label data-i18n="cat.maxprice">Harga maks</label><select id="fPrice"><option value="" data-i18n="cat.all">Semua</option><option value="700000">≤ Rp 700rb</option><option value="1000000">≤ Rp 1jt</option><option value="3200000">≤ Rp 3,2jt</option></select></div>
       <button class="btn btn-brand btn-sm" id="fApply" data-i18n="cat.apply">Terapkan</button>
     </aside>
     <div><div class="grid cols-3" data-catalog></div></div>
@@ -34,7 +34,7 @@
 <div class="scrim" data-scrim data-close-sheet></div>
 <div class="sheet" data-sheet>
   <b data-i18n="cat.filterm">Filter Kelas</b>
-  <div class="field"><label data-i18n="cat.level">Level</label><select id="mLevel"><option value="" data-i18n="cat.all">Semua</option><option>KIDS</option><option>TEEN</option></select></div>
+  <div class="field"><label data-i18n="cat.level">Level</label><select id="mLevel"><option value="" data-i18n="cat.all">Semua</option><option>KIDS</option><option>TEEN</option><option>CORE</option></select></div>
   <button class="btn btn-brand" data-close-sheet id="mApply" data-i18n="cat.show">Tampilkan</button>
 </div>
 <nav class="mobile-tabs"><a href="home.html">Home</a><a href="catalog.html" class="active">Katalog</a><a href="dashboard.html">Kelas</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
@@ -43,7 +43,11 @@
 <script>
 document.getElementById("fApply").onclick = () => {
   const lv = document.getElementById("fLevel").value;
-  location.search = lv ? "?level=" + lv : "";
+  const max = document.getElementById("fPrice").value;
+  const p = new URLSearchParams();
+  if (lv) p.set("level", lv);
+  if (max) p.set("max", max);
+  location.search = p.toString() ? "?" + p.toString() : "";
 };
 document.getElementById("mApply").onclick = () => {
   const lv = document.getElementById("mLevel").value;

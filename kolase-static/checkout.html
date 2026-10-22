@@ -16,7 +16,7 @@
   <div class="section"><h2 data-i18n="co.title">Checkout & Payment</h2>
     <div class="steps" data-i18n="co.steps"><span>1. Ringkasan</span>→<span>2. Bayar (PENDING)</span>→<span>3. Webhook VERIFIED</span></div>
     <div class="card" id="summary">Memuat...</div>
-    <div class="card" id="comingSoon" style="display:none"><b data-i18n="co.soon.t">COMING SOON</b><div class="small" data-i18n="co.soon.d">Pendaftaran kelas ini belum dibuka. Silakan pilih kelas lain di <a href="catalog.html">katalog</a>.</div></div>
+    <div class="card" id="comingSoon" style="display:none"><b data-i18n="co.soon.t">BELUM TERSEDIA</b><div class="small" data-i18n="co.soon.d">Pendaftaran online untuk paket/kelas ini belum dibuka. Pilih opsi lain atau hubungi tim KOLASE.</div></div>
     <div class="card" id="payCard">
       <div class="field"><label data-i18n="co.method">Metode bayar</label><select id="method"><option>QRIS</option><option>Bank Transfer (VA)</option><option>E-Wallet</option></select></div>
       <button class="btn btn-brand" id="payBtn" data-i18n="co.pay">Buat Enrollment + Bayar</button>
@@ -46,10 +46,11 @@
 </main>
 <script src="js/store.js?v=14"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/cloud-orders.js?v=1"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
 <script>
-let CLS=null, TRX=null, ENR=null, METHOD="";
+let CLS=null, TRX=null, ENR=null, METHOD="", PAY_NOMINAL=0, PAY_SESSIONS=0;
 const qs = new URLSearchParams(location.search);
 const cid = qs.get("id") || "CLS-PUB-KIDS-01";
-const preEnr = qs.get("enr") || "";
+const rate = qs.get("rate") || "";
+const pkgSessions = Number(qs.get("pkg") || 0);
 function escH(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
 function cloudOn(){ return (window.KolaseOrders && window.KolaseOrders.configured && window.KolaseOrders.configured()) || false; }
 function cloudOrderPayload(proof) {
@@ -57,7 +58,7 @@ function cloudOrderPayload(proof) {
   try { u = KolaseStore.loadDB().sessionUser; } catch (e) {}
   if (!u || !ENR || !TRX || !CLS) return null;
   return { order_id: ENR, trx_id: TRX, student_id: u.id, student_nama: u.nama, student_email: u.email,
-    class_id: CLS.id, class_nama: CLS.nama, nominal: CLS.harga, method: METHOD, proof: proof || "", status: "PENDING" };
+    class_id: CLS.id, class_nama: CLS.nama, nominal: PAY_NOMINAL, sessions: PAY_SESSIONS, method: METHOD, proof: proof || "", status: "PENDING" };
 }
 // Cerminkan order ke cloud (diam-diam; gagal = tetap lanjut lokal).
 function pushOrderCloud(proof, msgEl) {
@@ -126,30 +127,37 @@ if (proofSendBtn) proofSendBtn.onclick = function(){
 };
 fetch("data/classes.json").then(r=>r.json()).then(list=>{
   CLS = list.find(x=>x.id===cid)||list[0];
-  document.getElementById("summary").innerHTML = `<b>${CLS.nama}</b><div class="small">${CLS.id} • ${CLS.jadwal}</div><div class="price">Rp ${Number(CLS.harga).toLocaleString("id-ID")}</div>`;
+  const rp = (n) => "Rp " + Number(n || 0).toLocaleString("id-ID");
+  PAY_NOMINAL = Number(CLS.harga) || 0;
+  PAY_SESSIONS = Number(CLS.sesi_count) || 4;
+  let pkgLabel = "";
+  if (pkgSessions) {
+    const pkg = (CLS.packages || []).find(p => Number(p.sessions) === pkgSessions);
+    if (!pkg || !pkg.price) {
+      document.getElementById("summary").innerHTML = `<b>${CLS.nama}</b><div class="small">Paket ${pkgSessions} sesi belum punya harga final.</div><div class="small" style="margin-top:6px">Silakan konfirmasi nominal ke tim KOLASE.</div>`;
+      document.getElementById("comingSoon").style.display = "block";
+      document.getElementById("payCard").style.display = "none";
+      return;
+    }
+    PAY_NOMINAL = Number(pkg.price);
+    PAY_SESSIONS = Number(pkg.sessions);
+    pkgLabel = pkg.label;
+  }
+  if (rate === "alumni" && CLS.harga_alumni) {
+    PAY_NOMINAL = Number(CLS.harga_alumni);
+    pkgLabel = "Harga alumni";
+  }
+  document.getElementById("summary").innerHTML = `<b>${CLS.nama}</b><div class="small">${CLS.id} • ${CLS.jadwal}</div>${pkgLabel ? `<div class="small" style="margin-top:4px">${pkgLabel} • ${PAY_SESSIONS} sesi</div>` : ""}<div class="price">${rp(PAY_NOMINAL)}</div>`;
   if ((CLS.class_status || "OPEN") !== "OPEN") {
     document.getElementById("comingSoon").style.display = "block";
     document.getElementById("payCard").style.display = "none";
     return;
   }
-  // Lanjutan keputusan trial "lanjut": enrollment sudah dibuat → langsung ke bayar.
-  if (preEnr) {
-    try {
-      const db = KolaseStore.loadDB();
-      const m = (db.CLASS_MEMBERSHIP || []).find(x=>x.enrollment_id===preEnr && db.sessionUser && x.student_id===db.sessionUser.id && x.status==="PENDING");
-      const pay = m ? (db.TXN_PAYMENTS || []).filter(x=>x.enrollment_id===m.enrollment_id && x.status==="PENDING").pop() : null;
-      if (m && pay) {
-        document.getElementById("method").value = pay.method || "QRIS";
-        document.getElementById("summary").innerHTML += `<div class="small" style="margin-top:6px">Lanjutan trial 7 sesi 🎉 — selesaikan pembayaran di bawah.</div>`;
-        showPayBox(pay.method || "QRIS", m.enrollment_id, pay.trx_id);
-      }
-    } catch(e){}
-  }
 });
 document.getElementById("payBtn").onclick = () => {
   try {
     const m = document.getElementById("method").value;
-    const r = KolaseStore.checkout(CLS.id, CLS.harga, m);
+    const r = KolaseStore.checkout(CLS.id, PAY_NOMINAL, m, PAY_SESSIONS);
     showPayBox(m, r.enrId, r.trxId);
   } catch(e){
     alert(e.message);
@@ -161,7 +169,7 @@ document.getElementById("payBtn").onclick = () => {
 document.getElementById("simulateWebhook").onclick = () => {
   try {
     const p = KolaseStore.verifyPayment(TRX);
-    document.getElementById("verifyResult").innerHTML = `TRX <span class="id-mono">${p.trx_id}</span> • <span class="pill p-verified">VERIFIED</span> • +4 sesi dibuat (SES-000001 s/d SES-000004) • <a href="dashboard.html">Buka Dashboard →</a>`;
+    document.getElementById("verifyResult").innerHTML = `TRX <span class="id-mono">${p.trx_id}</span> • <span class="pill p-verified">VERIFIED</span> • +${PAY_SESSIONS} sesi dibuat • <a href="dashboard.html">Buka Dashboard →</a>`;
   } catch (e) {
     const msg = String((e && e.message) || "Gagal verifikasi.");
     // Verifikasi butuh hak penuh (founder/academic/systems): arahkan ke Staff Portal.

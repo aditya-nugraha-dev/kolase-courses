@@ -80,8 +80,8 @@ export default function KursusPage() {
         <p className="text-xs font-extrabold tracking-[0.2em] text-navy">LEARNING HUB</p>
         <h1 className="font-display mt-1 text-2xl font-extrabold text-ink">Kursus Saya</h1>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink/70">
-          Modul, latihan, kuis, dan resource yang kamu pakai di kelas live. Semua
-          materi disusun untuk dipakai, bukan cuma dibaca.
+          Misi, latihan, kuis, dan resource untuk Little Speakers. Semua materi
+          dirancang agar anak berani mencoba, bukan sekadar membaca.
         </p>
       </header>
 
@@ -162,7 +162,7 @@ export default function KursusPage() {
           ))}
         </div>
         <p className="mt-4 flex items-center gap-1.5 text-xs text-ivory/60">
-          <CheckCircle2 size={14} /> Progress saat ini tersimpan di perangkat ini.
+          <CheckCircle2 size={14} /> Progress tersimpan di akun dan disinkronkan ke Supabase.
         </p>
       </Card>
     </div>

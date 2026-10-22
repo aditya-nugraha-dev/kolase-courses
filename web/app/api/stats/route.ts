@@ -1,5 +1,5 @@
 // GET /api/stats — agregat big data KOLASE (khusus staff: admin/founder/academic/systems).
-// Ringkasan: murid/guru/staff, omzet, okupansi kelas, funnel trial,
+// Ringkasan: murid/guru/staff, omzet, okupansi kelas,
 // distribusi placement, kehadiran, gain Pre-vs-Post, flag integritas.
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
@@ -30,20 +30,19 @@ export async function GET(req: Request) {
     const { supabaseServer } = await import("@/lib/supabase");
     const sb = supabaseServer();
 
-    const [students, teachers, staff, payments, membership, trials, placements, postclass, attendance, classes] =
+    const [students, teachers, staff, payments, membership, placements, postclass, attendance, classes] =
       await Promise.all([
         sb.from("mst_students").select("student_id,current_status,tgl_daftar").limit(2000),
         sb.from("mst_teachers").select("teacher_id").limit(1000),
         sb.from("mst_staff").select("staff_id,role").limit(1000),
         sb.from("txn_payments").select("trx_id,nominal,method,status,tgl").limit(2000),
         sb.from("class_membership").select("enrollment_id,student_id,class_id,status,sisa").limit(2000),
-        sb.from("trials").select("trial_id,student_id,class_id,status").limit(2000),
         sb.from("pilot_placements").select("pilot_student_id,student_id,placement_total,pre_check_score").limit(2000),
         sb.from("pilot_postclass").select("pilot_student_id,student_id,post_check_total").limit(2000),
         sb.from("session_attendance").select("hadir").limit(5000),
         sb.from("classes").select("id,nama,kuota,class_status").limit(200),
       ]);
-    for (const r of [students, teachers, staff, payments, membership, trials, placements, postclass, attendance, classes]) {
+    for (const r of [students, teachers, staff, payments, membership, placements, postclass, attendance, classes]) {
       if (r.error) throw new Error(r.error.message);
     }
     const S = ((students.data ?? []) as Row[]);
@@ -51,7 +50,6 @@ export async function GET(req: Request) {
     const F = ((staff.data ?? []) as Row[]);
     const P = ((payments.data ?? []) as Row[]);
     const M = ((membership.data ?? []) as Row[]);
-    const R = ((trials.data ?? []) as Row[]);
     const PL = ((placements.data ?? []) as Row[]);
     const PO = ((postclass.data ?? []) as Row[]);
     const A = ((attendance.data ?? []) as Row[]);
@@ -86,15 +84,6 @@ export async function GET(req: Request) {
       terisi: occByClass[str(c.id)] ?? 0,
       kuota: num(c.kuota) || 0,
     }));
-
-    // --- Funnel trial ---
-    const funnel: Record<string, number> = { STARTED: 0, COMPLETED: 0, CONVERTED: 0, DROPPED: 0 };
-    for (const t of R) {
-      const k = str(t.status);
-      if (k in funnel) funnel[k] += 1;
-      else funnel[k] = (funnel[k] ?? 0) + 1;
-    }
-    const decided = (funnel.COMPLETED ?? 0) + (funnel.CONVERTED ?? 0) + (funnel.DROPPED ?? 0);
 
     // --- Placement (skor valid numerik saja) ---
     const validTotals = PL.map((x) => x.placement_total).filter((n) => typeof n === "number") as number[];
@@ -144,7 +133,6 @@ export async function GET(req: Request) {
         byMethod,
       },
       occupancy,
-      funnel: { ...funnel, decided },
       placement,
       attendance: {
         records: A.length,

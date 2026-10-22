@@ -20,7 +20,6 @@ interface StudentRow {
   wa: string;
   current_status: string;
   classes: Array<{ class_id: string; status: string; sisa: number }>;
-  trial: string;
 }
 
 export default function PenggunaClient() {
@@ -180,7 +179,7 @@ export default function PenggunaClient() {
         />
       ) : (
         <DataTable
-          columns={["Student ID", "Nama & Kontak", "Kelas & Trial", "Status", "Aksi"]}
+          columns={["Student ID", "Nama & Kontak", "Kelas", "Status", "Aksi"]}
           rows={students.map((x) => [
             <code key="id" className="rounded bg-ivory px-2 py-0.5 text-xs font-bold">{x.student_id}</code>,
             <span key="n">
@@ -190,8 +189,6 @@ export default function PenggunaClient() {
             </span>,
             <span key="c" className="text-xs text-ink/70">
               {x.classes.length === 0 ? "Belum ada kelas" : x.classes.map((c) => `${c.class_id} (${c.status}, sisa ${c.sisa})`).join("; ")}
-              <br />
-              <span className="text-ink/55">Trial: {x.trial}</span>
             </span>,
             <Badge key="s" tone="blue">{x.current_status || "REGISTERED"}</Badge>,
             <button
@@ -208,7 +205,7 @@ export default function PenggunaClient() {
       <Modal open={target !== null} onClose={() => setTarget(null)} title="Hapus permanen?">
         <p className="text-sm leading-relaxed text-ink/70">
           <b>{target?.nama}</b> (<code>{target?.id}</code>) akan dihapus <b>permanen</b> beserta seluruh datanya
-          {target?.type === "student" ? " (membership, pembayaran, trial, placement, absensi, chat)" : " (akun teacher)"}.
+          {target?.type === "student" ? " (membership, pembayaran, placement, absensi, chat)" : " (akun teacher)"}.
           Tindakan ini tidak bisa dibatalkan.
         </p>
         <div className="mt-4 flex gap-2">

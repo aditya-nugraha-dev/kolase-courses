@@ -35,7 +35,7 @@ export default function CourseProgress({
             <CheckCircle2 size={14} /> Progress kursus
           </p>
           <p className="mt-1 text-sm font-bold text-ink">
-            {done} dari {total} lesson selesai
+            {done} dari {total} misi selesai
           </p>
         </div>
         <span className="font-display text-2xl font-extrabold text-navy">{percent}%</span>
@@ -54,7 +54,7 @@ export default function CourseProgress({
         />
       </div>
       <p className="mt-2 text-[11px] text-ink/50">
-        Progress tersimpan di perangkat ini. Sinkronisasi akun menyusul.
+        Progress tersimpan di akunmu dan disinkronkan ke perangkat lain saat online.
       </p>
     </div>
   );

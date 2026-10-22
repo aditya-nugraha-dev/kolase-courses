@@ -25,17 +25,13 @@ import {
 } from "@/lib/materials";
 import { materialDeleteServerSchema } from "@/lib/schemas";
 
-// Kelas-kelas yang boleh diakses sesi student (membership + trial aktif).
+// Kelas-kelas yang boleh diakses sesi student (berdasarkan membership).
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 async function ownClassIds(sb: SupabaseClient, studentId: string): Promise<string[]> {
   const ids = new Set<string>();
   try {
     const { data } = await sb.from("class_membership").select("class_id").eq("student_id", studentId);
-    for (const r of (data ?? []) as Array<{ class_id: string }>) if (r.class_id) ids.add(String(r.class_id));
-  } catch { /* abaikan */ }
-  try {
-    const { data } = await sb.from("trials").select("class_id").eq("student_id", studentId).in("status", ["STARTED", "COMPLETED"]);
     for (const r of (data ?? []) as Array<{ class_id: string }>) if (r.class_id) ids.add(String(r.class_id));
   } catch { /* abaikan */ }
   return [...ids];

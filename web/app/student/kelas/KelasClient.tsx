@@ -2,22 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, ClipboardList, Gift, Link2, Video } from "lucide-react";
+import { ArrowRight, BookOpen, ClipboardList, Link2, Video } from "lucide-react";
 import { Badge, Card } from "../../components/ui";
 import MateriPanel from "../../components/MateriPanel";
-
-interface TrialRow {
-  trial_id: string;
-  class_id: string;
-  status: string;
-  sessions_delivered: number;
-}
 
 interface MeData {
   student: Record<string, unknown>;
   class: Record<string, unknown> | null;
   membership?: Record<string, unknown> | null;
-  trial?: TrialRow | null;
 }
 
 const getStr = (o: Record<string, unknown>, ...keys: string[]): string => {
@@ -29,7 +21,7 @@ const getStr = (o: Record<string, unknown>, ...keys: string[]): string => {
   return "";
 };
 
-// My Class & Materials: CTA Meet + GForm + materi (Kids), checklist trial 7 sesi.
+// My Class & Materials: CTA Meet + GForm + materi (Kids).
 export default function KelasClient() {
   const [data, setData] = useState<MeData | null>(null);
   const [role, setRole] = useState("");
@@ -43,7 +35,6 @@ export default function KelasClient() {
 
   const cls = (data?.class ?? {}) as Record<string, unknown>;
   const mem = (data?.membership ?? {}) as Record<string, unknown>;
-  const trial = data?.trial ?? null;
   const classId = getStr(cls, "id", "pilot_class_id");
   const name = String(cls.nama ?? cls.name ?? "Menunggu class matching");
   const schedule = String(cls.jadwal ?? cls.schedule ?? "Jadwal menyusul via WhatsApp");
@@ -55,9 +46,6 @@ export default function KelasClient() {
   const level = getStr(cls, "level");
   const isKids = level === "KIDS" || classId.startsWith("CLS-PUB-KIDS");
   const isTeacher = role !== "" && role !== "student";
-  const trialActive = trial?.status === "STARTED";
-  const trialDone = Number(trial?.sessions_delivered ?? 0);
-  const memActive = mem.status === "ACTIVE" || mem.status === "PENDING";
 
   return (
     <div className="space-y-4">
@@ -80,31 +68,6 @@ export default function KelasClient() {
           Buka Kursus Saya <ArrowRight size={15} />
         </Link>
       </div>
-
-      {/* Checklist trial 7 sesi (belum jadi member berbayar) */}
-      {trialActive && !memActive && (
-        <Card className="rounded-xl border-sand-deep">
-          <div className="flex items-center gap-2">
-            <Gift size={17} className="text-sand-deep" />
-            <h2 className="font-display text-base font-extrabold text-ink">Trial gratis: sesi {trialDone} dari 7</h2>
-          </div>
-          <div className="mt-3 flex gap-1.5">
-            {Array.from({ length: 7 }, (_, i) => (
-              <span
-                key={i}
-                className={`h-2.5 flex-1 rounded-full ${i < trialDone ? "bg-sand-deep" : "bg-ivory"}`}
-                title={i < 6 ? `Sesi ${i + 1}` : "Sesi 7 Progress Test"}
-              />
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-ink/60">
-            Guru menandai tiap sesi selesai. Sesi 1–6 belajar, Sesi 7 Progress Test — setelah itu kamu ditanya lanjut ke Kelas Kids atau tidak.
-          </p>
-          <Link href="/student" className="mt-3 inline-flex min-h-[44px] items-center justify-center rounded-xl bg-ink px-5 py-2.5 text-sm font-bold text-ivory hover:bg-navy">
-            Cek Progres di Dashboard
-          </Link>
-        </Card>
-      )}
 
       {/* CTA utama Kids: GMeet + GForm */}
       {isKids && (

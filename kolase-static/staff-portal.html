@@ -67,10 +67,10 @@
       <div class="card"><div class="small">Omzet Verified</div><b id="dOmzet" style="font-size:18px">-</b></div>
       <div class="card"><div class="small">Pending</div><b id="dPend" style="font-size:18px">-</b><div class="small" id="dPendN"></div></div>
       <div class="card"><div class="small">Kehadiran</div><b id="dHad" style="font-size:26px">-</b></div>
-      <div class="card"><div class="small">Gain rata-rata</div><b id="dGain" style="font-size:26px">-</b></div>
+      <div class="card"><div class="small">Paket Selesai</div><b id="dGain" style="font-size:26px">-</b></div>
     </div>
-    <div class="grid cols-2" style="margin-top:10px">
-      <div class="card"><b>Funnel Trial</b><div id="dFunnel" style="margin-top:6px"></div></div>
+      <div class="grid cols-2" style="margin-top:10px">
+      <div class="card"><b>Status Membership</b><div id="dFunnel" style="margin-top:6px"></div></div>
       <div class="card"><b>Okupansi Kelas</b><div id="dOcc" class="small" style="margin-top:6px"></div></div>
     </div>
     <div class="card" style="margin-top:10px"><b>Ekspor CSV</b><div id="dExp" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div><div class="small" id="dExpMsg" style="margin-top:6px"></div></div>
@@ -80,13 +80,12 @@
     <div class="kpi">
       <div class="card"><div class="small">Teacher</div><b id="kT" style="font-size:26px">-</b></div>
       <div class="card"><div class="small">Student</div><b id="kS2" style="font-size:26px">-</b></div>
-      <div class="card"><div class="small">Trial aktif</div><b id="kTr" style="font-size:26px">-</b></div>
     </div>
     <div class="field" style="max-width:320px"><label>Cari nama / email / ID</label><input id="dbQ" placeholder="cth. Galang / STU-..."></div>
     <h3 style="margin-top:12px">Teacher & Kelas yang Diajar</h3>
     <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nama & Kontak</th><th>Mengajar di Kelas</th><th>Aksi</th></tr></thead><tbody id="teacherT"></tbody></table></div>
     <h3 style="margin-top:12px">Student Masuk</h3>
-    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nama & Kontak</th><th>Kelas & Trial</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="studentT"></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Nama & Kontak</th><th>Kelas</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="studentT"></tbody></table></div>
   </div>
   <div class="section"><div style="display:flex;gap:8px;flex-wrap:wrap">
     <a class="btn btn-ghost btn-sm" href="ownership.html">Ownership Chart</a>
@@ -111,13 +110,13 @@ document.getElementById("kP").textContent = pend.length;
 document.getElementById("kO").textContent = "Rp " + ver.reduce((a,t)=>a+Number(t.nominal||0),0).toLocaleString("id-ID");
 document.getElementById("pendingList").innerHTML = pend.length ? pend.map(t=>
  `<div class="card"><div class="meta"><span class="id-mono">${t.trx_id}</span><span class="id-mono">${t.enrollment_id}</span><span class="pill p-pending">PENDING</span></div>
-  <b>Rp ${Number(t.nominal).toLocaleString("id-ID")}</b><div class="small">${t.class_id} • ${t.method}</div>
-  <div style="margin-top:8px"><button class="btn btn-brand btn-sm" data-ver="${t.trx_id}">Verifikasi (+4 sesi)</button></div></div>`
+  <b>Rp ${Number(t.nominal).toLocaleString("id-ID")}</b><div class="small">${t.class_id} • ${t.method}${t.sessions ? " • " + t.sessions + " sesi" : ""}</div>
+  <div style="margin-top:8px"><button class="btn btn-brand btn-sm" data-ver="${t.trx_id}">Verifikasi paket</button></div></div>`
 ).join("") : `<div class="card small">Tidak ada pembayaran pending. Uji via checkout.html sebagai student.</div>`;
 document.querySelectorAll("[data-ver]").forEach(b=>b.onclick=()=>{
   try {
-    KolaseStore.verifyPayment(b.getAttribute("data-ver"));
-    alert("VERIFIED: 4 sesi + ledger +4 dibuat, tersinkron ke Sheets."); location.reload();
+    const p = KolaseStore.verifyPayment(b.getAttribute("data-ver"));
+    alert(`VERIFIED: ${p.sessions || "paket"} sesi + ledger dibuat, tersinkron ke Sheets.`); location.reload();
   } catch(e){ alert(e.message); }
 });
 document.getElementById("payT").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td class="small">${t.method}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
@@ -125,7 +124,7 @@ document.getElementById("ledT").innerHTML = db.TXN_ENTITLEMENT_LEDGER.slice(-10)
 document.getElementById("kB").textContent = "Rp " + KolaseStore.outstandingBalance().toLocaleString("id-ID");
 (function(){
   const p = KolaseStore.pendingBadgeCount();
-  document.getElementById("kG").textContent = p.total + (p.total ? ` (trial ${p.trial} + paket ${p.paket})` : "");
+  document.getElementById("kG").textContent = p.total + (p.total ? ` (paket ${p.paket})` : "");
 })();
 (function(){
   const warns = KolaseStore.auditWarnings();
@@ -155,7 +154,7 @@ document.getElementById("annSend").onclick = () => {
     renderAnn();
   } catch(e){ msg.textContent = e.message; }
 };
-// Database Pengguna: teacher (+kelas diajar) & student (+kelas/trial) + hapus permanen.
+// Database Pengguna: teacher (+kelas diajar) & student (+kelas) + hapus permanen.
 function escDb(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
 function renderDatabase(){
   const d = KolaseStore.loadDB();
@@ -165,11 +164,8 @@ function renderDatabase(){
   const students = (d.MST_STUDENTS || []).filter(s => match(s.nama) || match(s.email) || match(s.student_id));
   document.getElementById("kT").textContent = (d.MST_TEACHERS || []).length;
   document.getElementById("kS2").textContent = (d.MST_STUDENTS || []).length;
-  document.getElementById("kTr").textContent = (d.TRIALS || []).filter(t => t.status === "STARTED").length;
   const memByStudent = {};
   (d.CLASS_MEMBERSHIP || []).forEach(m => { (memByStudent[m.student_id] = memByStudent[m.student_id] || []).push(m); });
-  const trialByStudent = {};
-  (d.TRIALS || []).forEach(t => { if (t.status === "STARTED" || t.status === "COMPLETED") trialByStudent[t.student_id] = t.status + " " + (t.sessions || []).filter(s => s.hadir === "PRESENT" || s.hadir === "LATE").length + "/7"; });
   const classList = window.__dbClasses || [];
   document.getElementById("teacherT").innerHTML = teachers.length ? teachers.map(t => {
     const byName = classList.filter(c => {
@@ -180,7 +176,7 @@ function renderDatabase(){
   }).join("") : `<tr><td colspan="4" class="small">Kosong</td></tr>`;
   document.getElementById("studentT").innerHTML = students.length ? students.map(s => {
     const mems = memByStudent[s.student_id] || [];
-    return `<tr><td class="id-mono">${escDb(s.student_id)}</td><td><b>${escDb(s.nama)}</b><div class="small">${escDb(s.email || "")}${s.wa ? " • " + escDb(s.wa) : ""}</div></td><td class="small">${mems.length ? mems.map(m => `${escDb(m.class_id)} (${escDb(m.status)}, sisa ${m.sisa})`).join("<br>") : "Belum ada kelas"}<br><span>Trial: ${escDb(trialByStudent[s.student_id] || "—")}</span></td><td><span class="pill p-pending">${escDb(s.current_status || "REGISTERED")}</span></td><td><button class="btn btn-ghost btn-sm" data-del-student="${escDb(s.student_id)}" style="color:#b91c1c">Hapus</button></td></tr>`;
+    return `<tr><td class="id-mono">${escDb(s.student_id)}</td><td><b>${escDb(s.nama)}</b><div class="small">${escDb(s.email || "")}${s.wa ? " • " + escDb(s.wa) : ""}</div></td><td class="small">${mems.length ? mems.map(m => `${escDb(m.class_id)} (${escDb(m.status)}, sisa ${m.sisa})`).join("<br>") : "Belum ada kelas"}</td><td><span class="pill p-pending">${escDb(s.current_status || "REGISTERED")}</span></td><td><button class="btn btn-ghost btn-sm" data-del-student="${escDb(s.student_id)}" style="color:#b91c1c">Hapus</button></td></tr>`;
   }).join("") : `<tr><td colspan="5" class="small">Kosong</td></tr>`;
   document.querySelectorAll("[data-del-teacher]").forEach(b => b.onclick = () => {
     const id = b.getAttribute("data-del-teacher");
@@ -191,7 +187,7 @@ function renderDatabase(){
   });
   document.querySelectorAll("[data-del-student]").forEach(b => b.onclick = () => {
     const id = b.getAttribute("data-del-student");
-    if (!confirm(`Hapus student ${id} + SELURUH datanya (kelas, bayar, trial, chat) permanen?`)) return;
+    if (!confirm(`Hapus student ${id} + SELURUH datanya (kelas, bayar, chat) permanen?`)) return;
     if (!confirm("Yakin? Tindakan ini tidak bisa dibatalkan.")) return;
     try { KolaseStore.deleteStudent(id); alert("Student " + id + " dihapus."); location.reload(); }
     catch(e){ alert(e.message); }
@@ -218,8 +214,6 @@ const EXP_TABS = [
   ["payments", "Pembayaran", "TXN_PAYMENTS", ["trx_id", "enrollment_id", "student_id", "class_id", "nominal", "method", "status", "tgl"]],
   ["membership", "Membership", "CLASS_MEMBERSHIP", ["enrollment_id", "student_id", "class_id", "status", "sisa"]],
   ["ledger", "Ledger", "TXN_ENTITLEMENT_LEDGER", ["at", "enrollment_id", "student_id", "delta", "reason", "balance_after"]],
-  ["trials", "Trial", "TRIALS", ["trial_id", "student_id", "class_id", "status", "decision"]],
-  ["placements", "Placement", "PILOT_PLACEMENTS", ["attempt_id", "pilot_student_id", "placement_total", "pre_check_score", "at"]],
   ["attendance", "Absensi", "SESSION_ATTENDANCE", ["session_id", "student_id", "hadir", "recorded_at"]]
 ];
 function renderData() {
@@ -234,19 +228,14 @@ function renderData() {
   const att = d.SESSION_ATTENDANCE || [];
   const pres = att.filter(a => a.hadir === "PRESENT" || a.hadir === "LATE").length;
   document.getElementById("dHad").textContent = att.length ? Math.round(pres / att.length * 100) + "%" : "-";
-  const preById = {};
-  (d.PILOT_PLACEMENTS || []).forEach(p => { const id = p.pilot_student_id || p.student_id; if (id && p.pre_check_score != null) preById[id] = p.pre_check_score; });
-  const gains = (d.PILOT_POSTCLASS || []).map(p => {
-    const id = p.pilot_student_id || p.student_id;
-    return (id && preById[id] != null && p.post_check_total != null) ? Number(p.post_check_total) - Number(preById[id]) : null;
-  }).filter(g => g !== null);
-  document.getElementById("dGain").textContent = gains.length ? (gains.reduce((a, b) => a + b, 0) / gains.length >= 0 ? "+" : "") + (Math.round(gains.reduce((a, b) => a + b, 0) / gains.length * 100) / 100) : "-";
+  const donePkg = (d.CLASS_MEMBERSHIP || []).filter(m => KolaseStore.packageProgress(m.enrollment_id).complete).length;
+  document.getElementById("dGain").textContent = donePkg;
   const funnel = {};
-  (d.TRIALS || []).forEach(t => { const k = t.status || "STARTED"; funnel[k] = (funnel[k] || 0) + 1; });
+  (d.CLASS_MEMBERSHIP || []).forEach(m => { const k = m.status || "PENDING"; funnel[k] = (funnel[k] || 0) + 1; });
   const fmax = Math.max(1, ...Object.values(funnel));
   document.getElementById("dFunnel").innerHTML = Object.keys(funnel).length
     ? Object.entries(funnel).map(([k, v]) => `<div class="small" style="display:flex;justify-content:space-between"><span>${escDb(k)}</span><b>${v}</b></div><div class="progress" style="margin:2px 0 6px"><i style="width:${Math.round(v / fmax * 100)}%"></i></div>`).join("")
-    : `<div class="small">Belum ada trial.</div>`;
+    : `<div class="small">Belum ada membership.</div>`;
   const occ = {};
   (d.CLASS_MEMBERSHIP || []).forEach(m => { if (m.status === "PENDING" || m.status === "ACTIVE") occ[m.class_id] = (occ[m.class_id] || 0) + 1; });
   const renderOcc = (classes) => {
@@ -336,10 +325,10 @@ document.getElementById("schemaToggle").onclick = () => {
       var db1 = KolaseStore.loadDB();
       var m = (db1.CLASS_MEMBERSHIP || []).find(function(x){ return x.enrollment_id === o.order_id; });
       if (!m) throw new Error("Enrollment lokal gagal dibuat.");
-      var grant = String(o.class_id || "").indexOf("CLS-PUB-") === 0 ? m.sisa : 15;
+      var grant = m.sisa;
       return KolaseOrders.verifyOrder(orderId, {
         status: "VERIFIED", sisa: m.sisa, grant: grant,
-        trial: !!m.trial_credit_applied, activated_at: m.activated_at, expires_at: m.expires_at
+        activated_at: m.activated_at, expires_at: m.expires_at
       });
     }).then(function(){
       alert(approve ? "VERIFIED: kelas aktif, tersinkron ke perangkat murid." : "Pembayaran ditolak.");

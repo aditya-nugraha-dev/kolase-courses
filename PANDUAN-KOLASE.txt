@@ -173,13 +173,13 @@ Syarat: langkah bagian 6 selesai (deploy + secret).
   password inline + ingat-saya yang benar-benar jalan.
 - Dashboard sadar-peran: murid lihat datanya; staff/guru bisa
   intip dashboard tiap murid (pilih nama + link ?as=STU-...).
-- Course Details ala referensi (checklist materi, chip lanjut ke
-  kelas berikutnya, tombol daftar + trial).
-- Jalur Belajar/Roadmap: Trial -> Kids -> Teen -> Placement ->
-  Small Group (geser di HP).
+- Course Details resmi 4 program (Kids Public, Kids Term,
+  Teen Beginner, Small Group) + pilihan paket & harga §2.1.
+- Jalur Belajar/Roadmap: Kids Public -> Kids Term -> Teen Beginner
+  -> Small Group (geser di HP).
 - Sertifikat kelulusan: muncul otomatis bila paket Kids/Teen
   selesai (lihat + bagikan + cetak PDF).
-- Popular Classes tepat di bawah Trial; stat hero live
+- Popular Classes tepat di bawah hero; stat hero live
   (sesi, harga termurah, ID milikmu); banner paling atas di HP;
   font HP dikecilkan.
 - Profil: backup/restore HP-PC, foto profil, riwayat + ledger.
@@ -200,11 +200,12 @@ Syarat: langkah bagian 6 selesai (deploy + secret).
 
 14. BACKEND + BIG DATA (ringkas)
 ---------------------------------
-- web/ (Next.js): API register/checkout/webhook/trial/placement/
+- web/ (Next.js): API register/checkout/webhook/course-progress/
   absensi/chat/materi + auth email + session HMAC + rate-limit +
-  audit_log. API /api/stats (omzet, okupansi, funnel, placement,
-  kehadiran, gain, integritas) + /api/stats/export (CSV 9 tabel)
-  + halaman /admin/data. Butuh web/.env project Supabase untuk jalan.
+  audit_log. API /api/stats (omzet, okupansi, kehadiran,
+  integritas) + /api/stats/export (CSV) + halaman /admin/data.
+  Butuh web/.env project Supabase untuk jalan. Progress LMS murid
+  disimpan di tabel course_progress (jalankan supabase/course_progress.sql).
 - Live site: seksi Data & Ekspor di staff-portal dari localStorage.
 
 15. KALAU LAYAR PUTIH / ERROR (cara lapor yang benar)
@@ -224,6 +225,8 @@ Putih total = browser gagal load, bukan salah data:
 [ ] Verifikasi tulisan ● AKTIF di login HP dan PC
 [ ] Daftar 1 akun baru 1x -> login di kedua perangkat (3 tes bag. 8)
 [ ] (Opsional) Isi web/.env bila mau menjalankan backend Next.js
+[ ] Jalankan supabase/course_progress.sql agar progres LMS tersinkron
+[ ] Uji 1 paket Small Group 6 sesi -> verifikasi -> sisa 6 di dashboard
 ================================================================
 Akhir panduan. File ini boleh dibuka pakai Notepad biasa.
 ================================================================

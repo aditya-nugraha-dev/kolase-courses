@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Gift, LogOut } from "lucide-react";
+import { ArrowRight, LogOut } from "lucide-react";
 
 // Tombol hamburger khusus HP (lg:hidden). Link mengikuti peran dari Header.
 export default function MobileMenu({
   links,
-  showTrialCta,
+  showRegisterCta,
   loggedIn,
   onLogout,
 }: {
   links: Array<{ href: string; label: string }>;
-  showTrialCta: boolean;
+  showRegisterCta: boolean;
   loggedIn: boolean;
   onLogout: () => void;
 }) {
@@ -53,13 +53,13 @@ export default function MobileMenu({
               {l.label}
             </Link>
           ))}
-          {showTrialCta && (
+          {showRegisterCta && (
             <Link
-              href="/daftar"
+              href="/katalog"
               onClick={() => setOpen(false)}
               className="mt-1 flex items-center justify-center gap-1.5 rounded-lg bg-sand px-3 py-3 text-center text-base font-bold text-ink"
             >
-              <Gift size={17} /> Trial 7 Sesi Gratis
+              Lihat Katalog <ArrowRight size={17} />
             </Link>
           )}
           {loggedIn && (

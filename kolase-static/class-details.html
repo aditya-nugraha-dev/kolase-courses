@@ -17,13 +17,13 @@
   <div class="section"><div class="card" id="detail">Memuat...</div></div>
   <div class="section"><h2 data-i18n="detail.structure">Struktur Paket</h2>
     <div class="grid cols-3">
-      <div class="card"><b data-i18n="detail.sesi4">4 Sesi</b><div class="small" data-i18n="detail.sesi4.d">1 sesi/minggu, 4 minggu @60 menit, Google Meet.</div></div>
+      <div class="card"><b id="structSesi">4 Sesi</b><div class="small" id="structSesiD">1 sesi/minggu @60 menit, Google Meet.</div></div>
       <div class="card"><b data-i18n="detail.ledger">Ledger Otomatis</b><div class="small" data-i18n="detail.ledger.d">Hadir → −1 sesi, sisa live di dashboard.</div></div>
       <div class="card"><b data-i18n="detail.chatcal">Chat + Kalender</b><div class="small" data-i18n="detail.chatcal.d">Terbuka setelah pembayaran VERIFIED.</div></div>
     </div>
   </div>
-  <div class="section"><h2 data-i18n="detail.syllabus">Silabus 4 Sesi (SES-000001 s/d SES-000004)</h2>
-    <p class="small" data-i18n="detail.syllabus.d">Proyeksi mingguan 1 sesi/minggu @60 menit. Session ID resmi dibuat saat pembayaran VERIFIED (format: SES-XXXXXX-ENR-XXXXXX).</p>
+  <div class="section"><h2 id="syllabusTitle">Silabus</h2>
+    <p class="small" id="syllabusDesc">Proyeksi mingguan 1 sesi/minggu @60 menit. Session ID resmi dibuat saat pembayaran VERIFIED.</p>
     <div class="table-wrap"><table><thead><tr><th data-i18n="detail.th.sesi">Sesi</th><th data-i18n="detail.th.tanggal">Tanggal (proyeksi)</th><th data-i18n="detail.th.topik">Topik</th><th data-i18n="detail.th.status">Status</th></tr></thead><tbody id="syllabus"></tbody></table></div>
   </div>
 </main>
@@ -38,43 +38,60 @@ const t = (k) => (window.KolaseI18n ? KolaseI18n.t(k) : k);
 fetch("data/classes.json").then(r=>r.json()).then(list=>{
   const c = list.find(x=>x.id===id) || list[0];
   const open = (c.class_status || "OPEN") === "OPEN";
+  const rp = (n) => "Rp " + Number(n || 0).toLocaleString("id-ID");
+  const totalSes = Number(c.sesi_count) || 4;
+  document.getElementById("structSesi").textContent = (c.sesi_label || totalSes) + " sesi";
+  document.getElementById("structSesiD").textContent = `1 sesi/minggu @${c.duration_minutes || 60} menit, Google Meet.`;
   document.getElementById("ctaMobile").outerHTML = open
-    ? `<a class="btn btn-brand" style="flex:1;text-align:center" id="ctaMobile" href="checkout.html?id=${c.id}">${t("detail.enroll")}</a>`
+    ? `<a class="btn btn-brand" style="flex:1;text-align:center" id="ctaMobile" href="${c.packages ? "#paket" : `checkout.html?id=${c.id}`}">${c.packages ? "Pilih Paket" : t("detail.enroll")}</a>`
     : `<span class="btn btn-ghost" style="flex:1;text-align:center" id="ctaMobile">Coming Soon</span>`;
+  let daftar = `<span class="pill p-pending">${t("detail.soonmsg")}</span>`;
+  if (open) {
+    if (c.packages) {
+      daftar = c.packages.map(p => p.price
+        ? `<a class="btn btn-brand btn-sm" href="checkout.html?id=${c.id}&pkg=${p.sessions}">${p.label} • ${p.sessions} sesi • ${rp(p.price)}</a>`
+        : `<span class="btn btn-ghost btn-sm" style="cursor:default">${p.label} • ${p.sessions} sesi • Konfirmasi tim</span>`).join("");
+    } else if (c.harga_alumni) {
+      daftar = `<a class="btn btn-brand btn-sm" href="checkout.html?id=${c.id}&rate=alumni">Daftar Alumni • ${rp(c.harga_alumni)}</a>
+        <a class="btn btn-ghost btn-sm" href="checkout.html?id=${c.id}">Daftar Reguler • ${rp(c.harga)}</a>`;
+    } else {
+      daftar = `<a class="btn btn-brand btn-sm" href="checkout.html?id=${c.id}">Daftar • ${rp(c.harga)}</a>`;
+    }
+  }
   document.getElementById("detail").innerHTML = `
     <div class="meta"><span class="pill ${open ? "p-verified" : "p-pending"}">${open ? "OPEN" : (c.class_status || "")}</span><span>${c.id}</span></div>
     <div style="display:flex;gap:14px;align-items:flex-start;margin-top:8px">
       <div class="course-ico" style="background:${c.level === "TEEN" ? "#7C3AED" : "#2563EB"}">${c.level === "TEEN" ? "Aa" : "&lt;/&gt;"}</div>
       <div style="min-width:0"><h2 style="margin:0">${c.nama}</h2>
-      <div class="small" style="margin-top:4px">${c.sesi_count || 4} sesi • ${c.level} • ${c.duration_minutes || 60} mnt/sesi • ${c.jadwal}</div></div>
+      <div class="small" style="margin-top:4px">${c.sesi_label || totalSes} sesi • ${c.level} • ${c.duration_minutes || 60} mnt/sesi • ${c.jadwal}</div></div>
     </div>
     <p>${c.deskripsi}</p>
     <div class="small">${c.guru} • kuota ${c.kuota} kursi</div>
+    <div class="small" style="margin-top:4px"><b>${c.harga_note || rp(c.harga)}</b></div>
+    <div class="small" style="margin-top:4px">Asesmen: ${c.assessment || "Pendaftaran langsung"}</div>
     <b style="display:block;margin-top:12px">Yang akan dipelajari</b>
     <ul class="check-list">${(c.learn || []).map(x => `<li>${x}</li>`).join("")}</ul>
     ${c.next && c.next.nama ? `<div class="card" style="margin-top:12px;background:#F8FAFC"><span class="small">Selesai kelas ini → lanjut ke <b>${c.next.nama}</b></span>${c.next.id ? ` <a class="btn btn-ghost btn-sm" style="margin-left:8px" href="class-details.html?id=${c.next.id}">Lihat →</a>` : ` <span class="pill p-pending">SEGERA</span>`}</div>` : ``}
+    ${c.packages ? `<div id="paket" style="margin-top:14px"><b>Pilih Paket</b><div class="small" style="margin:4px 0 8px">Harga final paket 10/15/30 dikonfirmasi tim sesuai struktur alumni/reguler.</div><div style="display:flex;gap:8px;flex-wrap:wrap">${daftar}</div></div>` : ``}
     <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center">
-      ${open ? `<a class="btn btn-brand" href="checkout.html?id=${c.id}">Daftar — Rp ${Number(c.harga).toLocaleString("id-ID")}</a>
-      <a class="btn btn-ghost" href="#" id="trialBtn">${t("detail.trial")}</a>` : `<span class="pill p-pending">${t("detail.soonmsg")}</span>`}
+      ${c.packages ? "" : daftar}
       <a class="btn btn-ghost" href="catalog.html">${t("detail.back")}</a>
     </div>`;
-  const trialBtn = document.getElementById("trialBtn");
-  if (trialBtn) trialBtn.onclick = (e) => {
-    e.preventDefault();
-    try { KolaseStore.startTrial(c.id); location.href = "dashboard.html"; }
-    catch(err){ alert(err.message); location.href = "login.html"; }
-  };
-  // Silabus 4 sesi (KOL-AKD-KID-001 §2.4 untuk Kids; Teen menyusul saat pembukaan)
+  // Silabus mengikuti jumlah sesi kelas (paket Small Group memakai paket terkecil 6 sesi).
   const SYLLABI = {
     "CLS-PUB-KIDS-01": ["Sesi 1 — Hello, It's Me! (sapaan & perkenalan)","Sesi 2 — My Favorite Things (warna/mainan/makanan)","Sesi 3 — My Day (aktivitas harian)","Sesi 4 — I Can Speak English! (showcase + invitation)"],
-    "CLS-PUB-TEEN-01": ["Sesi 1 — Hello & Introductions (perkenalan & small talk)","Sesi 2 — My Daily Routine (Simple Present)","Sesi 3 — Hobbies & Likes (kesukaan)","Sesi 4 — Mini Presentation + Diagnostic Placement"],
+    "CLS-KIDS-TERM-01": ["Explorer — Hello, It's Me!","Explorer — Colors and Toys","Explorer — My Family","Builder — My Day","Builder — Food I Like","Builder — At School","Speaker — My Favorite Animal","Speaker — Story Time","Speaker — Ask and Answer","Communicator — Show & Tell"],
+    "CLS-PUB-TEEN-01": ["Sesi 1 — Hello & Introductions (perkenalan & small talk)","Sesi 2 — My Daily Routine (Simple Present)","Sesi 3 — Hobbies & Likes (kesukaan)","Sesi 4 — Mini Presentation + arahan Diagnostic Placement"],
+    "CLS-SMALL-GROUP-01": ["Sesi 1 — Diagnostic Placement & target","Sesi 2 — Speaking foundation","Sesi 3 — Grammar in use","Sesi 4 — Vocabulary in context","Sesi 5 — Guided conversation","Sesi 6 — Progress review"],
   };
-  const topics = SYLLABI[c.id] || ["Sesi 1 — Diumumkan saat pembukaan","Sesi 2 — Diumumkan saat pembukaan","Sesi 3 — Diumumkan saat pembukaan","Sesi 4 — Diumumkan saat pembukaan"];
+  const topics = SYLLABI[c.id] || Array.from({ length: totalSes }, (_, i) => `Sesi ${i + 1} — Diumumkan saat pembukaan`);
+  document.getElementById("syllabusTitle").textContent = `Silabus ${topics.length} Sesi`;
+  document.getElementById("syllabusDesc").textContent = "Proyeksi mingguan 1 sesi/minggu @60 menit. Session ID resmi dibuat saat pembayaran VERIFIED.";
   const t0 = new Date();
-  document.getElementById("syllabus").innerHTML = topics.map((t, i) => {
+  document.getElementById("syllabus").innerHTML = topics.map((topic, i) => {
     const d = new Date(t0); d.setDate(d.getDate() + i * 7);
     const seq = String(i + 1).padStart(6, "0");
-    return `<tr><td class="id-mono">SES-${seq}</td><td>${d.toISOString().slice(0, 10)}</td><td>${t}</td><td><span class="pill p-pending">SCHEDULED</span></td></tr>`;
+    return `<tr><td class="id-mono">SES-${seq}</td><td>${d.toISOString().slice(0, 10)}</td><td>${topic}</td><td><span class="pill p-pending">SCHEDULED</span></td></tr>`;
   }).join("");
 });
 </script>

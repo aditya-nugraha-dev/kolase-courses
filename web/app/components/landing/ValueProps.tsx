@@ -6,22 +6,22 @@ const ITEMS = [
   {
     icon: MessagesSquare,
     title: "Small Group (3–5 Students)",
-    desc: "Ruang latihan maksimal, semua peserta mendapat giliran bicara 60–90 detik + 1 follow-up question.",
+    desc: "Ruang latihan maksimal. Setiap peserta mendapat giliran bicara dan satu pertanyaan lanjutan.",
   },
   {
     icon: ListChecks,
     title: "Structured Learning",
-    desc: "Gabungan input, guided practice, communicative practice, & constructive feedback dalam 90 menit.",
+    desc: "Input, guided practice, communicative practice, dan feedback dalam satu sesi 60 menit.",
   },
   {
     icon: Target,
-    title: "A2 Speaking Focus",
-    desc: "Belajar menyampaikan ide, pengalaman masa lalu (Past Simple), dan opini harian dengan runtut.",
+    title: "Dua Jalur Sesuai Usia",
+    desc: "Kids 6–12 lewat Little Speakers; 13+ lewat Beginner English lalu Small Group dengan placement.",
   },
   {
     icon: ClipboardCheck,
     title: "Actionable Feedback",
-    desc: "Evaluasi performa dan rekomendasi langsung dari pengajar setelah kelas (Post-Class Review).",
+    desc: "Evaluasi performa dan rekomendasi langsung dari pengajar setelah kelas.",
   },
 ];
 

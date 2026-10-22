@@ -72,716 +72,642 @@ export type Course = {
   resources: Resource[];
 };
 
-const SELF_CHECK = [
-  "Saya memakai minimal 2 frasa kunci tanpa membaca.",
-  "Saya menyelesaikan misi bicara sampai selesai.",
-  "Saya mencatat satu hal yang ingin saya perbaiki.",
+const KIDS_SELF_CHECK = [
+  "Aku sudah mencoba mengucapkan frasa hari ini.",
+  "Aku menyelesaikan misi sampai selesai.",
+  "Aku tahu satu hal yang mau aku coba lagi.",
 ];
 
-const PAST_SIMPLE_QUIZ: QuizQuestion[] = [
+const HELLO_QUIZ: QuizQuestion[] = [
   {
     id: "q1",
-    prompt:
-      "You are chatting with a friend after class. You want to say that you stayed home yesterday because you were sick. Which sentence should you use?",
+    prompt: "Kamu bertemu teman baru. Apa yang kamu bilang?",
     options: [
-      { id: "a", text: "I am stay at home yesterday because I am sick." },
-      { id: "b", text: "I stayed at home yesterday because I was sick." },
-      { id: "c", text: "I didn't stayed at home yesterday because I was sick." },
-      { id: "d", text: "I stay at home yesterday because I was sick." },
+      { id: "a", text: "Hello! My name is Bima." },
+      { id: "b", text: "My name Bima is." },
+      { id: "c", text: "Hello, Bima my name." },
     ],
-    correct: "b",
-    feedback:
-      "B benar karena 'stayed' dan 'was' sama-sama past, cocok dengan 'yesterday'. A mencampur 'am' dengan base verb. C memakai 'stayed' setelah 'didn't'. D memakai present 'stay' untuk waktu lampau.",
+    correct: "a",
+    feedback: "Benar! Kita mulai dengan 'Hello' lalu 'My name is ...'.",
   },
   {
     id: "q2",
-    prompt: "You want to ask your friend about their weekend. Which question is correct?",
+    prompt: "Bagaimana cara bertanya nama teman?",
     options: [
-      { id: "a", text: "What did you do last weekend?" },
-      { id: "b", text: "What did you did last weekend?" },
-      { id: "c", text: "What you did last weekend?" },
-      { id: "d", text: "What do you did last weekend?" },
+      { id: "a", text: "What is your name?" },
+      { id: "b", text: "What your name?" },
+      { id: "c", text: "Your name what?" },
     ],
     correct: "a",
-    feedback:
-      "A benar karena pertanyaan past simple memakai 'did' + base verb. B mengulang past di 'did you did'. C tidak punya auxiliary dan inversion. D mencampur 'do' dengan 'did'.",
-  },
-  {
-    id: "q3",
-    prompt:
-      "Your friend asks why you did not join the study group. You want to explain that you did not have time. Which reply is correct?",
-    options: [
-      { id: "a", text: "I didn't had time." },
-      { id: "b", text: "I didn't have time." },
-      { id: "c", text: "I don't had time." },
-      { id: "d", text: "I not have time." },
-    ],
-    correct: "b",
-    feedback:
-      "B benar karena 'didn't' sudah membawa makna past, jadi verb utama tetap base: 'didn't have'. A memakai 'had' setelah 'didn't'. C memakai present 'don't'. D tidak punya auxiliary.",
-  },
-  {
-    id: "q4",
-    prompt: "You are telling your teacher why you were late. Which sentence is correct and natural?",
-    options: [
-      { id: "a", text: "I missed the bus because I woke up late." },
-      { id: "b", text: "I miss the bus because I wake up late." },
-      { id: "c", text: "I missed the bus because I wake up late." },
-      { id: "d", text: "I was missed the bus because I woke up late." },
-    ],
-    correct: "a",
-    feedback:
-      "A benar karena dua kejadian itu sudah selesai: 'missed' dan 'woke up'. B memakai present. C mencampur past dan present. D memakai passive 'was missed' yang mengubah makna.",
-  },
-  {
-    id: "q5",
-    prompt: "You are explaining when you moved to your current city. Which sentence is correct?",
-    options: [
-      { id: "a", text: "I move here two years ago." },
-      { id: "b", text: "I moved here two years ago." },
-      { id: "c", text: "I have moved here two years ago." },
-      { id: "d", text: "I was move here two years ago." },
-    ],
-    correct: "b",
-    feedback:
-      "B benar karena 'two years ago' adalah waktu selesai, jadi past simple 'moved' yang dipakai. A memakai present. C memakai present perfect dengan waktu selesai. D memakai 'was' + base verb.",
-  },
-  {
-    id: "q6",
-    prompt: "In a past simple negative sentence, the main verb stays in the base form after 'didn't'.",
-    options: [
-      { id: "a", text: "True" },
-      { id: "b", text: "False" },
-    ],
-    correct: "a",
-    feedback:
-      "True. 'Didn't' sudah membawa makna past, jadi verb utama tetap base: 'I didn't go'. Bentuk 'I didn't went' salah karena past ditambahkan dua kali.",
+    feedback: "Benar! 'What is your name?' adalah pertanyaan lengkap.",
   },
 ];
 
-const TRAVEL_GLOSSARY: GlossaryTerm[] = [
+const COLOR_QUIZ: QuizQuestion[] = [
   {
-    term: "Could you point me toward...?",
-    pronunciation: "kuud yoo POYNT mee tuh-WORD",
-    meaning: "Meminta orang menunjukkan arah umum sebuah tempat.",
-    example: "Excuse me, could you point me toward the nearest train station?",
+    id: "q1",
+    prompt: "Which one is a color?",
+    options: [
+      { id: "a", text: "Blue" },
+      { id: "b", text: "Ball" },
+      { id: "c", text: "Book" },
+    ],
+    correct: "a",
+    feedback: "Blue artinya biru. Ball itu bola, book itu buku.",
   },
   {
-    term: "How do I get to...?",
-    pronunciation: "how doo eye GET too",
-    meaning: "Menanyakan rute atau transportasi untuk sampai ke suatu tempat.",
-    example: "How do I get to the old town from here?",
+    id: "q2",
+    prompt: "Kamu punya bola merah. Apa bahasa Inggrisnya?",
+    options: [
+      { id: "a", text: "I have a red ball." },
+      { id: "b", text: "I have a ball red." },
+      { id: "c", text: "I red have a ball." },
+    ],
+    correct: "a",
+    feedback: "Benar! Warna diletakkan sebelum benda: a red ball.",
+  },
+];
+
+const FAMILY_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "'My mother' artinya ...",
+    options: [
+      { id: "a", text: "Ibuku" },
+      { id: "b", text: "Kakakku" },
+      { id: "c", text: "Temanku" },
+    ],
+    correct: "a",
+    feedback: "Betul! Mother artinya ibu. Father artinya ayah.",
   },
   {
-    term: "Is it within walking distance?",
-    pronunciation: "iz it with-IN WAW-king DIS-tuns",
-    meaning: "Menanyakan apakah tempat itu cukup dekat untuk ditempuh jalan kaki.",
-    example: "Is the museum within walking distance, or should I take a taxi?",
+    id: "q2",
+    prompt: "Which sentence is correct?",
+    options: [
+      { id: "a", text: "This is my sister." },
+      { id: "b", text: "This my sister is." },
+      { id: "c", text: "This is my sister is." },
+    ],
+    correct: "a",
+    feedback: "Benar! 'This is my sister' artinya 'Ini kakak/adik perempuanku'.",
+  },
+];
+
+const DAY_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "Kamu bangun pagi. Apa yang kamu bilang?",
+    options: [
+      { id: "a", text: "I wake up in the morning." },
+      { id: "b", text: "I wake up in the night." },
+      { id: "c", text: "I sleep in the morning." },
+    ],
+    correct: "a",
+    feedback: "Benar! 'Wake up in the morning' artinya bangun di pagi hari.",
   },
   {
-    term: "I'm looking for...",
-    pronunciation: "eyem LOOK-ing for",
-    meaning: "Cara sopan mengatakan bahwa kamu sedang mencari tempat atau benda.",
-    example: "I'm looking for the bus stop to the airport.",
+    id: "q2",
+    prompt: "'I brush my teeth' artinya ...",
+    options: [
+      { id: "a", text: "Aku menyikat gigi" },
+      { id: "b", text: "Aku mencuci tangan" },
+      { id: "c", text: "Aku mandi" },
+    ],
+    correct: "a",
+    feedback: "Betul! Brush my teeth = menyikat gigi.",
+  },
+];
+
+const FOOD_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "Kamu suka nasi goreng. Apa yang kamu bilang?",
+    options: [
+      { id: "a", text: "I like fried rice." },
+      { id: "b", text: "I like rice fried." },
+      { id: "c", text: "I not like fried rice." },
+    ],
+    correct: "a",
+    feedback: "Benar! 'I like fried rice' artinya aku suka nasi goreng.",
   },
   {
-    term: "Where is the nearest...?",
-    pronunciation: "wair iz thuh NEER-ist",
-    meaning: "Menanyakan tempat terdekat dari jenis tertentu.",
-    example: "Where is the nearest convenience store?",
+    id: "q2",
+    prompt: "Which one is a drink?",
+    options: [
+      { id: "a", text: "Milk" },
+      { id: "b", text: "Bread" },
+      { id: "c", text: "Apple" },
+    ],
+    correct: "a",
+    feedback: "Milk artinya susu, itu minuman.",
+  },
+];
+
+const SCHOOL_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "Guru bertanya. Kamu mau menjawab. Apa yang kamu bilang?",
+    options: [
+      { id: "a", text: "I know the answer!" },
+      { id: "b", text: "I know answer the!" },
+      { id: "c", text: "I the answer know!" },
+    ],
+    correct: "a",
+    feedback: "Benar! 'I know the answer' artinya aku tahu jawabannya.",
   },
   {
-    term: "Go straight ahead.",
-    pronunciation: "goh STRAYT uh-HED",
-    meaning: "Terus maju tanpa berbelok.",
-    example: "Go straight ahead for two blocks, and you will see the bank.",
+    id: "q2",
+    prompt: "'May I borrow a pencil?' artinya ...",
+    options: [
+      { id: "a", text: "Boleh aku pinjam pensil?" },
+      { id: "b", text: "Boleh aku beli pensil?" },
+      { id: "c", text: "Boleh aku bawa pensil?" },
+    ],
+    correct: "a",
+    feedback: "Betul! Borrow artinya meminjam.",
+  },
+];
+
+const ANIMAL_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "Kamu suka kucing. Apa yang kamu bilang?",
+    options: [
+      { id: "a", text: "My favorite animal is a cat." },
+      { id: "b", text: "My animal favorite is a cat." },
+      { id: "c", text: "My favorite is animal a cat." },
+    ],
+    correct: "a",
+    feedback: "Benar! 'My favorite animal is ...' artinya hewan favoritku adalah ...",
   },
   {
-    term: "Take the first left.",
-    pronunciation: "tayk thuh FURST LEFT",
-    meaning: "Belok kiri di jalan atau bukaan pertama.",
-    example: "Take the first left after the pharmacy.",
+    id: "q2",
+    prompt: "A cat says ...",
+    options: [
+      { id: "a", text: "Meow" },
+      { id: "b", text: "Woof" },
+      { id: "c", text: "Moo" },
+    ],
+    correct: "a",
+    feedback: "Betul! Cat = meow. Dog = woof. Cow = moo.",
+  },
+];
+
+const STORY_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "Bagaimana cara memulai cerita?",
+    options: [
+      { id: "a", text: "Once upon a time ..." },
+      { id: "b", text: "The end ..." },
+      { id: "c", text: "Goodbye ..." },
+    ],
+    correct: "a",
+    feedback: "Benar! 'Once upon a time' artinya pada suatu hari.",
   },
   {
-    term: "It's on your right.",
-    pronunciation: "its on yor RYTE",
-    meaning: "Tempat itu ada di sisi kanan saat kamu menghadap ke depan.",
-    example: "The cafe is on your right, next to the bookstore.",
+    id: "q2",
+    prompt: "'Then' dipakai untuk ...",
+    options: [
+      { id: "a", text: "Menunjukkan urutan kejadian" },
+      { id: "b", text: "Mengakhiri cerita" },
+      { id: "c", text: "Menanyakan nama" },
+    ],
+    correct: "a",
+    feedback: "Betul! Then artinya lalu/kemudian.",
+  },
+];
+
+const ASK_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "Kamu mau tahu kesukaan teman. Apa pertanyaanmu?",
+    options: [
+      { id: "a", text: "What do you like?" },
+      { id: "b", text: "What you like?" },
+      { id: "c", text: "You like what?" },
+    ],
+    correct: "a",
+    feedback: "Benar! 'What do you like?' adalah pertanyaan lengkap.",
   },
   {
-    term: "Am I going the right way?",
-    pronunciation: "am eye GOH-ing thuh RYTE way",
-    meaning: "Mengecek apakah arah yang kamu ambil menuju tempat yang benar.",
-    example: "Am I going the right way to the beach?",
+    id: "q2",
+    prompt: "Teman menjawab, lalu kamu mau bertanya lagi. Apa yang kamu bilang?",
+    options: [
+      { id: "a", text: "Tell me more!" },
+      { id: "b", text: "Stop talking!" },
+      { id: "c", text: "I don't care." },
+    ],
+    correct: "a",
+    feedback: "Benar! 'Tell me more' artinya ceritakan lebih banyak.",
+  },
+];
+
+const WEEKEND_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "Kamu bermain bola kemarin. Apa yang kamu bilang?",
+    options: [
+      { id: "a", text: "Yesterday, I played football." },
+      { id: "b", text: "Yesterday, I play football." },
+      { id: "c", text: "Yesterday, I playing football." },
+    ],
+    correct: "a",
+    feedback: "Benar! Untuk kemarin, play menjadi played.",
   },
   {
-    term: "Could you say that again more slowly?",
-    pronunciation: "kuud yoo say that uh-GEN mor SLOH-lee",
-    meaning: "Meminta orang mengulang petunjuk dengan lebih lambat.",
-    example: "Sorry, could you say that again more slowly? I want to write it down.",
+    id: "q2",
+    prompt: "'I went to the park' artinya ...",
+    options: [
+      { id: "a", text: "Aku pergi ke taman" },
+      { id: "b", text: "Aku tinggal di taman" },
+      { id: "c", text: "Aku bermain di taman" },
+    ],
+    correct: "a",
+    feedback: "Betul! Went adalah bentuk lampau dari go.",
   },
+];
+
+const SHOW_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "Kamu mau menunjukkan mainanmu. Apa yang kamu bilang?",
+    options: [
+      { id: "a", text: "Look at my toy!" },
+      { id: "b", text: "Look my toy at!" },
+      { id: "c", text: "At my toy look!" },
+    ],
+    correct: "a",
+    feedback: "Benar! 'Look at my toy' artinya lihat mainanku.",
+  },
+  {
+    id: "q2",
+    prompt: "Show & tell yang baik dimulai dengan ...",
+    options: [
+      { id: "a", text: "Sapaan dan nama" },
+      { id: "b", text: "Diam saja" },
+      { id: "c", text: "Langsung selesai" },
+    ],
+    correct: "a",
+    feedback: "Betul! Mulai dengan 'Hello, my name is ...'.",
+  },
+];
+
+const FINAL_QUIZ: QuizQuestion[] = [
+  {
+    id: "q1",
+    prompt: "Apa yang membuat presentasi kecilmu jelas?",
+    options: [
+      { id: "a", text: "Bicara pelan, lihat kamera, dan tersenyum" },
+      { id: "b", text: "Bicara sangat cepat" },
+      { id: "c", text: "Membaca terus tanpa berhenti" },
+    ],
+    correct: "a",
+    feedback: "Benar! Pelan, jelas, dan tersenyum membuat pendengar nyaman.",
+  },
+  {
+    id: "q2",
+    prompt: "Kalau lupa kata, apa yang bisa kamu lakukan?",
+    options: [
+      { id: "a", text: "Pakai kata lain atau bilang 'Let me think'" },
+      { id: "b", text: "Diam dan menyerah" },
+      { id: "c", text: "Langsung keluar" },
+    ],
+    correct: "a",
+    feedback: "Betul! 'Let me think' memberi waktu untuk mencari kata.",
+  },
+];
+
+const TOY_GLOSSARY: GlossaryTerm[] = [
+  { term: "ball", pronunciation: "bawl", meaning: "bola", example: "This is my red ball." },
+  { term: "doll", pronunciation: "dol", meaning: "boneka", example: "I have a small doll." },
+  { term: "car", pronunciation: "kar", meaning: "mobil", example: "My toy car is blue." },
+  { term: "kite", pronunciation: "kyt", meaning: "layangan", example: "I fly a kite at the park." },
+  { term: "robot", pronunciation: "ROH-bot", meaning: "robot", example: "My robot can walk." },
 ];
 
 export const COURSES: Course[] = [
   {
-    slug: "comprehensive-track-30",
-    title: "KOLASE Comprehensive Track 30",
-    subtitle: "Pre-Intermediate Speaking Mastery",
-    level: "A2 to B1",
-    format: "30 sesi live, 10 minggu, 3 sesi per minggu, 3 to 5 murid",
+    slug: "little-speakers",
+    title: "Little Speakers",
+    subtitle: "Kids 6–12 • Berani bicara lewat cerita & permainan",
+    level: "Pre-A1 – A1",
+    format: "4 tahap • 12 misi • 20 menit per misi • pendampingan guru",
     promise:
-      "Mulai dari kalimat pendek yang masih ragu, lalu sampai bisa bicara 2 menit tanpa naskah dan menjawab pertanyaan susulan.",
+      "Anak mulai dari satu kata dan satu kalimat, lalu perlahan berani bercerita 60 detik dan menjawab pertanyaan sederhana.",
     outcomes: [
-      "Memperkenalkan diri dan menjaga percakapan 90 detik.",
-      "Menangani situasi harian: small talk, rencana, permintaan, dan telepon sederhana.",
-      "Menyampaikan opini dengan alasan dan contoh.",
-      "Memperbaiki percakapan saat tidak paham, tanpa panik.",
-      "Tampil 2 menit tanpa naskah dan menjawab 2 pertanyaan susulan.",
+      "Menyapa, memperkenalkan diri, dan menyebut kesukaan.",
+      "Memakai kosakata warna, mainan, keluarga, makanan, dan aktivitas harian.",
+      "Bercerita pendek dengan bantuan gambar dan urutan sederhana.",
+      "Bertanya dan menjawab pertanyaan teman.",
+      "Tampil Show & Tell 60 detik dengan percaya diri.",
     ],
     modules: [
       {
-        slug: "foundation",
-        title: "From Hesitation to First Words",
-        sessions: "Sesi 1-7",
+        slug: "explorer",
+        title: "Explorer",
+        sessions: "Misi 1–3",
         objective:
-          "Murid bisa memperkenalkan diri, bertanya, dan menjaga percakapan 90 detik dengan frasa yang bisa dipakai langsung.",
-        exit: "Rekaman perkenalan 90 detik + dua pertanyaan dari grup.",
+          "Anak berani menyapa, menyebut nama, dan mengenali kosakata sekitar.",
+        exit: "Rekaman perkenalan 20–30 detik + 3 kosakata baru.",
         lessons: [
           {
-            slug: "start-before-you-feel-ready",
-            title: "Start Before You Feel Ready",
-            objective:
-              "Memperkenalkan diri 60 detik dan menetapkan satu target bicara yang spesifik.",
-            duration: 60,
-            format: "Baseline interview + rekaman perkenalan",
+            slug: "hello-its-me",
+            title: "Hello, It's Me!",
+            objective: "Menyapa dan memperkenalkan nama dengan satu kalimat.",
+            duration: 20,
+            format: "Video sapaan + latihan ulang + rekaman",
             keyPhrases: [
-              { phrase: "Hi, I'm ___.", meaning: "Perkenalan singkat." },
-              { phrase: "I'm from ___.", meaning: "Menyebut asal atau kota." },
-              { phrase: "I like ___.", meaning: "Menyebut satu hal yang disukai." },
-              { phrase: "What about you?", meaning: "Mengembalikan pertanyaan." },
+              { phrase: "Hello!", meaning: "Halo!" },
+              { phrase: "My name is ___.", meaning: "Namaku ___." },
+              { phrase: "What is your name?", meaning: "Siapa namamu?" },
+              { phrase: "Nice to meet you.", meaning: "Senang bertemu denganmu." },
             ],
-            mission:
-              "Rekam 60 detik: nama, asal, satu hal yang kamu suka, lalu tanya balik.",
+            mission: "Rekam 20–30 detik: sapa, sebut nama, lalu tanya nama.",
             missionExample:
-              "Hi, I'm Rina. I'm from Bandung. I like photography. What about you?",
-            selfCheck: SELF_CHECK,
+              "Hello! My name is Bima. Nice to meet you. What is your name?",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: HELLO_QUIZ,
           },
           {
-            slug: "sentence-engine",
-            title: "The Sentence Engine: Three Tenses You Can Use",
-            objective:
-              "Bicara tentang sekarang, kemarin, dan rencana dengan tiga pola dasar yang sering dipakai.",
-            duration: 60,
-            format: "Grammar in context + drill + speaking task",
+            slug: "colors-and-toys",
+            title: "Colors & Toys",
+            objective: "Menyebut warna dan mainan favorit.",
+            duration: 20,
+            format: "Lagu warna + permainan 'I spy' + rekaman",
             keyPhrases: [
-              { phrase: "I usually ___.", meaning: "Rutinitas sekarang." },
-              { phrase: "Yesterday, I ___.", meaning: "Aksi selesai di masa lalu." },
-              { phrase: "Next week, I'm going to ___.", meaning: "Rencana." },
-              { phrase: "After that, I ___.", meaning: "Urutan cerita." },
+              { phrase: "It is ___.", meaning: "Ini ___." },
+              { phrase: "I have a ___.", meaning: "Aku punya ___." },
+              { phrase: "My favorite color is ___.", meaning: "Warna favoritku ___." },
+              { phrase: "Look at my ___.", meaning: "Lihat ___ milikku." },
             ],
-            mission:
-              "Rekam 5 kalimat: 1 rutinitas, 1 kemarin, 1 rencana, dan 2 detail.",
+            mission: "Tunjukkan 3 mainan dan sebutkan warna serta namanya.",
             missionExample:
-              "I usually study at night. Yesterday, I studied with my cousin. Next week, I'm going to join a speaking class.",
-            selfCheck: SELF_CHECK,
-            quiz: PAST_SIMPLE_QUIZ,
-            deepDive: {
-              label: "Microlearning",
-              title: "Past simple weekend stories",
-              paragraphs: [
-                "Past simple dipakai untuk aksi akhir pekan yang sudah selesai. Pakai bentuk past sekali saja.",
-                "Kalau ada did atau didn't, kata kerja utama kembali ke bentuk dasar.",
-              ],
-              bullets: [
-                "Time marker: yesterday, last Saturday, on Sunday.",
-                "Regular: watch menjadi watched. Irregular: go menjadi went, eat menjadi ate.",
-                "Hindari: 'Yesterday I go' dan 'I didn't went'.",
-              ],
-              example:
-                "I went to the beach with my family last Saturday. I didn't swim because the water was cold.",
-              takeaway: "Past once, not twice.",
-            },
+              "I have a red ball, a blue car, and a yellow kite.",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: COLOR_QUIZ,
+            glossary: TOY_GLOSSARY,
           },
           {
-            slug: "clear-enough",
-            title: "Clear Enough to Be Understood",
-            objective:
-              "Memakai word stress dan rhythm supaya pesan lebih mudah ditangkap.",
-            duration: 60,
-            format: "Listening model + shadowing + pronunciation clinic",
+            slug: "my-family",
+            title: "My Family",
+            objective: "Menyebut anggota keluarga dengan kalimat sederhana.",
+            duration: 20,
+            format: "Gambar keluarga + contoh kalimat + rekaman",
             keyPhrases: [
-              { phrase: "Could you say that again?", meaning: "Meminta ulang." },
-              { phrase: "Listen to the stress: toMORrow.", meaning: "Contoh tekanan kata." },
-              { phrase: "I wanted to say ___.", meaning: "Memperbaiki ucapan." },
-              { phrase: "Let me try that again.", meaning: "Mengulang dengan lebih jelas." },
+              { phrase: "This is my ___.", meaning: "Ini ___ku." },
+              { phrase: "I love my ___.", meaning: "Aku sayang ___ku." },
+              { phrase: "My mother is ___.", meaning: "Ibuku ___." },
+              { phrase: "We live together.", meaning: "Kami tinggal bersama." },
             ],
-            mission:
-              "Rekam 45 detik. Pilih 3 kata penting dan beri tekanan pada kata itu.",
+            mission: "Tunjukkan gambar keluarga dan sebutkan 3 orang.",
             missionExample:
-              "I wanted to say that I was busy YESTERDAY, not today.",
-            selfCheck: SELF_CHECK,
-          },
-          {
-            slug: "questions-that-keep-people-talking",
-            title: "Questions That Keep People Talking",
-            objective:
-              "Mengajukan pertanyaan terbuka dan follow-up supaya percakapan tidak berhenti.",
-            duration: 60,
-            format: "Dialogue analysis + question writing + interview carousel",
-            keyPhrases: [
-              { phrase: "What about you?", meaning: "Tanya balik." },
-              { phrase: "How was that?", meaning: "Minta detail." },
-              { phrase: "Why do you like it?", meaning: "Menggali alasan." },
-              { phrase: "Tell me more.", meaning: "Meminta cerita lebih panjang." },
-            ],
-            mission:
-              "Tanya satu teman 3 pertanyaan follow-up. Catat satu detail dari jawabannya.",
-            missionExample:
-              "I like badminton. What about you? How often do you play?",
-            selfCheck: SELF_CHECK,
-            deepDive: {
-              label: "Activity",
-              title: "Hobby Chain: Find Your Match",
-              paragraphs: [
-                "Aktivitas 15 menit untuk latihan perkenalan dan hobi. Semua murid memakai frame yang sama, jadi tekanan untuk tampil berkurang.",
-              ],
-              bullets: [
-                "Model: 'Hi, I'm ___. I like ___. What about you?'",
-                "Round 1: satu kalimat per murid.",
-                "Round 2: tanya satu follow-up.",
-                "Round 3: cari teman dengan hobi sama, lalu bilang 'Me too!'",
-                "Self-check: nama, hobi, satu pertanyaan.",
-              ],
-              example: "Hi, I'm Sari. I like badminton. What about you?",
-              takeaway: "Ask, listen, ask back.",
-            },
-          },
-          {
-            slug: "repair-without-panic",
-            title: "Repair Without Panic",
-            objective:
-              "Memakai frasa perbaikan saat tidak paham atau kehilangan kata.",
-            duration: 60,
-            format: "Strategy video + role-play + meaning-gap game",
-            keyPhrases: [
-              { phrase: "Sorry, could you repeat that?", meaning: "Meminta ulang." },
-              { phrase: "Do you mean ___?", meaning: "Mengecek pemahaman." },
-              { phrase: "I didn't catch that.", meaning: "Tidak menangkap ucapan." },
-              { phrase: "Let me say that again.", meaning: "Mengulang ucapan." },
-            ],
-            mission:
-              "Rekam 60 detik dan gunakan 2 frasa perbaikan saat ada bagian yang tidak jelas.",
-            missionExample:
-              "Sorry, I didn't catch that. Do you mean the meeting starts at nine?",
-            selfCheck: SELF_CHECK,
+              "This is my mother. This is my father. This is my sister. I love my family.",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: FAMILY_QUIZ,
           },
         ],
       },
       {
-        slug: "everyday-fluency",
-        title: "Everyday Fluency",
-        sessions: "Sesi 8-15",
+        slug: "builder",
+        title: "Builder",
+        sessions: "Misi 4–6",
         objective:
-          "Murid bisa menangani lima situasi harian, menjaga interaksi 3 menit, dan memperbaiki salah paham dengan lebih sedikit bantuan bahasa Indonesia.",
-        exit: "Role-play 3 menit dari bank situasi harian.",
+          "Anak bisa menyusun kalimat pendek tentang rutinitas, makanan, dan sekolah.",
+        exit: "Rekaman 4 kalimat tentang hari dan kesukaan.",
         lessons: [
           {
-            slug: "small-talk-that-doesnt-die",
-            title: "Small Talk That Doesn't Die",
-            objective:
-              "Membuka, merespons, dan menutup small talk tanpa keheningan yang canggung.",
-            duration: 60,
-            format: "Listening input + question bank + live rounds",
+            slug: "my-day",
+            title: "My Day",
+            objective: "Menceritakan rutinitas pagi sampai malam dengan kalimat pendek.",
+            duration: 20,
+            format: "Urutan gambar + gerakan + rekaman",
             keyPhrases: [
-              { phrase: "How's your week going?", meaning: "Membuka small talk." },
-              { phrase: "That sounds great.", meaning: "Merespons positif." },
-              { phrase: "Anyway, I should get going.", meaning: "Menutup percakapan." },
-              { phrase: "Let's catch up soon.", meaning: "Menjaga hubungan." },
+              { phrase: "I wake up.", meaning: "Aku bangun." },
+              { phrase: "I brush my teeth.", meaning: "Aku menyikat gigi." },
+              { phrase: "I go to school.", meaning: "Aku pergi ke sekolah." },
+              { phrase: "I sleep at night.", meaning: "Aku tidur di malam hari." },
             ],
-            mission:
-              "Rekam 90 detik small talk: buka, beri respons, lalu tutup.",
+            mission: "Rekam 4 kalimat tentang harimu dari pagi sampai malam.",
             missionExample:
-              "How's your week going? That sounds great. Anyway, I should get going. Let's catch up soon.",
-            selfCheck: SELF_CHECK,
+              "I wake up in the morning. I brush my teeth. I go to school. I sleep at night.",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: DAY_QUIZ,
           },
           {
-            slug: "tell-it-simply",
-            title: "Tell It Simply: Past Experiences",
-            objective:
-              "Menceritakan pengalaman pendek dengan urutan yang jelas dan penutup yang terasa selesai.",
-            duration: 60,
-            format: "Story model + guided story + storytelling circle",
+            slug: "food-i-like",
+            title: "Food I Like",
+            objective: "Menyebut makanan dan minuman yang disukai atau tidak disukai.",
+            duration: 20,
+            format: "Gambar makanan + sorting game + rekaman",
             keyPhrases: [
-              { phrase: "Last weekend, I ___.", meaning: "Memulai cerita." },
-              { phrase: "After that, I ___.", meaning: "Urutan kejadian." },
-              { phrase: "In the end, I ___.", meaning: "Menutup cerita." },
-              { phrase: "It was fun because ___.", meaning: "Memberi alasan." },
+              { phrase: "I like ___.", meaning: "Aku suka ___." },
+              { phrase: "I don't like ___.", meaning: "Aku tidak suka ___." },
+              { phrase: "It is yummy.", meaning: "Ini enak." },
+              { phrase: "My favorite food is ___.", meaning: "Makanan favoritku ___." },
             ],
-            mission:
-              "Rekam 90 detik cerita akhir pekan dengan 3 time markers.",
+            mission: "Sebutkan 2 makanan yang kamu suka dan 1 yang tidak kamu suka.",
             missionExample:
-              "Last weekend, I visited my grandparents. After that, we cooked together. In the end, I went home late.",
-            selfCheck: SELF_CHECK,
-            deepDive: {
-              label: "Grammar",
-              title: "Past continuous vs simple past",
-              paragraphs: [
-                "Dua-duanya tentang masa lalu. Bedanya ada di cara kita melihat aksi: sedang berjalan atau sudah selesai.",
-                "Simple past itu foto: satu momen selesai. Past continuous itu video: aksi sedang berlangsung.",
-              ],
-              bullets: [
-                "Simple past: 'I cooked dinner last night.'",
-                "Past continuous: 'I was cooking at 7 p.m.'",
-                "Interruption: 'I was cooking when the phone rang.'",
-                "State verb: 'I knew', bukan 'I was knowing'.",
-              ],
-              example: "I was walking home when it started to rain.",
-              takeaway: "Video untuk latar, foto untuk kejadian.",
-            },
+              "I like fried rice and noodles. I don't like onions. My favorite food is fried rice.",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: FOOD_QUIZ,
           },
           {
-            slug: "make-plans-and-negotiate",
-            title: "Make Plans and Negotiate",
-            objective:
-              "Mengajak, menawarkan waktu, menerima, dan menolak dengan sopan.",
-            duration: 60,
-            format: "Dialogue models + role-play cards + negotiation task",
+            slug: "at-school",
+            title: "At School",
+            objective: "Meminta izin dan menyebut benda di kelas.",
+            duration: 20,
+            format: "Role-play kelas + kosakata benda + rekaman",
             keyPhrases: [
-              { phrase: "Do you want to ___?", meaning: "Mengajak." },
-              { phrase: "How about ___?", meaning: "Menawarkan ide." },
-              { phrase: "I'm free on ___.", meaning: "Menyebut waktu." },
-              { phrase: "That works for me.", meaning: "Menyetujui." },
+              { phrase: "May I borrow ___?", meaning: "Boleh aku pinjam ___?" },
+              { phrase: "This is my ___.", meaning: "Ini ___ku." },
+              { phrase: "I know the answer!", meaning: "Aku tahu jawabannya!" },
+              { phrase: "Can you help me?", meaning: "Bisa bantu aku?" },
             ],
-            mission:
-              "Rekam percakapan 2 menit: ajak, tawar waktu, lalu setujui.",
+            mission: "Rekam percakapan kecil: minta pinjam pensil lalu berterima kasih.",
             missionExample:
-              "Do you want to study together? How about Thursday? That works for me.",
-            selfCheck: SELF_CHECK,
-          },
-          {
-            slug: "get-things-done",
-            title: "Get Things Done: Requests and Transactions",
-            objective:
-              "Membuat permintaan sopan, menangani transaksi sederhana, dan menyelesaikan masalah kecil.",
-            duration: 60,
-            format: "Functional language video + simulated call + role-play",
-            keyPhrases: [
-              { phrase: "Could you ___?", meaning: "Permintaan sopan." },
-              { phrase: "Would you mind ___?", meaning: "Permintaan lebih sopan." },
-              { phrase: "I'm sorry, but ___.", meaning: "Menolak dengan sopan." },
-              { phrase: "I'd like to ___.", meaning: "Menyampaikan kebutuhan." },
-            ],
-            mission:
-              "Rekam 2 menit transaksi: minta bantuan, jelaskan masalah, lalu cek hasil.",
-            missionExample:
-              "Could you help me with this form? I'd like to change my booking.",
-            selfCheck: SELF_CHECK,
-            glossary: TRAVEL_GLOSSARY,
-          },
-          {
-            slug: "when-you-dont-understand",
-            title: "When You Don't Understand",
-            objective:
-              "Menggunakan klarifikasi, parafrase, dan pengecekan makna.",
-            duration: 60,
-            format: "Strategy drill + noisy-line game + repair challenge",
-            keyPhrases: [
-              { phrase: "Sorry, I didn't catch that.", meaning: "Tidak menangkap." },
-              { phrase: "So you mean ___?", meaning: "Mengulang pemahaman." },
-              { phrase: "Could you speak more slowly?", meaning: "Minta lebih lambat." },
-              { phrase: "Let me check.", meaning: "Membeli waktu." },
-            ],
-            mission:
-              "Rekam 60 detik dengan 2 frasa klarifikasi.",
-            missionExample:
-              "Sorry, I didn't catch that. So you mean the class starts at seven?",
-            selfCheck: SELF_CHECK,
+              "May I borrow a pencil? Thank you! Can you help me with this book?",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: SCHOOL_QUIZ,
           },
         ],
       },
       {
-        slug: "opinions-that-land",
-        title: "Opinions That Land",
-        sessions: "Sesi 16-22",
+        slug: "speaker",
+        title: "Speaker",
+        sessions: "Misi 7–9",
         objective:
-          "Murid bisa menyampaikan opini 2 menit dengan alasan, tidak setuju dengan sopan, dan menjawab satu pertanyaan susulan.",
-        exit: "Opini 2 menit + Q&A.",
+          "Anak berani bercerita pendek, bertanya, dan menanggapi teman.",
+        exit: "Cerita 45–60 detik + 2 pertanyaan.",
         lessons: [
           {
-            slug: "take-a-position",
-            title: "Take a Position",
-            objective:
-              "Menyatakan opini dan melunakkannya dengan frasa yang tepat.",
-            duration: 60,
-            format: "Model clip + sentence frames + opinion line",
+            slug: "my-favorite-animal",
+            title: "My Favorite Animal",
+            objective: "Mendeskripsikan hewan favorit dengan 3 kalimat.",
+            duration: 20,
+            format: "Suara hewan + gambar + rekaman deskripsi",
             keyPhrases: [
-              { phrase: "I think ___.", meaning: "Pendapat dasar." },
-              { phrase: "In my opinion, ___.", meaning: "Pendapat formal." },
-              { phrase: "I'm not sure, but ___.", meaning: "Pendapat hati-hati." },
-              { phrase: "The reason is ___.", meaning: "Memberi alasan." },
+              { phrase: "My favorite animal is ___.", meaning: "Hewan favoritku ___." },
+              { phrase: "It is ___.", meaning: "Hewan itu ___." },
+              { phrase: "It can ___.", meaning: "Hewan itu bisa ___." },
+              { phrase: "It likes ___.", meaning: "Hewan itu suka ___." },
             ],
-            mission:
-              "Rekam 60 detik opini dengan 1 alasan.",
+            mission: "Rekam 3 kalimat tentang hewan favoritmu.",
             missionExample:
-              "I think online classes work well for me. The reason is I can review the recording.",
-            selfCheck: SELF_CHECK,
+              "My favorite animal is a cat. It is small and soft. It can jump and it likes milk.",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: ANIMAL_QUIZ,
           },
           {
-            slug: "because-but-however",
-            title: "Because, But, However",
-            objective:
-              "Menghubungkan alasan, kontras, dan contoh supaya pendengar bisa mengikuti.",
-            duration: 60,
-            format: "Linking words in context + guided writing + debate ladder",
+            slug: "story-time",
+            title: "Story Time",
+            objective: "Bercerita pendek dengan pembuka, urutan, dan penutup.",
+            duration: 20,
+            format: "Cerita bergambar + urutan + rekaman",
             keyPhrases: [
-              { phrase: "because", meaning: "Alasan." },
-              { phrase: "but", meaning: "Kontras." },
-              { phrase: "however", meaning: "Kontras formal." },
-              { phrase: "for example", meaning: "Contoh." },
+              { phrase: "Once upon a time, ___.", meaning: "Pada suatu hari, ___." },
+              { phrase: "Then, ___.", meaning: "Lalu, ___." },
+              { phrase: "After that, ___.", meaning: "Setelah itu, ___." },
+              { phrase: "The end.", meaning: "Selesai." },
             ],
-            mission:
-              "Rekam 90 detik dengan 3 connector.",
+            mission: "Rekam cerita 45 detik dengan 3 urutan kejadian.",
             missionExample:
-              "I like the plan, but the timeline is tight. However, we can start earlier. For example, we can finish the review on Thursday.",
-            selfCheck: SELF_CHECK,
+              "Once upon a time, a little cat was hungry. Then, it looked for food. After that, it found some milk. The end.",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: STORY_QUIZ,
           },
           {
-            slug: "disagree-without-damage",
-            title: "Disagree Without Damage",
-            objective:
-              "Tidak setuju dengan sopan, mengakui poin lawan bicara, dan menawarkan sudut pandang sendiri.",
-            duration: 60,
-            format: "Politeness scale + role-play + mini-debate",
+            slug: "ask-and-answer",
+            title: "Ask & Answer",
+            objective: "Bertanya dan menjawab pertanyaan sederhana tentang kesukaan.",
+            duration: 20,
+            format: "Wawancara teman + pertanyaan lanjutan + rekaman",
             keyPhrases: [
-              { phrase: "I see your point.", meaning: "Mengakui." },
-              { phrase: "I see it a little differently.", meaning: "Melunakkan." },
-              { phrase: "My concern is ___.", meaning: "Menyebut kekhawatiran." },
-              { phrase: "What do you think?", meaning: "Mengundang." },
+              { phrase: "What do you like?", meaning: "Apa yang kamu suka?" },
+              { phrase: "Do you like ___?", meaning: "Apakah kamu suka ___?" },
+              { phrase: "Yes, I do. / No, I don't.", meaning: "Ya / Tidak." },
+              { phrase: "Tell me more!", meaning: "Ceritakan lagi!" },
             ],
-            mission:
-              "Rekam 90 detik: akui, lunakkan, jelaskan, lalu tanya.",
+            mission: "Tanya 3 pertanyaan ke teman atau keluarga, lalu catat jawabannya.",
             missionExample:
-              "I see your point. I see it a little differently. My concern is the review time. What do you think?",
-            selfCheck: SELF_CHECK,
-            deepDive: {
-              label: "Case Study",
-              title: "The Meeting That Went Quiet",
-              paragraphs: [
-                "Rina, project coordinator, langsung bilang 'That's impossible' ke ide Dimas. Bahasa Inggrisnya benar, tapi Dimas berhenti berkontribusi.",
-                "Masalahnya bukan grammar. Masalahnya cara menyampaikan perbedaan.",
-                "KOLASE Bridge: Acknowledge, Soften, Explain, Invite.",
-              ],
-              bullets: [
-                "Acknowledge: 'I see your point.'",
-                "Soften: 'I see it a little differently.'",
-                "Explain: 'The review usually takes three days.'",
-                "Invite: 'What do you think?'",
-              ],
-              example:
-                "I see your point. I see it a little differently. My concern is the review time. What do you think?",
-              takeaway: "Bangun jembatan sebelum menyampaikan poin.",
-            },
-          },
-          {
-            slug: "tell-a-story-with-a-point",
-            title: "Tell a Story with a Point",
-            objective:
-              "Menyusun cerita 2 menit dengan hook, konflik, dan pesan.",
-            duration: 60,
-            format: "Narrative arc model + outline + story circle",
-            keyPhrases: [
-              { phrase: "It started when ___.", meaning: "Membuka cerita." },
-              { phrase: "Then ___.", meaning: "Lanjutan." },
-              { phrase: "The point is ___.", meaning: "Pesan." },
-              { phrase: "That's why ___.", meaning: "Kesimpulan." },
-            ],
-            mission:
-              "Rekam 2 menit cerita dengan hook, konflik, dan pesan.",
-            missionExample:
-              "It started when I missed my bus. Then I had to walk. The point is, I should leave earlier.",
-            selfCheck: SELF_CHECK,
-          },
-          {
-            slug: "think-on-your-feet",
-            title: "Think on Your Feet",
-            objective:
-              "Menjawab pertanyaan tak terduga dalam 60 detik dengan struktur yang jelas.",
-            duration: 60,
-            format: "Impromptu prompt cards + recording + feedback",
-            keyPhrases: [
-              { phrase: "That's a good question.", meaning: "Membeli waktu." },
-              { phrase: "Let me think for a second.", meaning: "Membeli waktu." },
-              { phrase: "There are two reasons.", meaning: "Menyusun jawaban." },
-              { phrase: "To sum up, ___.", meaning: "Menutup." },
-            ],
-            mission:
-              "Jawab 3 pertanyaan acak dalam 60 detik masing-masing.",
-            missionExample:
-              "That's a good question. There are two reasons. First, it saves time. To sum up, I think it works.",
-            selfCheck: SELF_CHECK,
+              "Do you like ice cream? What do you like? Tell me more!",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: ASK_QUIZ,
           },
         ],
       },
       {
-        slug: "confident-voice",
-        title: "The Confident Voice",
-        sessions: "Sesi 23-30",
+        slug: "communicator",
+        title: "Communicator",
+        sessions: "Misi 10–12",
         objective:
-          "Murid bisa tampil 2 menit tanpa naskah, menjawab dua pertanyaan susulan, dan menyesuaikan register.",
-        exit: "Final showcase 2 menit + Q&A.",
+          "Anak tampil Show & Tell, bercerita tentang akhir pekan, dan menjawab pertanyaan.",
+        exit: "Show & Tell 60 detik + 1 pertanyaan.",
         lessons: [
           {
-            slug: "structure-a-talk-in-three-moves",
-            title: "Structure a Talk in Three Moves",
-            objective:
-              "Membuka dengan hook, menyampaikan satu poin utama, dan menutup dengan jelas.",
-            duration: 60,
-            format: "Talk analysis + outline template + 60-second talks",
+            slug: "my-weekend",
+            title: "My Weekend",
+            objective: "Menceritakan aktivitas akhir pekan dengan bentuk lampau sederhana.",
+            duration: 20,
+            format: "Kalender mini + contoh + rekaman",
             keyPhrases: [
-              { phrase: "Today I want to talk about ___.", meaning: "Membuka." },
-              { phrase: "My main point is ___.", meaning: "Poin utama." },
-              { phrase: "For example, ___.", meaning: "Bukti." },
-              { phrase: "To sum up, ___.", meaning: "Menutup." },
+              { phrase: "Yesterday, I ___.", meaning: "Kemarin, aku ___." },
+              { phrase: "I went to ___.", meaning: "Aku pergi ke ___." },
+              { phrase: "I played ___.", meaning: "Aku bermain ___." },
+              { phrase: "It was fun!", meaning: "Itu menyenangkan!" },
             ],
-            mission:
-              "Rekam 2 menit talk dengan hook, 1 poin, 1 contoh, dan closing.",
+            mission: "Rekam 4 kalimat tentang akhir pekanmu.",
             missionExample:
-              "Today I want to talk about morning routines. My main point is that small habits matter. For example, I read one page every morning.",
-            selfCheck: SELF_CHECK,
+              "Yesterday, I went to the park. I played football with my friend. It was fun!",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: WEEKEND_QUIZ,
+            deepDive: {
+              label: "Untuk orang tua",
+              title: "Mendampingi tanpa mengejar kesempurnaan",
+              paragraphs: [
+                "Di tahap ini, tujuan utamanya adalah keberanian mencoba, bukan tata bahasa sempurna.",
+                "Biarkan anak menyelesaikan kalimatnya. Koreksi satu hal saja setelah selesai.",
+              ],
+              bullets: [
+                "Puji usaha: 'Kamu berani bilang sendiri!'",
+                "Ulangi kalimat anak dengan bentuk yang benar, tanpa menyuruh mengulang.",
+                "Batasi latihan 15–20 menit agar tetap menyenangkan.",
+              ],
+              takeaway: "Berani dulu, rapi kemudian.",
+            },
           },
           {
-            slug: "your-voice-as-a-tool",
-            title: "Your Voice as a Tool",
-            objective:
-              "Mengatur pace, pausing, dan intonation supaya pesan lebih mudah diingat.",
-            duration: 60,
-            format: "Listening models + delivery drills + recorded review",
+            slug: "show-and-tell",
+            title: "Show & Tell",
+            objective: "Menunjukkan benda favorit dan menjelaskannya dalam 60 detik.",
+            duration: 20,
+            format: "Kerangka 3 kalimat + latihan + rekaman",
             keyPhrases: [
-              { phrase: "Pause before the key word.", meaning: "Teknik jeda." },
-              { phrase: "Stress the contrast.", meaning: "Tekanan." },
-              { phrase: "Slow down for the main point.", meaning: "Tempo." },
-              { phrase: "Let the sentence land.", meaning: "Jeda akhir." },
+              { phrase: "Look at my ___.", meaning: "Lihat ___ milikku." },
+              { phrase: "This is my favorite ___.", meaning: "Ini ___ favoritku." },
+              { phrase: "It is special because ___.", meaning: "Ini istimewa karena ___." },
+              { phrase: "Thank you for listening.", meaning: "Terima kasih sudah mendengarkan." },
             ],
-            mission:
-              "Rekam ulang 90 detik dengan 3 jeda yang disengaja.",
+            mission: "Rekam Show & Tell 60 detik tentang satu benda favorit.",
             missionExample:
-              "I was nervous. [pause] But I still spoke. [pause] That was the win.",
-            selfCheck: SELF_CHECK,
+              "Hello! Look at my blue robot. This is my favorite toy. It is special because my father gave it to me. Thank you for listening.",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: SHOW_QUIZ,
           },
           {
-            slug: "handle-the-q-and-a",
-            title: "Handle the Q&A",
-            objective:
-              "Mendengar pertanyaan, membeli waktu, menjawab, dan mengecek pemahaman.",
-            duration: 60,
-            format: "Q&A model + pair drill + hot seat",
+            slug: "little-speaker",
+            title: "Little Speaker",
+            objective: "Tampil percaya diri dan menjawab satu pertanyaan penonton.",
+            duration: 20,
+            format: "Gladi bersih + show & tell final + pertanyaan",
             keyPhrases: [
-              { phrase: "That's a fair question.", meaning: "Mengakui." },
-              { phrase: "Let me check that.", meaning: "Membeli waktu." },
-              { phrase: "Does that answer your question?", meaning: "Mengecek." },
-              { phrase: "Can I come back to that?", meaning: "Menunda." },
+              { phrase: "Let me think.", meaning: "Biar aku pikirkan." },
+              { phrase: "I think ___.", meaning: "Aku pikir ___." },
+              { phrase: "Can you say that again?", meaning: "Bisa ulangi?" },
+              { phrase: "I did it!", meaning: "Aku berhasil!" },
             ],
             mission:
-              "Minta teman bertanya 3 pertanyaan. Jawab dengan 2 frasa Q&A.",
+              "Rekam Show & Tell 60 detik, lalu jawab satu pertanyaan dari orang tua/guru.",
             missionExample:
-              "That's a fair question. Let me check that. Does that answer your question?",
-            selfCheck: SELF_CHECK,
-          },
-          {
-            slug: "switch-register",
-            title: "Switch Register",
-            objective:
-              "Menyesuaikan formalitas untuk teman, kolega, dan orang baru.",
-            duration: 60,
-            format: "Comparison dialogues + role-play + switch task",
-            keyPhrases: [
-              { phrase: "Could you ___?", meaning: "Formal." },
-              { phrase: "Can you ___?", meaning: "Kasual." },
-              { phrase: "I'd like to ___.", meaning: "Formal." },
-              { phrase: "Thanks a lot.", meaning: "Kasual." },
-            ],
-            mission:
-              "Rekam 3 versi permintaan: teman, kolega, orang baru.",
-            missionExample:
-              "Can you send me the file? Could you send me the file, please?",
-            selfCheck: SELF_CHECK,
-          },
-          {
-            slug: "rehearse-like-a-speaker",
-            title: "Rehearse Like a Speaker",
-            objective:
-              "Merekam, meninjau dengan rubrik, dan membuat satu perbaikan yang jelas.",
-            duration: 60,
-            format: "Self-review rubric + draft recording + feedback",
-            keyPhrases: [
-              { phrase: "One thing I want to improve is ___.", meaning: "Refleksi." },
-              { phrase: "Next time, I will ___.", meaning: "Rencana." },
-              { phrase: "I felt confident when ___.", meaning: "Bukti." },
-              { phrase: "I need to practice ___.", meaning: "Fokus." },
-            ],
-            mission:
-              "Rekam draft 1 dan draft 2. Bandingkan satu perbaikan.",
-            missionExample:
-              "One thing I want to improve is my pacing. Next time, I will pause after my main point.",
-            selfCheck: SELF_CHECK,
+              "Hello, my name is Sari. This is my drawing. I made it yesterday. I think it is beautiful. I did it!",
+            selfCheck: KIDS_SELF_CHECK,
+            quiz: FINAL_QUIZ,
           },
         ],
       },
     ],
     resources: [
       {
-        slug: "diagnostic-quiz",
+        slug: "hello-quiz",
         type: "Quiz",
-        title: "Kuis Diagnostik: Past Simple & Sentence Structure",
-        description:
-          "6 soal berbasis situasi untuk mengecek pemakaian past simple dan urutan kalimat.",
-        moduleSlug: "foundation",
-        lessonSlug: "sentence-engine",
+        title: "Kuis Sapaan & Nama",
+        description: "2 soal sederhana untuk mengecek sapaan dan perkenalan.",
+        moduleSlug: "explorer",
+        lessonSlug: "hello-its-me",
       },
       {
-        slug: "past-simple-microlearning",
-        type: "Microlearning",
-        title: "Past Simple Weekend Stories",
-        description:
-          "Ringkasan 150 kata: satu aturan inti, dua contoh, dan memory anchor.",
-        moduleSlug: "foundation",
-        lessonSlug: "sentence-engine",
-      },
-      {
-        slug: "hobby-chain-activity",
-        type: "Activity",
-        title: "Hobby Chain: Find Your Match",
-        description:
-          "Aktivitas 15 menit untuk perkenalan, hobi, dan follow-up question.",
-        moduleSlug: "foundation",
-        lessonSlug: "questions-that-keep-people-talking",
-      },
-      {
-        slug: "past-continuous-grammar",
-        type: "Grammar",
-        title: "Past Continuous vs Simple Past",
-        description:
-          "Analogi video dan foto untuk membedakan aksi yang sedang berjalan dan yang sudah selesai.",
-        moduleSlug: "everyday-fluency",
-        lessonSlug: "tell-it-simply",
-      },
-      {
-        slug: "travel-glossary",
+        slug: "toy-glossary",
         type: "Glossary",
-        title: "Travel & Navigation Expressions",
-        description:
-          "10 frasa A2 untuk bertanya arah, mengikuti rute, dan meminta pengulangan.",
-        moduleSlug: "everyday-fluency",
-        lessonSlug: "get-things-done",
+        title: "Kata Mainan & Warna",
+        description: "5 kata mainan dengan contoh kalimat pendek.",
+        moduleSlug: "explorer",
+        lessonSlug: "colors-and-toys",
       },
       {
-        slug: "meeting-case-study",
-        type: "Case Study",
-        title: "The Meeting That Went Quiet",
-        description:
-          "Studi kasus tentang menyampaikan perbedaan pendapat tanpa mematikan percakapan.",
-        moduleSlug: "opinions-that-land",
-        lessonSlug: "disagree-without-damage",
+        slug: "parent-guide",
+        type: "Panduan",
+        title: "Mendampingi Anak di Rumah",
+        description: "Cara memuji usaha dan mengoreksi satu hal saja.",
+        moduleSlug: "communicator",
+        lessonSlug: "my-weekend",
+      },
+      {
+        slug: "show-and-tell-frame",
+        type: "Activity",
+        title: "Kerangka Show & Tell 60 Detik",
+        description: "Sapaan, benda favorit, alasan istimewa, dan penutup.",
+        moduleSlug: "communicator",
+        lessonSlug: "show-and-tell",
       },
     ],
   },

@@ -68,6 +68,18 @@
   }
 
   // ===== Order (ditulis checkout, dibaca admin + murid) =====
+  // Sesi paket bisa hilang di RPC lama; infer dari class + nominal resmi.
+  function sessionsFor(o) {
+    var direct = Number((o && o.sessions) || 0);
+    if (direct > 0) return direct;
+    var cid = String((o && o.class_id) || "");
+    var n = Number((o && o.nominal) || 0);
+    if (cid === "CLS-SMALL-GROUP-01") return n >= 3150000 ? 45 : n >= 450000 ? 6 : 0;
+    if (cid === "CLS-KIDS-TERM-01") return 10;
+    if (cid.indexOf("CLS-PUB-") === 0) return 4;
+    return 0;
+  }
+
   function upsertOrder(o) {
     return call("kolase_order_upsert", {
       p_order_id: o.order_id, p_trx_id: o.trx_id, p_student_id: o.student_id,
@@ -87,7 +99,7 @@
     return call("kolase_order_verify", {
       p_order_id: orderId, p_status: v.status,
       p_sisa: Number(v.sisa || 0), p_grant: Number(v.grant || 0),
-      p_trial: !!v.trial, p_activated_at: v.activated_at || null,
+      p_activated_at: v.activated_at || null,
       p_expires_at: v.expires_at || null
     });
   }
@@ -133,14 +145,15 @@
       db.TXN_PAYMENTS.push({
         trx_id: o.trx_id, enrollment_id: o.order_id, student_id: o.student_id,
         class_id: o.class_id, nominal: Number(o.nominal || 0), method: o.method || "",
-        status: "PENDING", tgl: o.created_at || new Date().toISOString()
+        status: "PENDING", tgl: o.created_at || new Date().toISOString(),
+        sessions: sessionsFor(o) || null
       });
       changed = true;
     }
     if (!(db.CLASS_MEMBERSHIP || []).some(function (m) { return m.enrollment_id === o.order_id; })) {
       db.CLASS_MEMBERSHIP.push({
         enrollment_id: o.order_id, student_id: o.student_id, class_id: o.class_id,
-        status: "PENDING", sisa: 0
+        status: "PENDING", sisa: 0, sesi_package: sessionsFor(o) || null
       });
       changed = true;
     }
@@ -204,6 +217,7 @@
         trx_id: o.trx_id, enrollment_id: o.order_id, student_id: o.student_id,
         class_id: o.class_id, nominal: Number(o.nominal || 0), method: o.method || "",
         status: "VERIFIED", tgl: o.created_at || new Date().toISOString(),
+        sessions: sessionsFor(o) || null,
         tgl_verifikasi: o.activated_at || new Date().toISOString()
       });
       changed = true;
@@ -217,7 +231,7 @@
       m = {
         enrollment_id: o.order_id, student_id: o.student_id, class_id: o.class_id,
         status: "ACTIVE", sisa: Number(o.sisa || 0),
-        trial_id: null, trial_credit_applied: !!o.trial_applied,
+        sesi_package: sessionsFor(o) || null,
         activated_at: o.activated_at || new Date().toISOString(), expires_at: o.expires_at || null
       };
       db.CLASS_MEMBERSHIP.push(m);
@@ -225,7 +239,6 @@
     } else if (m.status !== "ACTIVE" || Number(m.sisa || 0) !== Number(o.sisa || 0)) {
       m.status = "ACTIVE";
       m.sisa = Number(o.sisa || 0);
-      m.trial_credit_applied = m.trial_credit_applied || !!o.trial_applied;
       m.activated_at = m.activated_at || o.activated_at;
       m.expires_at = m.expires_at || o.expires_at;
       changed = true;
@@ -246,23 +259,6 @@
         at: new Date().toISOString(), balance_after: m.sisa
       });
       changed = true;
-    }
-    if (o.trial_applied) {
-      var hasT = (db.TXN_ENTITLEMENT_LEDGER || []).some(function (l) {
-        return l.enrollment_id === m.enrollment_id && l.reason === "TRIAL_RECOGNITION";
-      });
-      if (!hasT) {
-        db.TXN_ENTITLEMENT_LEDGER.push({
-          enrollment_id: m.enrollment_id, student_id: m.student_id,
-          delta: -7, reason: "TRIAL_RECOGNITION",
-          at: new Date().toISOString(), balance_after: m.sisa
-        });
-        changed = true;
-      }
-      var tr = (db.TRIALS || []).find(function (x) {
-        return x.student_id === m.student_id && x.class_id === m.class_id && !x.converted;
-      });
-      if (tr) { tr.converted = true; tr.status = "CONVERTED"; changed = true; }
     }
     if (changed) KS.saveDB(db);
     return changed;

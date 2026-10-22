@@ -154,18 +154,17 @@ export default async function CourseDetailPage({
           <div>
             <p className="text-xs font-extrabold tracking-[0.2em] text-sand">FINAL PROJECT</p>
             <h2 className="font-display mt-1 text-xl font-extrabold">
-              The 2-Minute Unscripted Showcase
+              Show & Tell 60 Detik
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-ivory/75">
-              Bicara 2 menit tanpa naskah, lalu jawab 2 pertanyaan susulan. Outline
-              maksimal 5 kata kunci. Fokusnya bukan hafalan, tapi kemampuan menjaga
-              alur saat tekanan naik.
+              Tunjukkan satu benda favorit, ceritakan dalam 4 kalimat, lalu jawab
+              satu pertanyaan. Fokusnya keberanian dan kejelasan, bukan hafalan.
             </p>
             <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold text-ivory/80">
-              <span className="rounded-full border border-ivory/20 px-2.5 py-1">2 menit</span>
-              <span className="rounded-full border border-ivory/20 px-2.5 py-1">Tanpa naskah</span>
-              <span className="rounded-full border border-ivory/20 px-2.5 py-1">2 pertanyaan</span>
-              <span className="rounded-full border border-ivory/20 px-2.5 py-1">Rubrik 5 kriteria</span>
+              <span className="rounded-full border border-ivory/20 px-2.5 py-1">60 detik</span>
+              <span className="rounded-full border border-ivory/20 px-2.5 py-1">1 benda favorit</span>
+              <span className="rounded-full border border-ivory/20 px-2.5 py-1">4 kalimat</span>
+              <span className="rounded-full border border-ivory/20 px-2.5 py-1">1 pertanyaan</span>
             </div>
           </div>
         </div>
@@ -202,9 +201,9 @@ export default async function CourseDetailPage({
       </section>
 
       <div className="rounded-2xl bg-ivory p-4 text-xs leading-relaxed text-ink/60">
-        <Layers size={15} className="mb-1 inline text-navy" /> Semua lesson mengikuti alur
-        live 60 menit: retrieval, input, controlled practice, speaking task, feedback, lalu
-        mission.
+        <Layers size={15} className="mb-1 inline text-navy" /> Semua misi mengikuti alur
+        kelas 60 menit: sapaan, contoh, latihan bersama, giliran bicara, umpan balik,
+        lalu misi di rumah.
       </div>
     </div>
   );

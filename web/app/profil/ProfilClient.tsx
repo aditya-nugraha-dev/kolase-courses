@@ -57,7 +57,7 @@ export default function ProfilClient() {
         ]
       : me.role === "teacher"
         ? [
-            { href: "/guru", icon: LayoutDashboard, t: "Portal Teacher", d: "Laporan, trial, materi" },
+            { href: "/guru", icon: LayoutDashboard, t: "Portal Teacher", d: "Laporan, reschedule, materi" },
             { href: "/chat", icon: MessagesSquare, t: "Chat Student", d: "Balas chat murid" },
           ]
         : [

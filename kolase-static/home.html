@@ -24,8 +24,8 @@
   </div></div>
   <div class="hero"><div class="hero-grid">
     <div class="hero-card" style="display:flex;flex-direction:column">
-      <h1 data-i18n="hero.title">Belajar Bahasa Inggris 4 Sesi, Terjadwal & Terukur.</h1>
-      <p data-i18n="hero.desc">1 paket = 4 sesi (1x/minggu). ID permanen <span class="id-mono">STU-XXXXXX</span>, kuota ledger otomatis, sinkron Google Sheets + Calendar.</p>
+      <h1 data-i18n="hero.title">Belajar Bahasa Inggris, Terjadwal & Terukur.</h1>
+      <p data-i18n="hero.desc">Kids Public 4 sesi, Kids Term 10 sesi, Beginner 13+ 4 sesi, Small Group 6–45 sesi. ID permanen <span class="id-mono">STU-XXXXXX</span>, kuota ledger otomatis, sinkron Google Sheets + Calendar.</p>
       <div class="badges"><span class="badge" data-i18n="hero.badge1">Kids & Beginner</span><span class="badge">Google Meet</span><span class="badge" data-i18n="hero.badge3">Chat Guru</span><span class="badge">QRIS / VA / E-Wallet</span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <a class="btn btn-brand" href="catalog.html" data-i18n="hero.catalog">Lihat Katalog</a>
@@ -42,18 +42,13 @@
         <li>Chat guru + kalender terjadwal tiap sesi</li>
       </ul>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:12px">
-        <button class="btn btn-brand btn-sm" data-trial="CLS-PUB-KIDS-01">Start Free Trial</button>
+        <a class="btn btn-brand btn-sm" href="catalog.html">Pilih Kelas</a>
         <a class="btn btn-ghost btn-sm" href="#roadmap">Lihat Jalur Belajar →</a>
       </div>
     </div>
     <div class="hero-card hero-media">
       <img src="assets/kolase-banner.png" alt="Welcome to KOLASE Academy — In Your Voice We Trust" loading="eager">
     </div>
-  </div></div>
-
-  <div class="section"><div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-style:dashed">
-    <div style="flex:1;min-width:200px"><b data-i18n="trial.title">🎁 Coba 7 Sesi Gratis</b><div class="small" data-i18n="trial.desc">Tanpa bayar — 6 sesi belajar + 1 progress test. Selesai? Pilih lanjut ke Kelas Kids atau berhenti.</div></div>
-    <button class="btn btn-brand" data-trial="CLS-PUB-KIDS-01" data-i18n="trial.btn">Mulai Trial Gratis</button>
   </div></div>
 
   <div class="section"><h2 data-i18n="sec.populer">Kelas Populer</h2>
@@ -64,7 +59,7 @@
   <div class="section" id="roadmap"><h2 data-i18n="sec.roadmap">Jalur Belajar</h2>
     <p class="small" data-i18n="sec.roadmap.d">Selesai satu tahap, otomatis tahu lanjut ke kelas mana.</p>
     <div class="swipe-row" id="roadTrack"></div>
-    <p class="small"><a href="catalog.html" data-i18n="sec.roadmap.cta">Mulai dari Trial Gratis →</a></p>
+    <p class="small"><a href="catalog.html" data-i18n="sec.roadmap.cta">Lihat Katalog Resmi →</a></p>
   </div>
 
   <div class="section" id="galeri"><h2 data-i18n="sec.cara">Cara Kami Mengajar</h2>
@@ -142,19 +137,18 @@
     }
   } catch(e){}
 })();
-// Jalur belajar: trial → Kids → Teen → Placement → Small Group.
+// Jalur belajar resmi §2.1: Kids Public → Kids Term → Teen Beginner → Small Group.
 (function(){
   const track = document.getElementById("roadTrack");
   if (!track) return;
   const steps = [
-    { n: "1", t: "Trial Gratis", m: "7 sesi • Rp0", d: "Coba dulu, tanpa bayar.", cta: `<button class="btn btn-brand btn-sm" data-trial="CLS-PUB-KIDS-01">Mulai Trial</button>` },
-    { n: "2", t: "Kids Public", m: "4 sesi • Rp50rb", d: "Usia 6–12 th.", cta: `<a class="btn btn-ghost btn-sm" href="class-details.html?id=CLS-PUB-KIDS-01">Detail →</a>` },
-    { n: "3", t: "Teen Beginner", m: "4 sesi • Rp75rb", d: "Remaja & dewasa.", soon: true, cta: `<a class="btn btn-ghost btn-sm" href="class-details.html?id=CLS-PUB-TEEN-01">Detail →</a>` },
-    { n: "4", t: "Placement 50 poin", m: "Tes penempatan", d: "Tahu level kelasmu.", cta: `<a class="btn btn-ghost btn-sm" href="dashboard.html">Ikuti Tes →</a>` },
-    { n: "5", t: "Small Group", m: "Segera", d: "Lanjutan CORE.", dim: true, cta: `` },
+    { n: "1", t: "Kids Public", m: "4 sesi • Rp50rb promo", d: "Usia 6–12 tahun, pendaftaran langsung.", cta: `<a class="btn btn-brand btn-sm" href="class-details.html?id=CLS-PUB-KIDS-01">Detail →</a>` },
+    { n: "2", t: "Kids Term", m: "10 sesi • Rp650/750rb", d: "Rombel 3–5 anak, Kids Entry Assessment.", cta: `<a class="btn btn-ghost btn-sm" href="class-details.html?id=CLS-KIDS-TERM-01">Detail →</a>` },
+    { n: "3", t: "Teen Beginner", m: "4 sesi • Rp75rb", d: "Usia 13+, tanpa asesmen awal.", cta: `<a class="btn btn-ghost btn-sm" href="class-details.html?id=CLS-PUB-TEEN-01">Detail →</a>` },
+    { n: "4", t: "Small Group", m: "6–45 sesi • Rp450rb–3,15jt", d: "Diagnostic Placement, lalu paket sesuai target.", cta: `<a class="btn btn-ghost btn-sm" href="class-details.html?id=CLS-SMALL-GROUP-01">Pilih Paket →</a>` },
   ];
   track.innerHTML = steps.map(s =>
-    `<div class="card"><div class="road-num${s.dim ? " dim" : ""}">${s.n}</div><b>${s.t}</b><div class="small">${s.m}${s.soon ? ` • <span class="pill p-pending">SEGERA</span>` : ``}</div><div class="small" style="margin:4px 0 8px">${s.d}</div>${s.cta}</div>`
+    `<div class="card"><div class="road-num">${s.n}</div><b>${s.t}</b><div class="small">${s.m}</div><div class="small" style="margin:4px 0 8px">${s.d}</div>${s.cta}</div>`
   ).join("");
 })();
 // Stat hero live: sesi/paket + harga termurah dari katalog, ID permanen milik yang login.
@@ -183,8 +177,7 @@
     }
   }).catch(()=>{});
 })();
-// Ulasan dinamis: dari localStorage (termasuk ulasan 1 paket yang baru dikirim).
-// Mendukung format baru (4 aspek bintang) + format lama (rating tunggal trial).
+// Ulasan dinamis: dari localStorage (ulasan 1 paket dengan 4 aspek bintang).
 (function(){
   const stars = (n) => "★".repeat(Math.round(Number(n) || 0)) + "☆".repeat(5 - Math.round(Number(n) || 0));
   const aspectRows = (r) => {

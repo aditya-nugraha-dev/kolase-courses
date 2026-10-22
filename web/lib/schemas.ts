@@ -146,22 +146,14 @@ export const classDeleteServerSchema = z.object({
   id: z.string().trim().min(3).max(32),
 });
 
-// Trial 7 sesi gratis: mulai → progres per sesi → keputusan lanjut/berhenti.
-// Lanjut = buatkan checkout kelas Kids (ENR + TXN PENDING) lalu ke /bayar.
-export const trialCreateServerSchema = z.object({
-  student_id: z.string().trim().regex(/^STU-\d{6}$/, "Format STU-XXXXXX").optional().default(""),
-  class_id: z.string().trim().min(3).max(32).optional().default(""),
-});
-
-export const trialProgressServerSchema = z.object({
-  trial_id: z.string().trim().regex(/^TRL-\d{6}$/, "Format TRL-XXXXXX"),
-  sessions_delivered: z.coerce.number().int().min(0).max(7),
-});
-
-export const trialDecisionServerSchema = z.object({
-  trial_id: z.string().trim().regex(/^TRL-\d{6}$/, "Format TRL-XXXXXX"),
-  action: z.enum(["lanjut", "berhenti"]),
-  method: z.enum(["QRIS", "Transfer Bank", "E-Wallet"]).optional().default("QRIS"),
+// Progres LMS per murid (disinkronkan dari perangkat ke Supabase).
+export const courseProgressServerSchema = z.object({
+  course_slug: z.string().trim().min(1).max(64).regex(/^[a-z0-9-]+$/, "Slug tidak valid"),
+  lesson_key: z.string().trim().min(1).max(160).regex(/^[a-z0-9-]+\/[a-z0-9-]+$/, "Lesson key tidak valid"),
+  completed: z.boolean(),
+  quiz_score: z.number().int().min(0).max(1000).nullable().optional(),
+  quiz_total: z.number().int().min(0).max(1000).nullable().optional(),
+  updated_at: z.string().datetime({ offset: true }).optional(),
 });
 
 // Materi kelas (diupload guru, dibaca murid sekelasnya).
@@ -190,7 +182,6 @@ export const statsExportSchema = z.object({
     "payments",
     "membership",
     "ledger",
-    "trials",
     "placements",
     "attendance",
   ]),

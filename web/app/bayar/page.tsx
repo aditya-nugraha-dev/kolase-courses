@@ -28,7 +28,7 @@ export default function BayarPage() {
 
 function BayarForm() {
   const params = useSearchParams();
-  // Prefill dari alur trial-lanjut: ?studentId=&program=&nominal=&method=
+  // Prefill dari alur pendaftaran: ?studentId=&program=&nominal=&method=
   const [form, setForm] = useState(() => {
     const prog = (params.get("program") ?? "").trim();
     const meth = (params.get("method") ?? "").trim();

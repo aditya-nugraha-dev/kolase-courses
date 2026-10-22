@@ -48,11 +48,6 @@ export async function GET(req: Request) {
         .select("student_id,class_id,status,sisa")
         .in("status", ["PENDING", "ACTIVE"])
         .limit(500);
-      const { data: trials } = await sb
-        .from("trials")
-        .select("student_id,status,sessions_delivered")
-        .in("status", ["STARTED", "COMPLETED"])
-        .limit(500);
 
       const memByStudent: Record<string, Array<{ class_id: string; status: string; sisa: number }>> = {};
       for (const m of (memberships ?? []) as Record<string, unknown>[]) {
@@ -63,10 +58,6 @@ export async function GET(req: Request) {
           status: String(m.status ?? ""),
           sisa: Number(m.sisa ?? 0),
         });
-      }
-      const trialByStudent: Record<string, string> = {};
-      for (const t of (trials ?? []) as Record<string, unknown>[]) {
-        trialByStudent[String(t.student_id ?? "")] = `${t.status} ${t.sessions_delivered ?? 0}/7`;
       }
       const teacherRows: Array<Record<string, unknown>> = ((teachers ?? []) as Array<Record<string, unknown>>).map((t) => {
         const nama = String(t.nama ?? "");
@@ -89,7 +80,6 @@ export async function GET(req: Request) {
           const row: Record<string, unknown> = {
             ...x,
             classes: memByStudent[String(x.student_id ?? "")] ?? [],
-            trial: trialByStudent[String(x.student_id ?? "")] ?? "—",
           };
           return row;
         })

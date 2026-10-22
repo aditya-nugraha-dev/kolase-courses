@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { STUDENT_AREA_ROLES } from "@/lib/session";
 import StudentSidebar from "./StudentSidebar";
+import ProgressSync from "./ProgressSync";
 
 // Layout portal murid ala referensi: sidebar kiri + konten.
 // Server guard (student + admin penuh); nama diambil best-effort untuk sidebar.
@@ -33,6 +34,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
 
   return (
     <div className="min-h-screen bg-ivory">
+      <ProgressSync studentId={s.sub} />
       <div className="mx-auto flex w-full max-w-6xl items-stretch gap-0 lg:gap-6 lg:px-4 lg:py-6">
         <StudentSidebar name={displayName} studentId={s.sub} />
         <main className="min-w-0 flex-1 px-4 py-6 lg:rounded-3xl lg:bg-paper lg:p-6 lg:shadow-sm">

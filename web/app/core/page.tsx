@@ -1,4 +1,4 @@
-// KOLASE — konsol uji modul inti: register -> checkout -> webhook (7 trial gratis -> P15 sisa 8) -> attendance
+// KOLASE — konsol uji modul inti: register -> checkout -> webhook -> attendance
 // + hybrid pilot: placement (02, max 50) -> postclass (03, max 10) -> observation (06, skala 1-5)
 // Responsif desktop + HP: max-width cairan, input 16px cegah auto-zoom iOS, tap target >=44px.
 "use client";
@@ -36,7 +36,7 @@ async function call(path: string, body?: unknown) {
 export default function CorePage() {
   const [health, setHealth] = useState("...");
   const [out, setOut] = useState("");
-  const [f, setF] = useState({ role: "student", nama: "", email: "", wa: "", student_id: "", pilot_student_id: "", class_id: "CLS-PUB-KIDS-01", pilot_class_id: "CLS-000001", method: "QRIS", trx_id: "", trial_id: "", session_id: "", hadir: "PRESENT", placement_total: "", pre_check_score: "", post_check_total: "", interest_status: "" });
+  const [f, setF] = useState({ role: "student", nama: "", email: "", wa: "", student_id: "", pilot_student_id: "", class_id: "CLS-PUB-KIDS-01", pilot_class_id: "CLS-000001", method: "QRIS", trx_id: "", session_id: "", hadir: "PRESENT", placement_total: "", pre_check_score: "", post_check_total: "", interest_status: "" });
   useEffect(() => { call("/api/health").then((h) => setHealth(`supabase:${h.supabase ? "ON" : "OFF"} sheets:${h.sheets ? "ON" : "OFF"}`)); }, []);
   const run = async (label: string, p: Promise<unknown>) => {
     try { setOut(label + "\n" + JSON.stringify(await p, null, 2)); }
@@ -51,7 +51,7 @@ export default function CorePage() {
       {[
         { t: "1. Register (STU-###### seumur hidup)", k: ["role", "nama", "email", "wa"], fn: () => call("/api/register", { role: f.role, nama: f.nama, email: f.email, wa: f.wa }) },
         { t: "2. Checkout Public (ENR + TXN PENDING, max 50)", k: ["student_id", "class_id", "method"], fn: () => call("/api/checkout", { student_id: f.student_id, class_id: f.class_id, method: f.method }) },
-        { t: "3. Webhook VERIFIED (Public → 4 sesi; Core → 15/8 sesi)", k: ["trx_id", "trial_id"], fn: () => call("/api/webhook", { trx_id: f.trx_id, trial_id: f.trial_id || undefined }) },
+        { t: "3. Webhook VERIFIED (Public → 4 sesi; Core → 15 sesi)", k: ["trx_id"], fn: () => call("/api/webhook", { trx_id: f.trx_id }) },
         { t: "4. Attendance SES-XXXXXX + student (deduct −1)", k: ["session_id", "student_id", "hadir"], fn: () => call("/api/attendance", { session_id: f.session_id, student_id: f.student_id, hadir: f.hadir }) },
         { t: "5. Placement 50p DEWASA only (02, ATM baru)", k: ["pilot_student_id", "placement_total", "pre_check_score"], fn: () => call("/api/placement", { pilot_student_id: f.pilot_student_id, honesty_declaration: "Dikerjakan mandiri via konsol core.", language_use_score: 10, vocabulary_score: 10, reading_score: 8, listening_score: 7, writing_score: 7, writing_response: "Last weekend I visited my grandmother. Then we ate lunch together. After that I played football. Finally I went home.", pre_check_response: "Last weekend I visited my grandmother. Then we ate lunch together. After that I played football. Finally I went home.", pre_check_score: Number(f.pre_check_score) }) },
         { t: "5b. Entry Assessment KIDS 10-15 mnt (ATM baru)", k: ["pilot_student_id"], fn: () => call("/api/entry-assessment", { pilot_student_id: f.pilot_student_id, attendance: "ATTENDED", vocabulary: 4, confidence: 4 }) },

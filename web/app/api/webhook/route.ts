@@ -1,7 +1,6 @@
-// POST /api/webhook {trx_id, trial_id?} — simulasi callback gateway (PENDING -> VERIFIED).
+// POST /api/webhook {trx_id} — simulasi callback gateway (PENDING -> VERIFIED).
 // Production: ganti dengan verifikasi signature Midtrans/Xendit lalu panggil logika yang sama.
-// CORE lama (BP-001): tanpa trial +15/15 sesi, dengan trial +15-7=8 sesi.
-// PUBLIC CLASS 2026-09-15: 4 sesi @60 mnt, tanpa kredit trial, validity 1 bulan (Docs KOL-AKD-KID-001).
+// PUBLIC 4 sesi @60 mnt; CORE mengikuti classes.sesi_count (6/10/15/30/45 sesi).
 // BP-011: idempotent (cek VERIFIED + cek sesi/ledger existing), audit append-only, Calendar proyeksi saja.
 // Grain kanonikal KOL-POL-COD-001 §3.3: SES-XXXXXX per jadwal KELAS (class_sessions) — dasar absensi & honor.
 // Tabel sessions per-enrollment dipertahankan sebagai proyeksi kompatibilitas UI.
@@ -13,7 +12,7 @@ import { createSessionEvents } from "@/lib/calendar";
 
 export async function POST(req: Request) {
   try {
-    const { trx_id, trial_id } = await req.json();
+    const { trx_id } = await req.json();
     if (!trx_id) return NextResponse.json({ ok: false, error: "trx_id wajib" }, { status: 400 });
     const sb = supabaseServer();
     const { data: pay, error } = await sb.from("txn_payments").select("*").eq("trx_id", trx_id).single();
@@ -27,43 +26,25 @@ export async function POST(req: Request) {
     if ((sesCount ?? 0) > 0 || (grantCount ?? 0) > 0) {
       return NextResponse.json({ ok: true, idempotent: true, enrollment_id: pay.enrollment_id, note: "sesi/ledger sudah ada, grant dilewati (anti double-grant BP-011)" });
     }
-    // Cari trial COMPLETED untuk kredit exactly-once (hanya CORE; PUBLIC tanpa trial).
-    // Deteksi PUBLIC via class_id CLS-PUB-* atau kategori.
+    // Baca konfigurasi kelas: jumlah sesi & durasi.
     let isPublic = String(pay.class_id || "").startsWith("CLS-PUB-");
     let sesiCount = 15;
-    let durationMin = 90;
+    let durationMin = 60;
     try {
       const { data: clsRow } = await sb.from("classes").select("kategori,sesi_count,duration_minutes").eq("id", pay.class_id).single();
       if (clsRow) {
         if ((clsRow.kategori ?? "") === "PUBLIC") isPublic = true;
         if (clsRow.sesi_count) sesiCount = Number(clsRow.sesi_count) || (isPublic ? 4 : 15);
-        if (clsRow.duration_minutes) durationMin = Number(clsRow.duration_minutes) || (isPublic ? 60 : 90);
-      } else if (isPublic) { sesiCount = 4; durationMin = 60; }
-    } catch { if (isPublic) { sesiCount = 4; durationMin = 60; } }
-    let trial: { trial_id: string } | null = null;
-    let withTrial = false;
-    let sisa = isPublic ? sesiCount : 15;
-    if (!isPublic) {
-    try {
-      if (trial_id) {
-        const { data: t } = await sb.from("trials").select("trial_id,status,student_id,class_id").eq("trial_id", trial_id).single();
-        if (t && t.status === "COMPLETED" && t.student_id === pay.student_id && t.class_id === pay.class_id) trial = t;
-        else if (t) return NextResponse.json({ ok: false, error: "trial_id tidak COMPLETED / tidak cocok student+class" }, { status: 409 });
-      } else {
-        const { data: ts } = await sb.from("trials").select("trial_id").eq("student_id", pay.student_id).eq("class_id", pay.class_id).eq("status", "COMPLETED").order("created_at", { ascending: false }).limit(1);
-        if (ts && ts.length > 0) trial = ts[0];
-      }
-    } catch { trial = null; /* tabel trials belum ada di DB lama = beli langsung */ }
-    withTrial = Boolean(trial);
-    sisa = withTrial ? 8 : 15; // P15: 15-7=8; langsung: 15
-    }
+        if (clsRow.duration_minutes) durationMin = Number(clsRow.duration_minutes) || 60;
+      } else if (isPublic) { sesiCount = 4; }
+    } catch { if (isPublic) { sesiCount = 4; } }
+    const sisa = sesiCount;
     const nSes = sisa;
     await sb.from("txn_payments").update({ status: "VERIFIED", tgl_verifikasi: now }).eq("trx_id", trx_id);
     // Validity: PUBLIC 1 bulan (4 sesi), CORE P15 2 bulan.
     const exp = new Date(); exp.setMonth(exp.getMonth() + (isPublic ? 1 : 2));
     const expires_at = exp.toISOString().slice(0, 10);
-    const membershipPatch: Record<string, unknown> = { status: "ACTIVE", sisa, activated_at: now, expires_at, trial_credit_applied: withTrial };
-    if (trial) membershipPatch.trial_id = trial.trial_id;
+    const membershipPatch: Record<string, unknown> = { status: "ACTIVE", sisa, activated_at: now, expires_at };
     await sb.from("class_membership").update(membershipPatch).eq("enrollment_id", pay.enrollment_id);
 
     // Sesi kanonikal per KELAS: lengkapi seq yang belum ada (idempoten per class+seq).
@@ -94,28 +75,20 @@ export async function POST(req: Request) {
     });
     const { error: sErr } = await sb.from("sessions").insert(sessions);
     if (sErr) throw new Error(sErr.message);
-    const grant = isPublic ? nSes : 15;
+    const grant = nSes;
     const ledger = { enrollment_id: pay.enrollment_id, student_id: pay.student_id, delta: grant, reason: "PAYMENT_VERIFIED", at: now, balance_after: sisa };
     const { error: lErr } = await sb.from("txn_entitlement_ledger").insert(ledger);
     if (lErr) throw new Error(lErr.message);
-    let ledger2: Record<string, unknown> | null = null;
-    if (trial) {
-      ledger2 = { enrollment_id: pay.enrollment_id, student_id: pay.student_id, delta: -7, reason: "TRIAL_RECOGNITION", at: now, balance_after: sisa };
-      const { error: l2Err } = await sb.from("txn_entitlement_ledger").insert(ledger2);
-      if (l2Err) throw new Error(l2Err.message);
-      try { await sb.from("trials").update({ status: "CONVERTED" }).eq("trial_id", trial.trial_id); } catch { /* abaikan */ }
-    }
     // BP-011 DEC-008 audit (best-effort; jangan gagalkan verify bila tabel audit belum ada di DB lama).
-    try { await sb.from("audit_log").insert({ actor: "webhook", action: "VERIFY", object_type: "PAYMENT", object_id: trx_id, reason: withTrial ? "PAYMENT_VERIFIED+TRIAL_RECOGNITION" : "PAYMENT_VERIFIED", meta: { enrollment_id: pay.enrollment_id, expires_at, trial_id: trial?.trial_id ?? null, sisa } }); } catch { /* abaikan */ }
+    try { await sb.from("audit_log").insert({ actor: "webhook", action: "VERIFY", object_type: "PAYMENT", object_id: trx_id, reason: "PAYMENT_VERIFIED", meta: { enrollment_id: pay.enrollment_id, expires_at, sisa } }); } catch { /* abaikan */ }
 
     const sheets = await postSheets({
       action: "verify",
       payment: { trx_id },
-      membership: { enrollment_id: pay.enrollment_id, sisa, activated_at: now, expires_at, trial_id: trial?.trial_id ?? null, trial_credit_applied: withTrial },
+      membership: { enrollment_id: pay.enrollment_id, sisa, activated_at: now, expires_at },
       sessions: sessions.map((s) => ({ ...s, hadir: "" })),
       class_sessions: newClassSessions,
       ledger,
-      ledger2,
     });
 
     // Google Calendar: event per SESI KELAS yang baru dibuat + undang siswa (lihat google-calendar/CALENDAR_SETUP.txt).
@@ -130,7 +103,7 @@ export async function POST(req: Request) {
       meetUrl: cls?.meet || undefined,
       durationMin: durationMin,
     });
-    return NextResponse.json({ ok: true, enrollment_id: pay.enrollment_id, sessions: nSes, class_sessions: newClassSessions.length, sisa, withTrial, trial_id: trial?.trial_id ?? null, expires_at, renewal_due_at_sisa_3: true, sheets, calendar });
+    return NextResponse.json({ ok: true, enrollment_id: pay.enrollment_id, sessions: nSes, class_sessions: newClassSessions.length, sisa, expires_at, renewal_due_at_sisa_3: true, sheets, calendar });
   } catch (e) {
     return NextResponse.json({ ok: false, error: String(e) }, { status: 500 });
   }
