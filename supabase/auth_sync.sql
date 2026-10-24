@@ -599,3 +599,39 @@ grant execute on function kolase_my_orders(text) to anon, authenticated;
 grant execute on function kolase_pay_methods() to anon, authenticated;
 grant execute on function kolase_pay_method_save(text, text, text, text, text, text, boolean) to anon, authenticated;
 grant execute on function kolase_pay_method_delete(text) to anon, authenticated;
+
+-- ===== 17) Profil anak (opsional, dipanggil best-effort setelah register) =====
+-- Nama panggilan & usia dipakai guru untuk menyapa anak di kelas.
+-- Tidak wajib dijalankan: bila RPC belum ada, pendaftaran tetap berhasil.
+alter table mst_students add column if not exists preferred_name text default '';
+alter table mst_students add column if not exists age_group text default '';
+alter table mst_students add column if not exists guardian_whatsapp text default '';
+
+create or replace function kolase_update_student_profile(
+  p_email text,
+  p_password_hash text,
+  p_panggilan text default '',
+  p_usia text default '',
+  p_guardian_wa text default ''
+) returns boolean
+language plpgsql security definer set search_path = public as $$
+declare v_ref text;
+begin
+  select ref_id into v_ref from auth_accounts
+  where lower(email) = lower(trim(coalesce(p_email, '')))
+    and role = 'student'
+    and password_hash = trim(coalesce(p_password_hash, ''))
+  limit 1;
+  if v_ref is null or v_ref = '' then return false; end if;
+  update mst_students set
+    preferred_name = coalesce(nullif(left(trim(coalesce(p_panggilan, '')), 40), ''), preferred_name),
+    age_group = case
+      when trim(coalesce(p_usia, '')) ~ '^(6|7|8|9|10|11|12)$' then trim(p_usia)
+      else age_group
+    end,
+    guardian_whatsapp = coalesce(nullif(left(trim(coalesce(p_guardian_wa, '')), 20), ''), guardian_whatsapp)
+  where student_id = v_ref;
+  return found;
+end $$;
+
+grant execute on function kolase_update_student_profile(text, text, text, text, text) to anon, authenticated;

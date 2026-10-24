@@ -1,30 +1,37 @@
 @import "tailwindcss";
 
 @theme {
-  /* KOLASE English Academy — palette extracted from the 2026 logo suite. */
-  --color-sand: #fd8204;
+  /* KOLASE Warm Cream design system - selaras wordmark hitam & ramah anak. */
+  --color-sand: #f59e0b;
   --color-sand-deep: #b45309;
-  --color-sand-soft: #f3e8ff;
-  --color-ink: #1a1038;
-  --color-ivory: #faf8ff;
-  --color-navy: #4117a0;
-  --color-navy-deep: #2e0e73;
+  --color-sand-soft: #fef3c7;
+  --color-ink: #18181b;
+  --color-ivory: #fffdf7;
+  --color-navy: #2563eb;
+  --color-navy-deep: #1d4ed8;
   --color-paper: #ffffff;
-  --color-violet: #7038f1;
-  --color-violet-deep: #5a22d6;
-  --color-violet-soft: #ede4ff;
-  --color-lavender: #d0acfa;
-  --color-cyan: #02c6de;
-  --color-cyan-deep: #007f8f;
-  --color-brand-blue: #012f8f;
+  --color-violet: #2563eb;
+  --color-violet-deep: #1d4ed8;
+  --color-violet-soft: #eff6ff;
+  --color-lavender: #bfdbfe;
+  --color-cyan: #10b981;
+  --color-cyan-deep: #047857;
+  --color-brand-blue: #1d4ed8;
+
+  /* Radius: kartu 18px, kontrol kecil 12px. */
+  --radius-lg: 12px;
+  --radius-xl: 12px;
+  --radius-2xl: 18px;
+  --radius-3xl: 18px;
+
 
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-nunito), var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
-  --background: #faf8ff;
-  --foreground: #1a1038;
+  --background: #fffdf7;
+  --foreground: #18181b;
 }
 
 @theme inline {
@@ -38,11 +45,24 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 ::selection {
-  background: #d0acfa;
-  color: #1a1038;
+  background: #f59e0b;
+  color: #18181b;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
 }
 
 /* Display font untuk heading — Nunito ExtraBold, mengikuti wordmark KOLASE. */
@@ -66,3 +86,4 @@ section[id], article[id], div[id] { scroll-margin-top: 5.5rem; }
 @media print {
   header, nav, footer { display: none !important; }
 }
+

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KOLASE — Masuk / Daftar</title>
-<link rel="stylesheet" href="css/style.css?v=7">
-<link rel="stylesheet" href="css/auth.css?v=8">
+<link rel="stylesheet" href="css/style.css?v=10">
+<link rel="stylesheet" href="css/auth.css?v=10">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
 <body>
@@ -23,12 +23,12 @@
         </div>
       </div>
       <div class="auth-body">
-        <div class="auth-title" id="authTitle" data-i18n="login.title">Welcome to KOLASE!</div>
-        <div class="auth-tabs" role="tablist" aria-label="Pilih mode">
-          <button type="button" id="tabLogin" class="active" role="tab" aria-selected="true" data-i18n="login.tab.in">Login</button>
-          <button type="button" id="tabRegister" role="tab" aria-selected="false" data-i18n="login.reg">Register</button>
+        <div class="auth-title" id="authTitle">Welcome to KOLASE!</div>
+        <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Pilih mode">
+          <button type="button" id="tabLogin" class="active" role="tab" aria-selected="true" data-i18n="login.tab.in">Masuk</button>
+          <button type="button" id="tabRegister" role="tab" aria-selected="false" data-i18n="login.tab.up">Daftar</button>
         </div>
-        <p class="auth-desc" id="authDesc">Masuk untuk lanjutkan kelas, lihat jadwal & chat guru. ID permanen <span class="id-mono">STU-XXXXXX</span> berlaku seumur hidup.</p>
+        <p class="auth-desc" id="authDesc">Masuk untuk melihat jadwal, chat guru, dan memantau perkembangan anak. ID permanen <span class="id-mono">STU-XXXXXX</span> berlaku seumur hidup.</p>
 
         <!-- LOGIN -->
         <form id="loginPane" autocomplete="on">
@@ -61,48 +61,142 @@
 
         <!-- REGISTER -->
         <form id="registerPane" hidden autocomplete="on">
-          <label class="auth-label" for="regEmail" data-i18n="login.email">Email Address</label>
-          <div class="auth-input"><input id="regEmail" type="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Enter your Email Address" data-i18n-ph="login.email.ph"></div>
-          <label class="auth-label" for="regNama" data-i18n="login.uname">User name</label>
-          <div class="auth-input"><input id="regNama" autocomplete="name" autocapitalize="words" placeholder="Enter your User name" data-i18n-ph="login.uname.ph"></div>
-          <label class="auth-label" for="regPass" data-i18n="login.pass">Password</label>
+          <div class="auth-reassure" id="registerIntro">
+            <span class="ar-ico" aria-hidden="true">i</span>
+            <p id="regIntroText">Daftar dalam 1 menit untuk mendapatkan <b>ID Siswa Permanen</b> dan mulai memilih jadwal belajar anak.</p>
+          </div>
+
+          <div class="auth-step">
+            <span class="auth-step-num">1</span>
+            <div><b id="regStepTitle">Data Anak</b><span id="regStepSub">Isi sesuai nama yang dipakai di sekolah.</span></div>
+          </div>
+
+          <label class="auth-label" for="regNama" id="regNamaLabel">Nama Lengkap Anak</label>
+          <div class="auth-input"><input id="regNama" autocomplete="name" autocapitalize="words" placeholder="Nama lengkap anak"></div>
+          <p class="auth-help" id="regNamaHelp">Sesuai nama di sekolah atau akta.</p>
+
+          <div id="studentFields">
+            <label class="auth-label" for="regPanggilan">Nama Panggilan Anak</label>
+            <div class="auth-input"><input id="regPanggilan" autocomplete="off" autocapitalize="words" placeholder="Contoh: Raka"></div>
+            <p class="auth-help">Nama yang dipakai guru saat menyapa di kelas.</p>
+
+            <label class="auth-label" for="regUsia">Usia Anak</label>
+            <div class="auth-input">
+              <select id="regUsia">
+                <option value="">Pilih usia</option>
+                <option value="6">6 tahun</option>
+                <option value="7">7 tahun</option>
+                <option value="8">8 tahun</option>
+                <option value="9">9 tahun</option>
+                <option value="10">10 tahun</option>
+                <option value="11">11 tahun</option>
+                <option value="12">12 tahun</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="auth-step">
+            <span class="auth-step-num">2</span>
+            <div><b id="regStep2Title">Kontak &amp; Akun</b><span id="regStep2Sub">Untuk login dan pengingat jadwal.</span></div>
+          </div>
+
+          <label class="auth-label" for="regWa" id="regWaLabel">Nomor WhatsApp Orang Tua / Wali</label>
+          <div class="auth-input"><input id="regWa" type="tel" inputmode="tel" autocomplete="tel" placeholder="08xx xxxx xxxx"></div>
+          <p class="auth-help">Untuk pengingat jadwal dan info kelas. Tidak dibagikan ke publik.</p>
+
+          <label class="auth-label" for="regEmail" id="regEmailLabel">Email Orang Tua / Wali</label>
+          <div class="auth-input"><input id="regEmail" type="email" autocomplete="email" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="nama@email.com"></div>
+          <p class="auth-help">Dipakai untuk login. Gunakan email yang aktif.</p>
+
+          <label class="auth-label" for="regPass">Password</label>
           <div class="auth-input">
-            <input id="regPass" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Enter your Password (min. 4 karakter)" data-i18n-ph="login.newpass.ph">
+            <input id="regPass" type="password" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Minimal 4 karakter">
             <button type="button" class="auth-eye" data-eye="regPass" aria-label="Tampilkan password">👁</button>
           </div>
-          <div style="margin-top:12px">
-            <label class="auth-label" for="regWa" style="margin-top:0" data-i18n="login.wa">No. WA</label>
-            <div class="auth-input"><input id="regWa" inputmode="tel" autocomplete="tel" placeholder="08xx"></div>
-          </div>
-          <div style="margin-top:12px">
-            <span class="auth-label" style="margin-top:0" data-i18n="login.role.pick">Daftar sebagai</span>
+          <p class="auth-help">Minimal 4 karakter. Hindari spasi di akhir password.</p>
+
+          <details class="auth-role" id="registerRoleBox">
+            <summary>Mendaftar sebagai guru atau tim KOLASE?</summary>
             <div class="role-pick" role="radiogroup" aria-label="Pilih peran">
-              <button type="button" data-regrole="student" class="active" role="radio" aria-checked="true"><b data-i18n="login.role.student">Student</b><span data-i18n="login.role.student.d">Murid • ID STU</span></button>
-              <button type="button" data-regrole="teacher" role="radio" aria-checked="false"><b data-i18n="login.role.teacher">Teacher</b><span data-i18n="login.role.teacher.d">Guru • ID TCH</span></button>
-              <button type="button" data-regrole="staff" role="radio" aria-checked="false"><b data-i18n="login.role.staff">Staff</b><span data-i18n="login.role.staff.d">Tim • ID ACT</span></button>
+              <button type="button" data-regrole="student" class="active" role="radio" aria-checked="true"><b>Student</b><span>Murid • ID STU</span></button>
+              <button type="button" data-regrole="teacher" role="radio" aria-checked="false"><b>Teacher</b><span>Guru • ID TCH</span></button>
+              <button type="button" data-regrole="staff" role="radio" aria-checked="false"><b>Staff</b><span>Tim • ID ACT</span></button>
             </div>
             <input type="hidden" id="regRole" value="student">
-          </div>
-          <div id="staffTypeWrap" style="display:none">
-            <label class="auth-label" for="regStaffType">Staff sebagai</label>
-            <div class="auth-input"><select id="regStaffType"><option value="founder">Founder & Business Lead</option><option value="academic">Co-Founder & Academic Lead</option><option value="systems">Head of Systems & Technology</option></select></div>
-          </div>
-          <div id="roleHint" class="small" style="display:none;margin:8px 2px 0"></div>
-          <button class="auth-btn" type="submit" id="regBtn">Register</button>
+            <div id="staffTypeWrap" style="display:none">
+              <label class="auth-label" for="regStaffType">Posisi di KOLASE</label>
+              <div class="auth-input"><select id="regStaffType"><option value="founder">Founder & Business Lead</option><option value="academic">Co-Founder & Academic Lead</option><option value="systems">Head of Systems & Technology</option></select></div>
+            </div>
+            <div id="roleHint" class="small" style="display:none;margin:8px 2px 0"></div>
+          </details>
+
+          <button class="auth-btn" type="submit" id="regBtn">Daftar &amp; Buat ID Siswa</button>
           <div class="auth-out" id="regOut" role="status" aria-live="polite"></div>
-          <div class="auth-switch"><span data-i18n="login.haveacc">Sudah punya akun?</span> <button type="button" class="auth-link" id="goLogin" data-i18n="login.loginlink">Login</button></div>
+          <div class="auth-switch" id="registerSwitch"><span>Sudah punya akun?</span> <button type="button" class="auth-link" id="goLogin">Login</button></div>
         </form>
+
+        <div class="auth-success" id="regSuccess" hidden tabindex="-1" role="status" aria-live="polite">
+          <div class="as-badge" aria-hidden="true">✓</div>
+          <h2 id="regSuccessTitle">Selamat datang di KOLASE!</h2>
+          <p id="regSuccessMsg">Akun anak berhasil dibuat.</p>
+          <p class="as-nick" id="regSuccessNick" hidden></p>
+          <div class="as-id">
+            <span id="regSuccessIdLabel">ID Siswa Permanen</span>
+            <strong id="regSuccessId">STU-000000</strong>
+            <button type="button" class="as-copy" id="regCopyId">Salin ID</button>
+          </div>
+          <p class="as-note" id="regSuccessNote">Simpan ID ini baik-baik.</p>
+          <div class="as-actions">
+            <a class="auth-btn" id="regSuccessGo" href="catalog.html">Mulai Pilih Kelas</a>
+            <a class="btn btn-ghost" id="regSuccessDash" href="dashboard.html">Buka Dashboard</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </main>
-<footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/sheets-config.js"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/store.js?v=14"></script><script src="js/supabase-auth.js?v=4"></script><script src="js/sheets-auth.js?v=1"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
+<nav class="mobile-tabs">
+  <a href="home.html">Home</a><a href="catalog.html">Katalog</a>
+  <a href="home.html#roadmap">Jalur Belajar</a><a href="login.html" class="is-cta active">Masuk / Daftar</a>
+</nav>
+<footer><div class="wrap">© 2026 KOLASE English Academy — In Your Voice We Trust • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="tim.html">Tim Kami</a></div></footer>
+<script src="js/sheets-config.js"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/store.js?v=16"></script><script src="js/supabase-auth.js?v=7"></script><script src="js/sheets-auth.js?v=3"></script><script src="js/i18n.js?v=11"></script><script src="js/nav.js?v=4"></script><script src="js/app.js?v=18"></script>
 <script>
-// Sudah masuk? Langsung ke portal.
+// Setelah login: kembali ke halaman yang tadi dituju (bila aman), atau ke portal.
+function safeNextTarget() {
+  try {
+    const raw = new URLSearchParams(location.search).get("next");
+    if (!raw) return "";
+    const u = new URL(raw, location.href);
+    if (u.origin !== location.origin) return "";
+    const page = u.pathname.split("/").pop() || "";
+    if (!page || page === "login.html" || page === "index.html") return "";
+    return page + u.search + u.hash;
+  } catch (e) { return ""; }
+}
+function goAfterLogin(role) {
+  const next = safeNextTarget();
+  location.replace(next || KolaseStore.portalFor(role));
+}
+
+// Sudah masuk? Langsung ke portal / halaman tujuan.
 try {
   const u = (KolaseStore.loadDB().sessionUser) || null;
-  if (u) location.replace(KolaseStore.portalFor(u.role));
+  if (u) goAfterLogin(u.role);
+} catch (e) {}
+
+// Tamu yang menekan menu ruang belajar melihat pesan ramah di sini.
+try {
+  if (new URLSearchParams(location.search).get("notice") === "login") {
+    const body = document.querySelector(".auth-body");
+    if (body) {
+      const box = document.createElement("div");
+      box.className = "auth-out ok";
+      box.setAttribute("role", "status");
+      box.textContent = "Silakan masuk atau daftar dulu untuk membuka ruang belajar.";
+      body.insertBefore(box, body.firstChild);
+    }
+  }
 } catch (e) {}
 
 // Tabs Login/Register seperti referensi (desktop 2 kolom, mobile 1 kolom via css/auth.css)
@@ -112,17 +206,24 @@ const tabLogin = document.getElementById("tabLogin");
 const tabRegister = document.getElementById("tabRegister");
 const authTitle = document.getElementById("authTitle");
 const authDesc = document.getElementById("authDesc");
+const authTabs = document.getElementById("authTabs");
+const regSuccessBox = document.getElementById("regSuccess");
 function setMode(mode){
   const isLogin = mode !== "register";
   loginPane.hidden = !isLogin;
   registerPane.hidden = isLogin;
+  regSuccessBox.hidden = true;
+  authTitle.hidden = false;
+  authTabs.hidden = false;
+  authDesc.style.display = "";
   tabLogin.classList.toggle("active", isLogin);
   tabRegister.classList.toggle("active", !isLogin);
   tabLogin.setAttribute("aria-selected", String(isLogin));
   tabRegister.setAttribute("aria-selected", String(!isLogin));
-  authTitle.textContent = "Welcome to KOLASE!";
+  authTitle.textContent = isLogin ? "Welcome to KOLASE!" : "Daftar & Buat ID Siswa";
   const lt = (k) => (window.KolaseI18n ? KolaseI18n.t(k) : k);
   authDesc.innerHTML = isLogin ? lt("login.desc.in") : lt("login.desc.up");
+  if (!isLogin && typeof refreshStaffUI === "function") refreshStaffUI();
   try { history.replaceState(null, "", mode === "register" ? "login.html?mode=register" : "login.html"); } catch(e){}
 }
 tabLogin.onclick = () => setMode("login");
@@ -162,6 +263,21 @@ function refreshStaffUI() {
   var hint = document.getElementById("roleHint");
   var nama = document.getElementById("regNama").value;
   var suggest = detectStaffRole(nama);
+  var isStudent = role === "student";
+  var byId = (id) => document.getElementById(id);
+  byId("studentFields").hidden = !isStudent;
+  byId("regNamaLabel").textContent = isStudent ? "Nama Lengkap Anak" : "Nama Lengkap";
+  byId("regNamaHelp").textContent = isStudent ? "Sesuai nama di sekolah atau akta." : "Nama lengkap Anda.";
+  byId("regStepTitle").textContent = isStudent ? "Data Anak" : "Data Pendaftar";
+  byId("regStepSub").textContent = isStudent ? "Isi sesuai nama yang dipakai di sekolah." : "Nama yang tercatat di tim KOLASE.";
+  byId("regStep2Sub").textContent = isStudent ? "Untuk login dan pengingat jadwal." : "Untuk login ke portal.";
+  byId("regNama").placeholder = isStudent ? "Nama lengkap anak" : "Nama lengkap";
+  byId("regWaLabel").textContent = isStudent ? "Nomor WhatsApp Orang Tua / Wali" : "Nomor WhatsApp";
+  byId("regEmailLabel").textContent = isStudent ? "Email Orang Tua / Wali" : "Email";
+  byId("regBtn").textContent = isStudent ? "Daftar & Buat ID Siswa" : "Daftar & Buat Akun";
+  byId("regIntroText").innerHTML = isStudent
+    ? 'Daftar dalam 1 menit untuk mendapatkan <b>ID Siswa Permanen</b> dan mulai memilih jadwal belajar anak.'
+    : 'Buat akun guru atau tim KOLASE untuk masuk ke portal.';
   wrap.style.display = role === "staff" ? "" : "none";
   if (!suggest) { hint.style.display = "none"; hint.textContent = ""; return; }
   var label = STAFF_LABEL[suggest];
@@ -196,6 +312,7 @@ document.querySelectorAll("[data-regrole]").forEach(btn => {
 });
 document.getElementById("regStaffType").addEventListener("change", refreshStaffUI);
 document.getElementById("regNama").addEventListener("input", refreshStaffUI);
+refreshStaffUI();
 
 // Kunci brute-force lokal: 5x gagal = kunci 60 detik (per browser).
 const LOCK_KEY = "kolase_login_lock";
@@ -242,7 +359,7 @@ loginPane.addEventListener("submit", (e) => {
     out.classList.add("ok");
     out.textContent = "Berhasil masuk • " + user.id + (via === "local" ? " (perangkat ini)" : " (sinkron HP↔PC)") + " — mengalihkan…";
     out.scrollIntoView({block:"nearest"});
-    setTimeout(() => location.replace(KolaseStore.portalFor(user.role)), 600);
+    setTimeout(() => goAfterLogin(user.role), 600);
     btn.disabled = false;
   };
   const fail = (err, usedCloud) => {
@@ -298,53 +415,122 @@ loginPane.addEventListener("submit", (e) => {
   }
 });
 
-// REGISTER submit — bebas daftar langsung jadi; sinkron (cloud/Sheets) bila aktif
+// REGISTER submit — buat ID permanen, lalu tampilkan kartu sambutan (tanpa redirect paksa).
+let currentRegId = "";
+function showRegisterSuccess(id, isStudent, nama, panggilan) {
+  currentRegId = id;
+  loginPane.hidden = true;
+  registerPane.hidden = true;
+  authTabs.hidden = true;
+  authDesc.style.display = "none";
+  authTitle.hidden = true;
+  document.getElementById("regSuccessTitle").textContent = isStudent ? "Selamat datang di KOLASE!" : "Pendaftaran berhasil!";
+  document.getElementById("regSuccessMsg").textContent = isStudent
+    ? "Akun anak berhasil dibuat. Ayah/Bunda sudah bisa memilih kelas dan melihat jadwal."
+    : "Akun " + nama + " berhasil dibuat.";
+  const nick = document.getElementById("regSuccessNick");
+  if (isStudent && panggilan) {
+    nick.hidden = false;
+    nick.textContent = "Guru akan memanggil " + panggilan + " di kelas.";
+  } else {
+    nick.hidden = true;
+  }
+  document.getElementById("regSuccessIdLabel").textContent = isStudent ? "ID Siswa Permanen" : "ID Permanen";
+  document.getElementById("regSuccessId").textContent = id;
+  document.getElementById("regSuccessNote").textContent = isStudent
+    ? "Simpan ID ini baik-baik. ID berlaku seumur hidup dan dipakai saat konsultasi, pembayaran, serta komunikasi dengan guru. ID ini bukan password."
+    : "Simpan ID ini untuk masuk ke portal. ID ini bukan password.";
+  const go = document.getElementById("regSuccessGo");
+  const staffRole = document.getElementById("regRole").value;
+  go.href = isStudent ? "catalog.html" : (staffRole === "teacher" ? "teacher-portal.html" : "staff-portal.html");
+  go.textContent = isStudent ? "Mulai Pilih Kelas" : "Buka Portal";
+  document.getElementById("regSuccessDash").hidden = !isStudent;
+  regSuccessBox.hidden = false;
+  regSuccessBox.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  setTimeout(() => regSuccessBox.focus(), 60);
+}
+
+document.getElementById("regCopyId").addEventListener("click", () => {
+  const btn = document.getElementById("regCopyId");
+  const text = currentRegId || document.getElementById("regSuccessId").textContent;
+  const ok = () => {
+    btn.textContent = "Tersalin!";
+    setTimeout(() => { btn.textContent = "Salin ID"; }, 1800);
+  };
+  const fallback = () => {
+    try {
+      const t = document.createElement("textarea");
+      t.value = text; t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select(); document.execCommand("copy"); document.body.removeChild(t); ok();
+    } catch (e) {}
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(ok, fallback);
+  } else {
+    fallback();
+  }
+});
+
 registerPane.addEventListener("submit", (e) => {
   e.preventDefault();
   const out = document.getElementById("regOut");
   const btn = document.getElementById("regBtn");
   out.className = "auth-out"; out.textContent = "";
-  let peran = document.getElementById("regRole").value;
+  const baseRole = document.getElementById("regRole").value;
+  const isStudent = baseRole === "student";
+  let peran = baseRole;
   if (peran === "staff") peran = selectedStaffRole() || "staff";
-  const nama = document.getElementById("regNama").value.trim() || "Pengguna Baru";
+  const nama = document.getElementById("regNama").value.trim();
+  const panggilan = document.getElementById("regPanggilan").value.trim();
+  const usia = document.getElementById("regUsia").value.trim();
   const email = document.getElementById("regEmail").value.trim();
   const wa = document.getElementById("regWa").value.trim();
   const pass = (document.getElementById("regPass").value || "").trim();
-  if (!email || !wa) { out.classList.add("err"); out.textContent = "Email dan No. WA wajib diisi."; return; }
-  if (!pass || pass.length < 4) { out.classList.add("err"); out.textContent = "Password min. 4 karakter."; return; }
-  const localReg = () => KolaseStore.registerPerson(peran, nama, email, wa, pass);
+  const showErr = (msg) => {
+    out.classList.add("err");
+    out.textContent = msg;
+    out.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  };
+  if (!nama) return showErr(isStudent ? "Nama lengkap anak wajib diisi." : "Nama lengkap wajib diisi.");
+  if (isStudent) {
+    if (!panggilan) return showErr("Nama panggilan anak wajib diisi.");
+    if (!/^(6|7|8|9|10|11|12)$/.test(usia)) return showErr("Pilih usia anak (6–12 tahun).");
+  }
+  if (!email || !wa) return showErr("Email dan No. WhatsApp wajib diisi.");
+  if (!pass || pass.length < 4) return showErr("Password min. 4 karakter.");
+  const extra = isStudent ? { panggilan: panggilan, usia: usia } : {};
+  const localReg = () => KolaseStore.registerPerson(peran, nama, email, wa, pass, undefined, extra);
   const finish = (res) => {
     if (res && res.request) {
       out.classList.add("ok");
       out.textContent = "Permintaan terkirim (" + res.reqId + ") — menunggu persetujuan Head of Systems & Technology. Cek lagi nanti setelah disetujui.";
       return;
     }
-    const id = res;
-    const dest = peran === "student" ? "catalog.html" : peran === "teacher" ? "teacher-portal.html" : "staff-portal.html";
-    out.classList.add("ok");
-    out.innerHTML = "";
-    out.append("ID kamu: ");
-    const s = document.createElement("span"); s.className = "id-mono"; s.textContent = id; out.appendChild(s);
-    out.append(" • ");
-    const a = document.createElement("a"); a.href = dest; a.textContent = "Lanjut →"; out.appendChild(a);
-    setTimeout(() => location.replace(dest), 900);
+    showRegisterSuccess(res, isStudent, nama, panggilan);
   };
   const beReg = activeBackend();
   if (!beReg) {
     try { finish(localReg()); }
-    catch (err) { out.classList.add("err"); out.textContent = err.message; }
+    catch (err) { showErr(err.message); }
     return;
   }
   btn.disabled = true; out.textContent = "Mendaftarkan…";
-  beReg.api.register(peran, nama, email, wa, pass).then(
+  beReg.api.register(peran, nama, email, wa, pass, undefined, extra).then(
     (id) => { btn.disabled = false; finish(id); },
     (cerr) => {
       const m = String((cerr && cerr.message) || "");
       if (/CDN|HTTPS|Failed to fetch|Network|function|schema cache|JWT|koneksi|tidak terhubung/i.test(m)) {
-        try { btn.disabled = false; finish(localReg()); out.textContent += " (server tidak terjangkau, tersimpan di perangkat ini)."; }
-        catch (lerr) { btn.disabled = false; out.classList.add("err"); out.textContent = m; }
+        try {
+          const id = localReg();
+          btn.disabled = false;
+          finish(id);
+        } catch (lerr) {
+          btn.disabled = false;
+          showErr(String((lerr && lerr.message) || m));
+        }
       } else {
-        btn.disabled = false; out.classList.add("err"); out.textContent = m;
+        btn.disabled = false;
+        showErr(m);
       }
     }
   );

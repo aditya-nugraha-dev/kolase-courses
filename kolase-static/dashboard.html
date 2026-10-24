@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KOLASE — Dashboard E-Learning</title>
-<link rel="stylesheet" href="css/style.css?v=7">
+<link rel="stylesheet" href="css/style.css?v=10">
+<link rel="stylesheet" href="css/kids.css?v=1">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
 <body data-guard="student,staff,admin,founder,academic,systems,author,owner">
@@ -13,7 +14,77 @@
   <button class="burger" data-burger>☰</button>
 </div></header>
 <main class="wrap">
-  <div class="section"><h2 id="title" data-i18n="dash.title">Dashboard E-Learning</h2><div class="small" id="who"></div></div>
+  <section class="section kid-hero-section" id="kidsHeroSec" hidden>
+    <div class="kid-hero">
+      <div class="kid-hero-copy">
+        <span class="kid-kicker">Ruang belajar hari ini</span>
+        <h1>Halo, <span id="kidsName">Sahabat KOLASE</span>!</h1>
+        <p class="kid-hero-sub" id="kidsSub">Siap belajar bahasa Inggris? Kumpulkan bintang dan masuk kelas dengan satu klik.</p>
+        <div class="kid-hero-meta">
+          <div class="kid-idbadge"><span>ID Siswa</span><span id="kidsId">-</span></div>
+          <span class="kid-parent-info" id="kidsParentInfo">Progres, badge, dan jadwal tersimpan di ID ini.</span>
+        </div>
+      </div>
+      <div class="kid-hero-mascot">
+        <div class="kid-mascot-bubble" id="kidsMascot" aria-hidden="true">🦁</div>
+        <div class="kid-mascot-copy">
+          <span class="kid-mascot-name" id="kidsMascotName">Singa Pemberani</span>
+          <a class="kid-mascot-link" href="profile.html">Ganti avatar</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="section kid-next-section" id="nextClassSec" hidden aria-labelledby="nextClassName">
+    <div class="kid-next-card">
+      <div class="kid-next-copy">
+        <span class="kid-kicker">Pertemuan berikutnya</span>
+        <h2 class="kid-next-title" id="nextClassName">Menyiapkan jadwal...</h2>
+        <div class="kid-next-meta">
+          <span id="nextSessionMeta">Memuat jadwal kelas</span>
+          <span class="pill p-pending" id="nextStatus">Menyiapkan</span>
+        </div>
+        <p class="kid-next-note" id="nextClassNote">Sebentar ya, jadwal kelas sedang dimuat.</p>
+      </div>
+      <div class="kid-next-action">
+        <a class="kid-meet-btn is-secondary" id="nextMeetBtn" href="schedule.html">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+          <span id="nextMeetLabel">Buka jadwal kelas</span>
+        </a>
+        <a class="kid-next-calendar" href="schedule.html">Lihat kalender lengkap</a>
+      </div>
+    </div>
+  </section>
+  <section class="section kid-lms-section" id="lmsCardSec" hidden aria-labelledby="lmsCardTitle">
+    <div class="kid-lms-card">
+      <div class="kid-lms-head">
+        <div class="kid-lms-copy">
+          <span class="kid-kicker">LMS Anak &middot; Little Speakers</span>
+          <h2 id="lmsCardTitle">Peta misi menantimu</h2>
+          <p class="kid-lms-sub" id="lmsCardSub">12 misi singkat untuk melatih keberanian bicara bahasa Inggris.</p>
+        </div>
+        <div class="kid-lms-level">
+          <span id="lmsLevel">Word Explorer</span>
+          <small id="lmsLevelSub">Level 1 dari 5</small>
+        </div>
+      </div>
+      <div class="kid-lms-stats">
+        <div><b id="lmsStars">0</b><span>bintang misi</span></div>
+        <div><b id="lmsMissions">0/12</b><span>misi selesai</span></div>
+        <div><b id="lmsBadges">0/10</b><span>lencana</span></div>
+        <div><b id="lmsStreak">0</b><span>streak hari</span></div>
+      </div>
+      <div class="kid-lms-bar" id="lmsBarWrap" role="progressbar" aria-label="Progres misi LMS" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="lmsBar"></i></div>
+      <div class="kid-lms-badges" id="lmsBadgeChips"></div>
+      <div class="kid-lms-actions">
+        <a class="kid-meet-btn" id="lmsContinue" href="lms.html">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
+          <span id="lmsContinueLabel">Mulai misi pertama</span>
+        </a>
+        <a class="kid-next-calendar" href="lms.html">Lihat peta misi lengkap</a>
+      </div>
+    </div>
+  </section>
+  <div class="section" id="dashHead"><h2 id="title" data-i18n="dash.title">Dashboard E-Learning</h2><div class="small" id="who"></div></div>
   <div class="section" id="staffSec" style="display:none"><h2>Ringkasan</h2>
     <div class="kpi">
       <div class="card"><div class="small">Murid</div><b id="stMurid" style="font-size:26px">-</b></div>
@@ -26,10 +97,30 @@
       <div><select id="viewAs" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid #CBD5E1;background:#fff"></select></div>
     </div>
   </div>
-  <div class="section" id="kpiSec"><div class="kpi">
-    <div class="card"><div class="small">Sisa Sesi</div><b id="kSisa" style="font-size:26px">-</b></div>
-    <div class="card"><div class="small">Progres</div><b id="kProg">-</b><div class="progress" style="margin-top:6px"><i id="kBar" style="width:0%"></i></div></div>
-    <div class="card"><div class="small">Jadwal Terdekat</div><b id="kNext" style="font-size:14px">-</b><div><a class="btn btn-ghost btn-sm" href="schedule.html" data-i18n="dash.kalender">Kalender</a></div></div>
+  <div class="section" id="kpiSec"><div class="kid-progress-grid">
+    <div class="kid-star-card">
+      <div class="kid-star-head">
+        <div>
+          <span class="kid-kicker">Papan bintang</span>
+          <h2 class="kid-star-title">Terus kumpulkan bintang</h2>
+        </div>
+        <div class="kid-star-score" aria-live="polite"><b id="starTrophy">0</b><span>bintang kelas</span></div>
+      </div>
+      <div class="kid-stars" id="starBoard" role="img" aria-label="Belum ada bintang"></div>
+      <p class="kid-star-caption" id="starCaption">Mulai kelas pertamamu untuk mendapat bintang.</p>
+      <div class="kid-progress-facts">
+        <div><span>Sisa sesi</span><b id="kSisa">-</b></div>
+        <div><span>Progres</span><b id="kProg">-</b></div>
+      </div>
+      <div class="progress" style="margin-top:6px"><i id="kBar" style="width:0%"></i></div>
+      <p class="kid-parent-note" id="parentNote">Orang tua bisa memantau sisa sesi dan progres belajar di sini.</p>
+    </div>
+    <div class="kid-next-mini">
+      <span class="kid-kicker">Jadwal terdekat</span>
+      <b id="kNext">-</b>
+      <p class="small">Semua jadwal dan link kelas ada di kalender.</p>
+      <a class="btn btn-ghost btn-sm" href="schedule.html" data-i18n="dash.kalender">Kalender</a>
+    </div>
   </div></div>
   <div class="section"><div class="card" id="pkgReviewCard"><b data-i18n="dash.review">Ulasan 1 Paket ★</b><div id="pkgReviewInfo" class="small" style="margin-top:4px"></div><div id="pkgReviewBtns" style="margin-top:8px"></div></div></div>
   <div class="section"><div class="card" id="badgeCard"><b data-i18n="dash.badges">Badge & Sertifikat Saya</b><div id="badgeList" class="small" style="margin-top:6px"></div></div></div>
@@ -48,7 +139,7 @@
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html" class="active">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html">Profil</a></nav>
 
-<script src="js/store.js?v=14"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/cloud-orders.js?v=1"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
+<script src="js/store.js?v=14"></script><script src="js/kids-avatar.js?v=1"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/cloud-orders.js?v=1"></script><script src="js/i18n.js?v=11"></script><script src="js/nav.js?v=4"></script><script src="js/app.js?v=18"></script>
 <script>
 const db = KolaseStore.loadDB();
 const myRole = db.sessionUser ? db.sessionUser.role : null;
@@ -98,7 +189,7 @@ function fillStaffStats() {
   if (!db.sessionUser || isStudent) return;
   fillStaffStats();
   if (viewId) return;
-  ["kpiSec","pkgReviewCard","badgeCard","certSec","feedbackCard","classAreaSec","materiSec","chatSec"].forEach(id => {
+  ["kidsHeroSec","nextClassSec","lmsCardSec","kpiSec","pkgReviewCard","badgeCard","certSec","feedbackCard","classAreaSec","materiSec","chatSec"].forEach(id => {
     const el = document.getElementById(id);
     const sec = el && el.closest ? (el.closest(".section") || el) : el;
     if (sec) sec.style.display = "none";
@@ -252,6 +343,269 @@ fetch("data/classes.json").then(r=>r.json()).then(classes=>{
     <div class="small" style="margin-top:6px">Fokus berikutnya: ${escF(pick(["next_focus", "focus", "vocabulary", "grammar"]))}</div>
     <div class="small" style="margin-top:6px">Observasi: <span class="id-mono">${escF(last.observation_id || "-")}</span> • ${escF(String(last.at || "").slice(0, 10))}</div>`;
 })();
+function kidDate(iso) {
+  try {
+    const d = new Date(String(iso || "") + "T00:00:00");
+    if (Number.isNaN(d.getTime())) return String(iso || "");
+    return d.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long" });
+  } catch (e) {
+    return String(iso || "");
+  }
+}
+function kidTimeFromSchedule(text) {
+  const hit = String(text || "").match(/(\d{1,2}[:.]\d{2})\s*WIB/i);
+  return hit ? hit[1].replace(".", ":") + " WIB" : "";
+}
+const kidPrimary = myEnr.length ? myEnr[myEnr.length - 1] : null;
+const kidPending = myEnr.filter(m => m.status === "PENDING");
+const kidActive = myEnr.filter(m => m.status === "ACTIVE");
+function kidFindNext() {
+  let best = null;
+  kidActive.forEach(m => {
+    (db.SESSIONS || []).filter(s => s.enrollment_id === m.enrollment_id && !s.hadir).forEach(s => {
+      if (!best) { best = { m, s }; return; }
+      const dateDiff = String(s.tanggal || "").localeCompare(String(best.s.tanggal || ""));
+      if (dateDiff < 0 || (dateDiff === 0 && Number(s.seq) < Number(best.s.seq))) best = { m, s };
+    });
+  });
+  return best;
+}
+const kidNextInfo = kidFindNext();
+function kidRenderHero() {
+  const u = db.sessionUser;
+  if (!u || !viewId) return;
+  const row = (db.MST_STUDENTS || []).find(s => s.student_id === viewId) || {};
+  const name = row.panggilan || row.preferred_name || row.nama || (isStudent ? u.nama : "Sahabat KOLASE");
+  const mascot = window.KolaseAvatar ? window.KolaseAvatar.get(viewId) : { emoji: "🦁", name: "Singa Pemberani" };
+  document.getElementById("kidsName").textContent = name;
+  document.getElementById("kidsId").textContent = viewId;
+  document.getElementById("kidsMascot").textContent = mascot.emoji;
+  document.getElementById("kidsMascotName").textContent = mascot.name;
+  document.getElementById("kidsParentInfo").textContent = isStudent
+    ? "Progres, badge, dan jadwal tersimpan di ID ini."
+    : `Dilihat oleh ${u.nama} (${u.id}).`;
+  document.getElementById("kidsSub").textContent = kidPending.length
+    ? "Pembayaranmu sedang dicek. Sambil menunggu, intip jadwal kelasmu dulu."
+    : !myEnr.length
+      ? "Siap mulai? Pilih kelas pertamamu dan kumpulkan bintang."
+      : "Siap belajar bahasa Inggris? Kumpulkan bintang dan masuk kelas dengan satu klik.";
+  document.getElementById("kidsHeroSec").hidden = false;
+  document.getElementById("dashHead").hidden = true;
+}
+function kidRenderStars() {
+  const hasPackage = !!kidPrimary;
+  const progress = hasPackage ? KolaseStore.packageProgress(kidPrimary.enrollment_id) : { doneCount: 0, total: 0, complete: false };
+  const total = progress.total || 4;
+  const done = progress.doneCount || 0;
+  const slotCount = hasPackage ? Math.min(10, Math.max(1, total)) : 10;
+  const filled = hasPackage ? (total <= 10 ? Math.min(done, slotCount) : Math.round(done / total * slotCount)) : 0;
+  const sisa = kidPrimary ? Number(kidPrimary.sisa || 0) : 0;
+  const remaining = Math.max(0, total - done);
+  const board = document.getElementById("starBoard");
+  board.innerHTML = Array.from({ length: slotCount }, (_, i) =>
+    `<span class="kid-star${i < filled ? " is-filled" : ""}" aria-hidden="true">${i < filled ? "★" : "☆"}</span>`
+  ).join("");
+  board.setAttribute("aria-label", `${filled} dari ${slotCount} bintang`);
+  document.getElementById("starTrophy").textContent = filled;
+  document.getElementById("starCaption").textContent = !hasPackage
+    ? "Mulai kelas pertamamu untuk mendapat bintang."
+    : kidPrimary.status === "PENDING"
+      ? "Pembayaran sedang dicek. Bintang mulai terkumpul setelah kelas aktif."
+      : progress.complete
+        ? "Semua sesi selesai. Bintangmu penuh, saatnya ambil badge dan sertifikat."
+        : total <= 10
+          ? `${done} dari ${total} sesi selesai. ${remaining} sesi lagi untuk bintang penuh.`
+          : `${done} dari ${total} sesi selesai. Terus kumpulkan bintang.`;
+  document.getElementById("kSisa").textContent = hasPackage ? `${sisa} sesi` : "0 sesi";
+  document.getElementById("kProg").textContent = hasPackage ? `Sesi ${done} dari ${total}` : "Belum mulai";
+  document.getElementById("kBar").style.width = (hasPackage && total ? done / total * 100 : 0) + "%";
+  document.getElementById("parentNote").textContent = !hasPackage
+    ? "Ambil kelas untuk melihat sisa sesi dan progres di sini."
+    : kidPrimary.status === "PENDING"
+      ? "Kelas aktif setelah pembayaran terverifikasi. Orang tua bisa cek status di halaman Profil."
+      : progress.complete
+        ? "Paket selesai. Badge dan sertifikat bisa dilihat di bawah."
+        : `Sisa ${sisa} sesi di paket aktif. Orang tua bisa melihat rincian di Class Area.`;
+  document.getElementById("kNext").textContent = kidNextInfo
+    ? `${kidDate(kidNextInfo.s.tanggal)} • Sesi ${kidNextInfo.s.seq}`
+    : kidPending.length
+      ? "Menunggu pembayaran"
+      : kidPrimary && kidPrimary.status === "ACTIVE"
+        ? progress.complete ? "Semua sesi selesai" : "Jadwal belum dibuat"
+        : "Belum ada jadwal";
+}
+function kidSetMeet(opts) {
+  const btn = document.getElementById("nextMeetBtn");
+  const label = document.getElementById("nextMeetLabel");
+  btn.className = "kid-meet-btn" + (opts.kind ? " is-" + opts.kind : "");
+  label.textContent = opts.label;
+  if (opts.href) {
+    btn.href = opts.href;
+    btn.removeAttribute("aria-disabled");
+    btn.removeAttribute("tabindex");
+    if (/^https?:/i.test(opts.href)) {
+      btn.target = "_blank";
+      btn.rel = "noopener";
+    } else {
+      btn.removeAttribute("target");
+      btn.removeAttribute("rel");
+    }
+  } else {
+    btn.removeAttribute("href");
+    btn.setAttribute("aria-disabled", "true");
+    btn.setAttribute("tabindex", "-1");
+    btn.removeAttribute("target");
+    btn.removeAttribute("rel");
+  }
+}
+function kidRenderNext(map) {
+  if (!viewId) return;
+  const title = document.getElementById("nextClassName");
+  const meta = document.getElementById("nextSessionMeta");
+  const status = document.getElementById("nextStatus");
+  const note = document.getElementById("nextClassNote");
+  document.getElementById("nextClassSec").hidden = false;
+  if (kidNextInfo) {
+    const c = map[kidNextInfo.m.class_id] || {};
+    const progress = KolaseStore.packageProgress(kidNextInfo.m.enrollment_id);
+    const time = kidTimeFromSchedule(c.jadwal);
+    title.textContent = c.nama || kidNextInfo.m.class_id;
+    meta.textContent = [kidDate(kidNextInfo.s.tanggal), time, `Sesi ${kidNextInfo.s.seq} dari ${progress.total}`].filter(Boolean).join(" • ");
+    status.className = "pill p-verified";
+    status.textContent = "Siap belajar";
+    note.textContent = c.meet
+      ? (c.guru ? `Bersama ${c.guru}.` : "Siapkan dirimu beberapa menit sebelum kelas.")
+      : (c.guru ? `Bersama ${c.guru}. Link Meet muncul di sini setelah guru memasangnya.` : "Link Meet muncul di sini setelah guru memasangnya.");
+    if (c.meet) kidSetMeet({ kind: "", label: "Masuk Google Meet", href: c.meet });
+    else kidSetMeet({ kind: "waiting", label: "Link Meet belum siap" });
+    return;
+  }
+  const completed = kidActive.find(m => KolaseStore.packageProgress(m.enrollment_id).complete);
+  if (completed) {
+    const c = map[completed.class_id] || {};
+    title.textContent = "Semua sesi selesai";
+    meta.textContent = c.nama || completed.class_id;
+    status.className = "pill p-verified";
+    status.textContent = "Selesai";
+    note.textContent = "Hebat! Kamu sudah menyelesaikan semua sesi di paket ini.";
+    if (KolaseStore.eligiblePackages(viewId).length) {
+      kidSetMeet({ kind: "secondary", label: "Tulis ulasan paket", href: "review-package.html" });
+    } else {
+      kidSetMeet({ kind: "secondary", label: "Lihat badge saya", href: "#badgeCard" });
+    }
+    return;
+  }
+  if (kidActive.length) {
+    const m = kidActive[0];
+    const c = map[m.class_id] || {};
+    title.textContent = "Jadwal belum dibuat";
+    meta.textContent = c.nama || m.class_id;
+    status.className = "pill p-pending";
+    status.textContent = "Menunggu jadwal";
+    note.textContent = "Guru akan menambahkan jadwal kelas. Tombol Meet muncul otomatis setelah jadwal siap.";
+    kidSetMeet({ kind: "secondary", label: "Buka kalender", href: "schedule.html" });
+    return;
+  }
+  if (kidPending.length) {
+    const m = kidPending[0];
+    const c = map[m.class_id] || {};
+    title.textContent = "Kelas menunggu konfirmasi";
+    meta.textContent = c.nama || m.class_id;
+    status.className = "pill p-pending";
+    status.textContent = "Menunggu pembayaran";
+    note.textContent = "Tombol Meet aktif setelah pembayaran terverifikasi. Orang tua bisa cek status di halaman Profil.";
+    kidSetMeet({ kind: "secondary", label: "Cek status pembayaran", href: "profile.html" });
+    return;
+  }
+  title.textContent = "Belum ada kelas";
+  meta.textContent = "Pilih kelas yang cocok untuk mulai belajar.";
+  status.className = "pill p-trial";
+  status.textContent = "Mulai di katalog";
+  note.textContent = "Setelah kelas aktif, jadwal dan tombol Meet muncul di sini.";
+  kidSetMeet({ kind: "secondary", label: "Pilih kelas", href: "catalog.html" });
+}
+// ===== Ringkasan LMS Anak (dibaca dari lms.html, per akun, di browser ini) =====
+function readLmsSummary(studentId) {
+  const empty = {
+    stars: 0, missionsDone: 0, missionsTotal: 12, level: 1,
+    levelTitle: "Word Explorer", badges: [], streakDays: 0, nextBadge: null
+  };
+  if (!studentId) return empty;
+  const LEVELS = ["Word Explorer", "Sentence Builder", "Brave Speaker", "Star Communicator", "Little Legend"];
+  try {
+    const raw = localStorage.getItem("kolase.lms.summary.v1:" + studentId);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && typeof saved === "object") return Object.assign({}, empty, saved);
+    }
+  } catch (e) {}
+  // Ringkasan belum pernah ditulis: hitung dari progres mentah agar tetap tampil.
+  let progress = {};
+  try { progress = JSON.parse(localStorage.getItem("kolase.lms.v1:" + studentId) || "{}") || {}; } catch (e) { progress = {}; }
+  let done = 0, correct = 0;
+  Object.keys(progress).forEach(key => {
+    const p = progress[key] || {};
+    if (p.completed) done += 1;
+    if (typeof p.quizScore === "number") correct += p.quizScore;
+  });
+  const stars = done * 10 + correct * 3;
+  const level = Math.min(LEVELS.length, Math.floor(stars / 60) + 1);
+  return Object.assign({}, empty, { stars, missionsDone: done, level, levelTitle: LEVELS[level - 1] });
+}
+function renderLmsCard() {
+  const sec = document.getElementById("lmsCardSec");
+  if (!sec || !viewId) return;
+  const s = readLmsSummary(viewId);
+  const total = Math.max(1, Number(s.missionsTotal) || 12);
+  const done = Math.min(total, Math.max(0, Number(s.missionsDone) || 0));
+  const stars = Math.max(0, Number(s.stars) || 0);
+  const level = Math.min(5, Math.max(1, Number(s.level) || 1));
+  const badges = Array.isArray(s.badges) ? s.badges : [];
+  const pct = Math.round(done / total * 100);
+
+  document.getElementById("lmsStars").textContent = stars;
+  document.getElementById("lmsMissions").textContent = done + "/" + total;
+  document.getElementById("lmsBadges").textContent = badges.length + "/10";
+  document.getElementById("lmsStreak").textContent = Math.max(0, Number(s.streakDays) || 0);
+  document.getElementById("lmsLevel").textContent = s.levelTitle || "Word Explorer";
+  document.getElementById("lmsLevelSub").textContent = "Level " + level + " dari 5";
+  document.getElementById("lmsBar").style.width = pct + "%";
+  document.getElementById("lmsBarWrap").setAttribute("aria-valuenow", String(pct));
+
+  const sub = document.getElementById("lmsCardSub");
+  if (sub) {
+    if (!done) sub.textContent = total + " misi singkat untuk melatih keberanian bicara bahasa Inggris. Setiap misi selesai = 10 bintang.";
+    else if (done >= total) sub.textContent = "Semua misi selesai. Hebat! Lencana Little Legend sudah kamu buka.";
+    else if (s.nextBadge && s.nextBadge.hint) sub.textContent = "Lencana berikutnya: " + s.nextBadge.title + ". " + s.nextBadge.hint;
+    else sub.textContent = "Kamu sudah menyelesaikan " + done + " dari " + total + " misi. Lanjutkan petualangan berikutnya.";
+  }
+
+  const chips = document.getElementById("lmsBadgeChips");
+  if (chips) {
+    chips.innerHTML = badges.length
+      ? badges.slice(0, 4).map(b => `<span class="kid-lms-badge">★ <span>${escLms(b.title || b.id)}</span></span>`).join("")
+        + (badges.length > 4 ? `<span class="kid-lms-badge">+${badges.length - 4} lencana</span>` : "")
+      : `<span class="kid-lms-empty">Lencana pertama menantimu di misi pertama.</span>`;
+  }
+
+  const label = document.getElementById("lmsContinueLabel");
+  if (label) label.textContent = !done ? "Mulai misi pertama" : done >= total ? "Lihat semua misi" : "Lanjutkan misi";
+  sec.hidden = false;
+}
+function escLms(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+kidRenderHero();
+kidRenderStars();
+renderLmsCard();
+window.addEventListener("pageshow", (e) => { if (e.persisted) renderLmsCard(); });
+window.addEventListener("storage", (e) => {
+  if (!e.key || e.key.indexOf("kolase.lms.") === 0) renderLmsCard();
+});
+fetch("data/classes.json").then(r => r.json()).then(classes => {
+  kidRenderNext(Object.fromEntries(classes.map(c => [c.id, c])));
+}).catch(() => kidRenderNext({}));
 // ===== Tarik status pembayaran cloud (bayar di HP, buka dashboard di PC) =====
 // VERIFIED -> kelas aktif + sesi dibuat otomatis di perangkat ini.
 // PENDING -> cermin lokal agar dashboard konsisten. REJECTED -> tandai lokal.

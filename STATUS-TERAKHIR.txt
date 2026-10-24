@@ -4,6 +4,31 @@ Commit terakhir: fe4d503 "LMS anak versi statis: peta 12 misi, bintang, lencana"
 Deploy: SUKSES run 39800755669. Live: /kolase-courses/lms.html (LMS anak statis).
 Aplikasi Next.js di web/ (auth, pembayaran, laporan guru) BELUM punya host.
 
+SESI INI (24 Okt 2026, belum di-commit) - PENYELESAIAN LMS STATIS:
+1. js/nav.js: tautan "LMS Anak" untuk guest + murid (nav desktop & tab bawah);
+   lms.html kini jadi item aktif sendiri, tidak lagi dianggap dashboard.
+2. Dashboard murid: kartu "LMS Anak - Little Speakers" berisi bintang misi,
+   misi selesai, lencana, streak, level, progress bar, dan CTA lanjut misi.
+3. lms.html menulis ringkasan progres (kolase.lms.summary.v1:<id>) tiap render,
+   jadi dashboard menampilkan angka yang sama setelah misi diselesaikan.
+   Bila ringkasan belum ada, dashboard menghitung fallback dari progres mentah.
+   Progres + ringkasan tamu ikut dipindahkan ke akun saat murid login.
+4. public-class.html diselaraskan ke design system Warm Cream (Nunito,
+   royal blue/amber). Sebelumnya masih tema cokelat + Hammersmith lama.
+5. Papan bintang kelas diberi label "bintang kelas" agar tidak tertukar
+   dengan "bintang misi" dari LMS.
+
+VERIFIKASI SESI INI:
+- node --check semua js + parser inline script: lolos.
+- Smoke test Playwright (Chromium 390px): home punya link LMS; lms.html
+  4 tahap / 12 misi / 10 lencana; selesaikan 1 misi -> ringkasan 13 bintang,
+  1/12 misi, 1 lencana; dashboard menampilkan angka sama + "Lanjutkan misi".
+- Tab bawah 360px & 390px tanpa overflow: guest 5 tab, murid 6 tab.
+- Screenshot desktop + mobile (dashboard, lms, public-class, home): rapi.
+- npm run lint (web): 0 error (5 warning lama).
+- 404 lokal hanya js/supabase-config.js & js/sheets-config.js (opsional;
+  workflow deploy menyuntik dari secrets / membuat versi kosong).
+
 SESI INI (commit 2def9c0, sudah di-push ke main) - KID-FRIENDLY LMS LAYER:
 1. lib/rewards.ts - mesin reward anak: bintang, level (Word Explorer ->
    Little Legend), streak harian, dan 10 badge. Bintang DIHITUNG dari progres
@@ -71,7 +96,8 @@ TUGAS OWNER (belum dikonfirmasi selesai):
 BATAS YANG DIKETAHUI (fase 2 bila mau):
 - Presensi/chat/materi masih localStorage per-perangkat.
 - Reward/streak juga localStorage per akun (belum tabel Supabase).
-- LMS statis (lms.html) menyimpan progres di browser perangkat, bukan cloud.
+- LMS statis (lms.html) menyimpan progres di browser perangkat, bukan cloud;
+  ringkasannya tampil di dashboard pada perangkat/browser yang sama.
 - Tulis RPC dijaga client-side saja (bukan RLS per-peran).
 - Sesi paket lintas-perangkat diinfer dari class + nominal (RPC order lama
   belum menyimpan jumlah sesi eksplisit).

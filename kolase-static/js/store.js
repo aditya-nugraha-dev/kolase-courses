@@ -205,7 +205,7 @@ function verifyPassword(stored, input) {
   return s.trim() === p.trim(); // legacy plaintext
 }
 
-function registerPerson(role, nama, email, wa, password, pin) {
+function registerPerson(role, nama, email, wa, password, pin, extra) {
   // Student (STU-…) & teacher (TCH-…) langsung jadi.
   // Staff (founder/academic/systems/staff/admin): bebas daftar langsung jadi
   // dengan ID ACT baru berurutan — tanpa PIN, tanpa persetujuan.
@@ -214,6 +214,9 @@ function registerPerson(role, nama, email, wa, password, pin) {
     throw new Error("Peran tidak dikenal.");
   }
   const db = loadDB();
+  const ex = extra || {};
+  const panggilan = String(ex.panggilan || "").trim();
+  const usia = String(ex.usia || "").trim();
   const em = String(email || "").trim().toLowerCase();
   if (em) {
     const dup = [...(db.MST_STUDENTS || []), ...(db.MST_TEACHERS || []), ...(db.MST_STAFF || [])]
@@ -235,8 +238,16 @@ function registerPerson(role, nama, email, wa, password, pin) {
   if (role === "student") {
     id = nextId("STU", db.MST_STUDENTS, "student_id"); // STU-###### seumur hidup (KOL-POL-COD-001 §3.1)
     pilotId = id;
-    db.MST_STUDENTS.push({ student_id: id, pilot_student_id: id, nama, email, wa, password: hashPassword(String(password || "").trim()), tgl_daftar: new Date().toISOString().slice(0, 10), current_status: "REGISTERED", confirmation_status: "PENDING" });
-    db.PILOT_REGISTRATIONS.push({ pilot_student_id: pilotId, student_id: id, full_name: nama, email, whatsapp: wa, at: new Date().toISOString() });
+    db.MST_STUDENTS.push({
+      student_id: id, pilot_student_id: id, nama, email, wa,
+      password: hashPassword(String(password || "").trim()),
+      panggilan: panggilan, preferred_name: panggilan,
+      usia: usia, age_group: usia, segment: usia ? "KIDS" : "",
+      guardian_whatsapp: String(wa || "").trim(),
+      tgl_daftar: new Date().toISOString().slice(0, 10),
+      current_status: "REGISTERED", confirmation_status: "PENDING"
+    });
+    db.PILOT_REGISTRATIONS.push({ pilot_student_id: pilotId, student_id: id, full_name: nama, email, whatsapp: wa, panggilan: panggilan, usia: usia, at: new Date().toISOString() });
   } else {
     id = nextId("TCH", db.MST_TEACHERS, "teacher_id");
     db.MST_TEACHERS.push({ teacher_id: id, nama, email, wa, password: hashPassword(String(password || "").trim()) });
@@ -247,7 +258,7 @@ function registerPerson(role, nama, email, wa, password, pin) {
   // Tanpa endpoint = hanya antre di localStorage (mode mock).
   const tgl = new Date().toISOString().slice(0, 10);
   const row = role === "student"
-    ? { student_id: id, nama, email, wa, tgl_daftar: tgl }
+    ? { student_id: id, nama, email, wa, tgl_daftar: tgl, panggilan: panggilan, preferred_name: panggilan, usia: usia, age_group: usia, guardian_whatsapp: wa, segment: usia ? "KIDS" : "" }
     : role === "teacher"
       ? { teacher_id: id, nama, email, wa }
       : { staff_id: id, nama, email, wa, role };
@@ -258,8 +269,8 @@ function registerPerson(role, nama, email, wa, password, pin) {
     const now = new Date().toISOString();
     postSheets({
       action: "register_pilot",
-      registration: { "Cap waktu": now, "Full Name": nama, Email: email, "No. WhatsApp": wa },
-      student: { Student_ID: pilotId, Full_Name: nama, Email: email, WhatsApp: wa, Current_Status: "REGISTERED", Confirmation_Status: "PENDING", Registration_Date: now.slice(0, 10), Last_Updated: now },
+      registration: { "Cap waktu": now, "Full Name": nama, Email: email, "No. WhatsApp": wa, "Preferred Name": panggilan, "Age": usia, "Guardian WhatsApp": wa },
+      student: { Student_ID: pilotId, Full_Name: nama, Email: email, WhatsApp: wa, Preferred_Name: panggilan, Age_Group: usia, Guardian_WhatsApp: wa, Current_Status: "REGISTERED", Confirmation_Status: "PENDING", Registration_Date: now.slice(0, 10), Last_Updated: now },
     });
   }
   return id;

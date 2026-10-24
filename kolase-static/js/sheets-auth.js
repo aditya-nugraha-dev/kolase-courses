@@ -49,13 +49,14 @@
   }
 
   // Cache identitas ke DB lokal (hash) agar dashboard/katalog/chat jalan offline.
-  function syncToLocal(user, plainPw, wa) {
+  function syncToLocal(user, plainPw, wa, extra) {
     try {
       if (!window.KolaseStore) return;
       var db = window.KolaseStore.loadDB();
       var lpw = "";
       try { lpw = window.KolaseStore.hashPassword ? window.KolaseStore.hashPassword(String(plainPw || "")) : ""; }
       catch (e) { lpw = ""; }
+      var ex = extra || {};
       var id = user.id, role = user.role;
       if (role === "student") {
         var s = (db.MST_STUDENTS || []).find(function (r) { return r.student_id === id; });
@@ -65,6 +66,12 @@
           s.nama = user.nama || s.nama; s.email = user.email || s.email;
           if (lpw) s.password = lpw;
           if (wa) s.wa = wa;
+        }
+        var st = (db.MST_STUDENTS || []).find(function (r) { return r.student_id === id; });
+        if (st) {
+          if (ex.panggilan) { st.panggilan = ex.panggilan; st.preferred_name = ex.panggilan; }
+          if (ex.usia) { st.usia = String(ex.usia); st.age_group = String(ex.usia); st.segment = "KIDS"; }
+          if (wa) st.guardian_whatsapp = wa;
         }
       } else if (role === "teacher") {
         var t = (db.MST_TEACHERS || []).find(function (r) { return r.teacher_id === id; });
@@ -99,25 +106,28 @@
     });
   }
 
-  function register(role, nama, email, wa, password) {
+  function register(role, nama, email, wa, password, pin, extra) {
     var r = String(role || "").trim().toLowerCase();
     var nm = String(nama || "").trim() || "Pengguna Baru";
     var em = String(email || "").trim();
     var w = String(wa || "").trim();
     var pass = String(password || "").trim();
+    var ex = extra || {};
+    var panggilan = String(ex.panggilan || "").trim();
+    var usia = String(ex.usia || "").trim();
     if (!em || !w) return Promise.reject(new Error("Email dan No. WA wajib diisi."));
     if (!pass || pass.length < 4) return Promise.reject(new Error("Password min. 4 karakter."));
-    return call(withKey({ action: "auth_register", nama: nm, email: em, wa: w, role: r, password: pass })).then(function (j) {
+    return call(withKey({ action: "auth_register", nama: nm, email: em, wa: w, role: r, password: pass, panggilan: panggilan, usia: usia })).then(function (j) {
       var id = String(j.id || "");
       var user = { role: r, id: id, nama: nm, email: em };
-      syncToLocal(user, pass, w);
+      syncToLocal(user, pass, w, ex);
       sheetLog({ action: "login", login: { at: new Date().toISOString(), user_id: id, nama: nm, email: em, role: r } });
       if (r === "student") {
         var now = new Date().toISOString();
         sheetLog({
           action: "register_pilot",
-          registration: { "Cap waktu": now, "Full Name": nm, Email: em, "No. WhatsApp": w },
-          student: { Student_ID: id, Full_Name: nm, Email: em, WhatsApp: w, Current_Status: "REGISTERED", Confirmation_Status: "PENDING", Registration_Date: now.slice(0, 10), Last_Updated: now },
+          registration: { "Cap waktu": now, "Full Name": nm, Email: em, "No. WhatsApp": w, "Preferred Name": panggilan, "Age": usia, "Guardian WhatsApp": w },
+          student: { Student_ID: id, Full_Name: nm, Email: em, WhatsApp: w, Preferred_Name: panggilan, Age_Group: usia, Guardian_WhatsApp: w, Current_Status: "REGISTERED", Confirmation_Status: "PENDING", Registration_Date: now.slice(0, 10), Last_Updated: now },
         });
       }
       return id;

@@ -2,8 +2,9 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KOLASE — Katalog Kelas</title>
-<link rel="stylesheet" href="css/style.css?v=7">
+<title>KOLASE — Katalog Kelas Anak Usia 6–12 Tahun</title>
+<meta name="description" content="Pilih kelas bahasa Inggris untuk anak 6–12 tahun. Lihat usia, jumlah sesi, hasil belajar, dan harga paket dengan jelas sebelum mendaftar.">
+<link rel="stylesheet" href="css/style.css?v=10">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
 <body>
@@ -11,48 +12,115 @@
   <a class="brand" href="home.html"><img src="assets/kolase-wordmark-black.png" alt="KOLASE English Academy"></a>
   <nav class="nav" data-nav>
     <a href="home.html">Home</a><a href="catalog.html">Katalog</a>
-    <a href="dashboard.html">Dashboard</a><a href="schedule.html">Kalender</a>
-    <a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html" data-guest-only>Masuk</a>
+    <a href="home.html#roadmap">Jalur Belajar</a><a href="login.html" class="nav-cta">Masuk / Daftar</a>
   </nav>
   <button class="burger" data-burger>☰</button>
 </div></header>
+
 <main class="wrap">
-  <div class="section"><h2 data-i18n="cat.title">Katalog Kelas</h2>
-    <p class="small" data-i18n="cat.desc">Desktop: filter sidebar • Mobile: filter bottom-sheet.</p>
-    <button class="btn btn-ghost btn-sm mobile-only" data-open-sheet>Filter (Mobile)</button>
+  <section class="cat-head">
+    <span class="cat-eyebrow">Kelas untuk Anak Usia 6–12 Tahun</span>
+    <h1>Pilih Kelas yang Paling Nyaman untuk Anak Anda</h1>
+    <p>Setiap kartu menunjukkan usia, jumlah sesi, hasil belajar, dan harga paket. Pilih filter di bawah untuk melihat kelas yang paling sesuai.</p>
+  </section>
+
+  <section class="cat-filter" aria-labelledby="filterTitle">
+    <div class="cat-filter-head">
+      <b id="filterTitle">Filter Kategori Usia</b>
+      <span class="small" id="catalogCount" aria-live="polite">Memuat kelas…</span>
+    </div>
+    <div class="cat-chips" role="group" aria-label="Filter kategori usia kelas">
+      <button type="button" class="cat-chip is-active" data-age="all" aria-pressed="true">Semua Kelas</button>
+      <button type="button" class="cat-chip" data-age="6-8" aria-pressed="false">Usia 6–8 Tahun</button>
+      <button type="button" class="cat-chip" data-age="9-12" aria-pressed="false">Usia 9–12 Tahun</button>
+      <button type="button" class="cat-chip" data-age="public" aria-pressed="false">Kelas Percobaan / Public Class</button>
+    </div>
+  </section>
+
+  <div class="grid cols-3" data-catalog data-manual="true" id="catalogGrid">
+    <div class="cat-empty">Memuat kelas…</div>
   </div>
-  <div class="layout-2">
-    <aside class="card sidebar">
-      <b data-i18n="cat.filter">Filter</b>
-      <div class="field"><label data-i18n="cat.level">Level</label><select id="fLevel"><option value="" data-i18n="cat.all">Semua</option><option>KIDS</option><option>TEEN</option><option>CORE</option></select></div>
-      <div class="field"><label data-i18n="cat.maxprice">Harga maks</label><select id="fPrice"><option value="" data-i18n="cat.all">Semua</option><option value="700000">≤ Rp 700rb</option><option value="1000000">≤ Rp 1jt</option><option value="3200000">≤ Rp 3,2jt</option></select></div>
-      <button class="btn btn-brand btn-sm" id="fApply" data-i18n="cat.apply">Terapkan</button>
-    </aside>
-    <div><div class="grid cols-3" data-catalog></div></div>
-  </div>
+
+  <section class="cat-help" aria-labelledby="helpTitle">
+    <div class="cat-help-icon" aria-hidden="true">?</div>
+    <div class="cat-help-copy">
+      <h3 id="helpTitle">Bingung memilih level yang pas untuk usia dan kemampuan anak Anda?</h3>
+      <p>Ceritakan usia dan pengalaman belajar anak. Tim KOLASE akan membantu memilih kelas yang paling nyaman, tanpa tes yang memberatkan.</p>
+    </div>
+    <div class="cat-help-actions">
+      <a class="btn btn-brand" href="https://wa.me/628131191163?text=Halo%20KOLASE%2C%20saya%20ingin%20konsultasi%20memilih%20kelas%20untuk%20anak%20saya." target="_blank" rel="noopener">Konsultasi Gratis</a>
+      <a class="btn btn-ghost" href="home.html#kelompok-usia">Panduan Memilih Kelas</a>
+    </div>
+  </section>
 </main>
-<div class="scrim" data-scrim data-close-sheet></div>
-<div class="sheet" data-sheet>
-  <b data-i18n="cat.filterm">Filter Kelas</b>
-  <div class="field"><label data-i18n="cat.level">Level</label><select id="mLevel"><option value="" data-i18n="cat.all">Semua</option><option>KIDS</option><option>TEEN</option><option>CORE</option></select></div>
-  <button class="btn btn-brand" data-close-sheet id="mApply" data-i18n="cat.show">Tampilkan</button>
-</div>
-<nav class="mobile-tabs"><a href="home.html">Home</a><a href="catalog.html" class="active">Katalog</a><a href="dashboard.html">Kelas</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a></nav>
-<footer><div class="wrap"><a href="home.html">← Home</a></div></footer>
-<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
+
+<nav class="mobile-tabs">
+  <a href="home.html">Home</a><a href="catalog.html" class="active">Katalog</a>
+  <a href="home.html#roadmap">Jalur Belajar</a><a href="login.html" class="is-cta">Masuk / Daftar</a>
+</nav>
+<footer><div class="wrap">© 2026 KOLASE English Academy — In Your Voice We Trust • <a href="trust-legal.html">Terms &amp; Privacy &amp; Refund</a> • <a href="tim.html">Tim Kami</a></div></footer>
+
+<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=11"></script><script src="js/nav.js?v=4"></script><script src="js/app.js?v=18"></script>
 <script>
-document.getElementById("fApply").onclick = () => {
-  const lv = document.getElementById("fLevel").value;
-  const max = document.getElementById("fPrice").value;
-  const p = new URLSearchParams();
-  if (lv) p.set("level", lv);
-  if (max) p.set("max", max);
-  location.search = p.toString() ? "?" + p.toString() : "";
-};
-document.getElementById("mApply").onclick = () => {
-  const lv = document.getElementById("mLevel").value;
-  location.search = lv ? "?level=" + lv : "";
-};
+(function () {
+  const grid = document.getElementById("catalogGrid");
+  const count = document.getElementById("catalogCount");
+  const chips = Array.from(document.querySelectorAll(".cat-chip"));
+  let classes = [];
+  let active = "all";
+
+  const params = new URLSearchParams(location.search);
+  const fromUrl = params.get("usia");
+  if (fromUrl && chips.some((chip) => chip.dataset.age === fromUrl)) active = fromUrl;
+
+  function matches(c) {
+    const min = Number(c.usia_min || 0);
+    const max = Number(c.usia_max || 99);
+    if (active === "6-8") return min <= 8 && max >= 6;
+    if (active === "9-12") return min <= 12 && max >= 9;
+    if (active === "public") return c.kategori === "PUBLIC" || c.trial === true;
+    return true;
+  }
+
+  function syncChips() {
+    chips.forEach((chip) => {
+      const on = chip.dataset.age === active;
+      chip.classList.toggle("is-active", on);
+      chip.setAttribute("aria-pressed", String(on));
+    });
+  }
+
+  function render() {
+    const list = classes.filter(matches);
+    grid.innerHTML = list.length
+      ? list.map(cardHTML).join("")
+      : '<div class="cat-empty">Belum ada kelas untuk kategori ini. Coba pilih "Semua Kelas".</div>';
+    count.textContent = "Menampilkan " + list.length + " dari " + classes.length + " kelas";
+    syncChips();
+  }
+
+  chips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      active = chip.dataset.age;
+      const url = new URL(location.href);
+      if (active === "all") url.searchParams.delete("usia");
+      else url.searchParams.set("usia", active);
+      history.replaceState(null, "", url);
+      render();
+    });
+  });
+
+  fetch("data/classes.json")
+    .then((r) => r.json())
+    .then((data) => {
+      classes = Array.isArray(data) ? data : [];
+      render();
+    })
+    .catch(() => {
+      count.textContent = "";
+      grid.innerHTML = '<div class="cat-empty">Kelas belum bisa dimuat. Silakan muat ulang halaman.</div>';
+    });
+})();
 </script>
 </body>
 </html>

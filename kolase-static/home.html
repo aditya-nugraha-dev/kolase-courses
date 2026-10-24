@@ -2,95 +2,234 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KOLASE — Homepage</title>
-<link rel="stylesheet" href="css/style.css?v=7">
+<title>KOLASE — Kursus Bahasa Inggris Anak Usia 6–12 Tahun</title>
+<meta name="description" content="Kursus bahasa Inggris online untuk anak 6–12 tahun. Kelas kecil, guru ramah anak, jadwal terpantau, dan biaya terjangkau mulai Rp50rb.">
+<link rel="stylesheet" href="css/style.css?v=10">
 <link rel="icon" href="assets/kolase-logo.png">
+<style>
+  /* Home page — seksi ramah anak & orang tua */
+  #roadmap{scroll-margin-top:84px}
+  .ho-hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 4px}
+  .ho-stats .stat b{font-size:clamp(15px,2vw,19px);line-height:1.25}
+  .ho-stats .stat .small{display:block;margin-top:3px;font-size:12.5px;line-height:1.35}
+
+  .age-grid,.session-grid{display:grid;gap:16px;grid-template-columns:1fr}
+  .age-card{position:relative;border-top:5px solid var(--amber)}
+  .age-card.is-blue{border-top-color:var(--royal)}
+  .age-badge{
+    display:inline-flex;align-items:baseline;gap:4px;margin-bottom:10px;
+    padding:6px 12px;border-radius:999px;background:var(--amber-bg);
+    border:1px solid #FCD34D;color:var(--amber-d);font-size:14px;font-weight:900;
+  }
+  .age-card.is-blue .age-badge{background:var(--sky-bg);border-color:var(--sky-bd);color:var(--sky-tx)}
+  .age-card h3{margin:0 0 6px;font-size:20px}
+  .age-card p{color:var(--muted)}
+  .age-card .check-list li{font-size:15px}
+
+  .session-card{height:100%;border-top:5px solid var(--sky-bd)}
+  .step-num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:40px;height:40px;margin-bottom:10px;border-radius:50%;
+    background:var(--royal);color:#FFFFFF;font-size:16px;font-weight:900;
+  }
+  .session-card:nth-child(even) .step-num{background:var(--amber);color:var(--ink)}
+  .session-card h3{font-size:17px;margin:0 0 6px}
+  .session-card p{margin:0;color:var(--muted)}
+
+  .empty-state{
+    grid-column:1/-1;display:flex;align-items:center;justify-content:center;
+    padding:20px 16px;border:1px dashed var(--line);border-radius:18px;
+    background:#FFFFFF;color:var(--muted);font-size:14px;font-weight:700;text-align:center;
+  }
+  .swipe-row > .empty-state{width:100%}
+
+  .faq-list{display:grid;gap:10px}
+  .faq-list details.accordion{
+    padding:0;overflow:hidden;background:#FFFFFF;border:1px solid var(--line);
+    border-radius:18px;box-shadow:var(--shadow-sm);
+  }
+  .faq-list summary{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    min-height:52px;padding:16px 18px;color:var(--ink);font-weight:800;
+    cursor:pointer;list-style:none;
+  }
+  .faq-list summary::-webkit-details-marker{display:none}
+  .faq-list summary::after{
+    content:"+";display:grid;place-items:center;width:28px;height:28px;flex:none;
+    border-radius:50%;background:var(--sky-bg);color:var(--royal);
+    font-size:18px;font-weight:900;line-height:1;
+  }
+  .faq-list details[open] summary::after{content:"−";background:var(--amber-bg);color:var(--amber-d)}
+  .faq-a{padding:0 18px 16px;color:var(--muted);font-size:15px;line-height:1.65}
+
+  .poster-grid a{cursor:zoom-in}
+  .poster-lightbox{
+    position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;
+    padding:18px;background:rgba(24,24,27,.9);
+    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  }
+  .poster-lightbox[hidden]{display:none!important}
+  .poster-lightbox img{
+    width:auto;max-width:min(1100px,96vw);max-height:88vh;background:#FFFFFF;
+    border:3px solid #FFFFFF;border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.45);
+  }
+  .poster-lightbox-close{
+    position:absolute;top:14px;right:14px;display:grid;place-items:center;
+    width:48px;height:48px;border:2px solid #FFFFFF;border-radius:50%;
+    background:rgba(24,24,27,.72);color:#FFFFFF;font-size:26px;line-height:1;cursor:pointer;
+  }
+  .poster-lightbox-close:hover{background:var(--amber);border-color:var(--amber);color:var(--ink)}
+  body.lightbox-open{overflow:hidden}
+
+  @media(min-width:720px){
+    .age-grid,.session-grid{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(min-width:860px){
+    [data-catalog].swipe-row{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(min-width:1040px){
+    .session-grid{grid-template-columns:repeat(4,1fr)}
+  }
+  @media(max-width:640px){
+    .poster-lightbox{padding:10px}
+    .poster-lightbox img{max-height:82vh;border-radius:14px}
+  }
+</style>
 </head>
 <body>
 <header class="topbar"><div class="wrap">
   <a class="brand" href="home.html"><img src="assets/kolase-wordmark-black.png" alt="KOLASE English Academy"></a>
   <nav class="nav" data-nav>
     <a href="home.html">Home</a><a href="catalog.html">Katalog</a>
-    <a href="dashboard.html">Dashboard</a><a href="lms.html">LMS Anak</a>
-    <a href="schedule.html">Kalender</a>
-    <a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a><a href="login.html" data-guest-only>Masuk</a>
+    <a href="#roadmap">Jalur Belajar</a><a href="login.html" class="nav-cta">Masuk / Daftar</a>
   </nav>
   <button class="burger" data-burger>☰</button>
 </div></header>
 
 <main class="wrap">
-  <div class="section" id="annStrip" style="display:none"><div class="card" style="border-left:4px solid var(--amber)">
+  <div class="section" id="annStrip"><div class="card" style="border-left:4px solid var(--amber)">
     <div class="meta"><span class="pill p-pending">📢 <span data-i18n="ann.label">Pengumuman</span></span><span class="small" id="annDate"></span></div>
-    <b id="annTitle"></b><p class="small" id="annBody" style="margin:4px 0 0"></p>
+    <b id="annTitle">Memuat pengumuman…</b><p class="small" id="annBody" style="margin:4px 0 0">Pengumuman terbaru akan tampil di sini.</p>
   </div></div>
   <div class="hero"><div class="hero-grid">
     <div class="hero-card" style="display:flex;flex-direction:column">
-      <h1 data-i18n="hero.title">Belajar Bahasa Inggris, Terjadwal & Terukur.</h1>
-      <p data-i18n="hero.desc">Kids Public 4 sesi, Kids Term 10 sesi, Beginner 13+ 4 sesi, Small Group 6–45 sesi. ID permanen <span class="id-mono">STU-XXXXXX</span>, kuota ledger otomatis, sinkron Google Sheets + Calendar.</p>
-      <div class="badges"><span class="badge" data-i18n="hero.badge1">Kids & Beginner</span><span class="badge">Google Meet</span><span class="badge" data-i18n="hero.badge3">Chat Guru</span><span class="badge">QRIS / VA / E-Wallet</span></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <a class="btn btn-brand" href="catalog.html" data-i18n="hero.catalog">Lihat Katalog</a>
-        <a class="btn btn-ghost" data-guest-only href="login.html" data-i18n="hero.register">Daftar Gratis</a>
+      <h1>Bantu Anak Berani Bicara Bahasa Inggris dengan Ceria &amp; Terarah!</h1>
+      <p style="margin:0;font-size:16px;line-height:1.65;color:var(--muted)">Program khusus anak usia 6–12 tahun. Belajar interaktif via Google Meet bersama guru yang sabar dan ramah anak. Jadwal belajar, pengingat kalender, dan sisa sesi terpantau otomatis dari HP Ayah &amp; Bunda.</p>
+      <div class="ho-hero-cta">
+        <a class="btn btn-brand" href="catalog.html">Pilih Kelas</a>
+        <a class="btn btn-ghost" href="#roadmap">Lihat Jalur Belajar</a>
       </div>
-      <div class="stats">
-        <div class="stat"><b id="heroSesi">4</b><span class="small" data-i18n="hero.sesi">sesi/paket</span></div>
-        <div class="stat"><b id="heroHarga">50rb+</b><span class="small" data-i18n="hero.mulai">mulai</span></div>
-        <div class="stat"><b id="heroId" style="font-size:15px">1</b><span class="small" data-i18n="hero.idperm">ID permanen</span></div>
+      <div class="badges"><span class="badge">Anak 6–12 Tahun</span><span class="badge">Google Meet</span><span class="badge">Guru Ramah Anak</span><span class="badge">Pembayaran Mudah</span></div>
+      <div class="stats ho-stats">
+        <div class="stat"><b>6–12 Thn</b><span class="small">Kurikulum Anak</span></div>
+        <div class="stat"><b>Kelas Kecil</b><span class="small">Anak Lebih Fokus</span></div>
+        <div class="stat"><b>50rb+</b><span class="small">Biaya Terjangkau</span></div>
       </div>
+      <span id="heroSesi" hidden></span><span id="heroHarga" hidden></span><span id="heroId" hidden></span>
       <ul class="check-list" style="margin-top:12px">
-        <li>ID permanen seumur hidup (STU / TCH / ACT)</li>
-        <li>Sisa sesi berkurang otomatis setiap hadir</li>
-        <li>Chat guru + kalender terjadwal tiap sesi</li>
+        <li>Guru sabar &amp; ramah anak</li>
+        <li>Jadwal dan pengingat kalender otomatis</li>
+        <li>Sisa sesi terpantau dari HP Ayah &amp; Bunda</li>
       </ul>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:12px">
-        <a class="btn btn-brand btn-sm" href="catalog.html">Pilih Kelas</a>
-        <a class="btn btn-ghost btn-sm" href="#roadmap">Lihat Jalur Belajar →</a>
-      </div>
     </div>
     <div class="hero-card hero-media">
-      <img src="assets/kolase-banner.png" alt="Welcome to KOLASE Academy — In Your Voice We Trust" loading="eager">
+      <img src="assets/kolase-banner.png" alt="Anak belajar bahasa Inggris dengan ceria di KOLASE" loading="eager">
     </div>
   </div></div>
 
+  <div class="section" id="kelompok-usia">
+    <h2>Pilih Sesuai Usia Anak</h2>
+    <p class="small">Dua jalur belajar yang dirancang sesuai tahap perkembangan anak, agar setiap langkah terasa menyenangkan dan tidak membebani.</p>
+    <div class="age-grid">
+      <article class="card age-card">
+        <div class="age-badge">Usia 6–8 Tahun</div>
+        <h3>Little Explorers</h3>
+        <p>Fondasi pertama bahasa Inggris lewat aktivitas yang ringan, visual, dan penuh permainan.</p>
+        <ul class="check-list">
+          <li>Mengenal kosakata harian di sekitar anak</li>
+          <li>Phonics dasar untuk membaca kata sederhana</li>
+          <li>Lagu dan permainan untuk mengingat kata baru</li>
+          <li>Berani menjawab pertanyaan dengan kata sederhana</li>
+        </ul>
+      </article>
+      <article class="card age-card is-blue">
+        <div class="age-badge">Usia 9–12 Tahun</div>
+        <h3>Young Speakers</h3>
+        <p>Latihan berbicara lebih terstruktur agar anak siap bercerita dan tampil percaya diri.</p>
+        <ul class="check-list">
+          <li>Merangkai kalimat untuk kebutuhan sehari-hari</li>
+          <li>Storytelling dengan bantuan gambar dan contoh</li>
+          <li>Tanya-jawab aktif bersama guru dan teman</li>
+          <li>Percaya diri berbicara di depan kelas kecil</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+
+  <div class="section" id="alur-kelas">
+    <h2>Apa yang Terjadi Selama Sesi Kelas?</h2>
+    <p class="small">Setiap sesi punya alur yang jelas dan konsisten, supaya anak tahu apa yang akan dilakukan dan orang tua mudah memantau perkembangan.</p>
+    <div class="session-grid">
+      <div class="card session-card">
+        <div class="step-num">1</div>
+        <h3>Warm-Up &amp; Fun Game</h3>
+        <p>Permainan singkat untuk mencairkan suasana dan memanaskan bahasa Inggris anak.</p>
+      </div>
+      <div class="card session-card">
+        <div class="step-num">2</div>
+        <h3>Visual Story &amp; Vocabulary</h3>
+        <p>Kata baru diperkenalkan lewat gambar dan cerita yang mudah diikuti anak.</p>
+      </div>
+      <div class="card session-card">
+        <div class="step-num">3</div>
+        <h3>Active Speaking Time (Scaffolding)</h3>
+        <p>Anak dibimbing bertahap untuk mencoba bicara, tanpa takut salah.</p>
+      </div>
+      <div class="card session-card">
+        <div class="step-num">4</div>
+        <h3>Review &amp; Apresiasi Bintang</h3>
+        <p>Materi diulang dengan ringan dan keberanian anak dirayakan dengan bintang.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="section"><h2 data-i18n="sec.populer">Kelas Populer</h2>
-    <div class="swipe-row" data-catalog></div>
-    <p class="small" data-i18n="sec.populer.hint">Geser ke samping di HP • Grid 3 kolom di desktop.</p>
+    <div class="swipe-row" data-catalog data-level="KIDS"><div class="empty-state">Memuat kelas populer…</div></div>
   </div>
 
   <div class="section" id="roadmap"><h2 data-i18n="sec.roadmap">Jalur Belajar</h2>
     <p class="small" data-i18n="sec.roadmap.d">Selesai satu tahap, otomatis tahu lanjut ke kelas mana.</p>
-    <div class="swipe-row" id="roadTrack"></div>
+    <div class="swipe-row" id="roadTrack"><div class="empty-state">Menyiapkan jalur belajar…</div></div>
     <p class="small"><a href="catalog.html" data-i18n="sec.roadmap.cta">Lihat Katalog Resmi →</a></p>
   </div>
 
   <div class="section" id="galeri"><h2 data-i18n="sec.cara">Cara Kami Mengajar</h2>
     <p class="small" data-i18n="sec.galeri.hint">Ketuk gambar untuk buka ukuran penuh.</p>
     <div class="poster-grid">
-      <a href="assets/poster/metode-scaffolding.jpeg"><img src="assets/poster/metode-scaffolding.jpeg" alt="Cara kami mengajar" loading="lazy"></a>
-      <a href="assets/poster/bahasa-dipakai.jpeg"><img src="assets/poster/bahasa-dipakai.jpeg" alt="Bahasa dipakai, bukan cuma dipelajari" loading="lazy"></a>
-      <a href="assets/poster/kids-bermain.jpeg"><img src="assets/poster/kids-bermain.jpeg" alt="Little Speakers" loading="lazy"></a>
-      <a href="assets/poster/berani-mencoba.jpeg"><img src="assets/poster/berani-mencoba.jpeg" alt="Berani mencoba" loading="lazy"></a>
-      <a href="assets/poster/cerita-awal.jpeg"><img src="assets/poster/cerita-awal.jpeg" alt="Cerita sederhana bisa jadi awal" loading="lazy"></a>
-      <a href="assets/poster/ruang-menjawab.jpeg"><img src="assets/poster/ruang-menjawab.jpeg" alt="Ruang menjawab dan bertanya" loading="lazy"></a>
+      <a href="assets/poster/metode-scaffolding.jpeg" data-lightbox><img src="assets/poster/metode-scaffolding.jpeg" alt="Cara kami mengajar" loading="lazy"></a>
+      <a href="assets/poster/bahasa-dipakai.jpeg" data-lightbox><img src="assets/poster/bahasa-dipakai.jpeg" alt="Bahasa dipakai, bukan cuma dipelajari" loading="lazy"></a>
+      <a href="assets/poster/kids-bermain.jpeg" data-lightbox><img src="assets/poster/kids-bermain.jpeg" alt="Little Speakers" loading="lazy"></a>
+      <a href="assets/poster/berani-mencoba.jpeg" data-lightbox><img src="assets/poster/berani-mencoba.jpeg" alt="Berani mencoba" loading="lazy"></a>
+      <a href="assets/poster/cerita-awal.jpeg" data-lightbox><img src="assets/poster/cerita-awal.jpeg" alt="Cerita sederhana bisa jadi awal" loading="lazy"></a>
+      <a href="assets/poster/ruang-menjawab.jpeg" data-lightbox><img src="assets/poster/ruang-menjawab.jpeg" alt="Ruang menjawab dan bertanya" loading="lazy"></a>
     </div>
   </div>
 
-  <div class="section" id="visi-misi"><h2 data-i18n="sec.visi">Visi & Misi</h2>
-    <p class="small" data-i18n="sec.visi.desc">Tujuan dan harapan kami dalam membangun peradaban berbasis ilmu pengetahuan. Ketuk gambar untuk buka ukuran penuh.</p>
+  <div class="section" id="visi-misi"><h2>Kenapa Anak Senang Belajar di KOLASE?</h2>
+    <p class="small">Karena belajar terasa seperti bermain: anak didengar, diberi ruang mencoba, dan dihargai setiap usahanya. Ketuk gambar untuk melihat cerita kami lebih besar.</p>
     <div class="poster-grid">
-      <a href="assets/poster/visi-misi-cover.jpeg"><img src="assets/poster/visi-misi-cover.jpeg" alt="01/06 KOLASE in Vision and Mission" loading="lazy"></a>
-      <a href="assets/poster/visi-generasi-unggul.jpeg"><img src="assets/poster/visi-generasi-unggul.jpeg" alt="02/06 Visi generasi unggul" loading="lazy"></a>
-      <a href="assets/poster/misi-akses-karakter.jpeg"><img src="assets/poster/misi-akses-karakter.jpeg" alt="03/06 Akses dan karakter" loading="lazy"></a>
-      <a href="assets/poster/misi-inovasi-seimbang.jpeg"><img src="assets/poster/misi-inovasi-seimbang.jpeg" alt="04/06 Inovasi dan keseimbangan" loading="lazy"></a>
-      <a href="assets/poster/misi-global-masa-depan.jpeg"><img src="assets/poster/misi-global-masa-depan.jpeg" alt="05/06 Global dan masa depan" loading="lazy"></a>
-      <a href="assets/poster/misi-cta-bertumbuh.jpeg"><img src="assets/poster/misi-cta-bertumbuh.jpeg" alt="06/06 Mari bertumbuh bersama" loading="lazy"></a>
+      <a href="assets/poster/visi-misi-cover.jpeg" data-lightbox><img src="assets/poster/visi-misi-cover.jpeg" alt="01/06 KOLASE in Vision and Mission" loading="lazy"></a>
+      <a href="assets/poster/visi-generasi-unggul.jpeg" data-lightbox><img src="assets/poster/visi-generasi-unggul.jpeg" alt="02/06 Visi generasi unggul" loading="lazy"></a>
+      <a href="assets/poster/misi-akses-karakter.jpeg" data-lightbox><img src="assets/poster/misi-akses-karakter.jpeg" alt="03/06 Akses dan karakter" loading="lazy"></a>
+      <a href="assets/poster/misi-inovasi-seimbang.jpeg" data-lightbox><img src="assets/poster/misi-inovasi-seimbang.jpeg" alt="04/06 Inovasi dan keseimbangan" loading="lazy"></a>
+      <a href="assets/poster/misi-global-masa-depan.jpeg" data-lightbox><img src="assets/poster/misi-global-masa-depan.jpeg" alt="05/06 Global dan masa depan" loading="lazy"></a>
+      <a href="assets/poster/misi-cta-bertumbuh.jpeg" data-lightbox><img src="assets/poster/misi-cta-bertumbuh.jpeg" alt="06/06 Mari bertumbuh bersama" loading="lazy"></a>
     </div>
-  </div>
   </div>
 
   <div class="section" id="ulasan"><h2 data-i18n="sec.ulasan">Ulasan Siswa</h2>
     <p class="small" data-i18n="sec.ulasan.desc">Ditulis siswa yang menyelesaikan 1 paket (semua sesi). Selesaikan paketmu untuk ikut mengulas — nilai Kelas, Guru, Pembelajaran & Materi.</p>
-    <div class="grid cols-3" id="reviewGrid"></div>
+    <div class="grid cols-3" id="reviewGrid"><div class="empty-state">Memuat ulasan siswa…</div></div>
   </div>
 
   <div class="section" id="pembelajaran"><h2 data-i18n="sec.showcase">Persembahan Pembelajaran</h2>
@@ -121,21 +260,50 @@
     <div class="grid cols-3" data-drive-info></div>
   </div>
 
+  <div class="section" id="faq">
+    <h2>Pertanyaan Orang Tua</h2>
+    <p class="small">Hal yang paling sering ditanyakan sebelum anak mulai belajar di KOLASE.</p>
+    <div class="faq-list">
+      <details class="accordion">
+        <summary>Apakah anak usia 6 tahun perlu didampingi?</summary>
+        <div class="faq-a">Tidak wajib. Namun untuk sesi pertama, kami menyarankan Ayah/Bunda mendampingi 5–10 menit agar anak merasa aman. Setelah anak nyaman, ia bisa belajar mandiri bersama guru.</div>
+      </details>
+      <details class="accordion">
+        <summary>Bagaimana jika anak saya pemalu dan belum berani bicara?</summary>
+        <div class="faq-a">Guru KOLASE memakai pendekatan sabar dan bertahap. Anak diajak lewat permainan, gambar, dan pertanyaan sederhana terlebih dahulu, sehingga tidak dipaksa tampil di depan kelas.</div>
+      </details>
+      <details class="accordion">
+        <summary>Perangkat apa yang perlu disiapkan?</summary>
+        <div class="faq-a">Cukup HP, tablet, atau laptop dengan internet stabil dan Google Meet. Headset opsional agar suara guru dan anak lebih jelas.</div>
+      </details>
+      <details class="accordion">
+        <summary>Bagaimana jika anak sakit atau berhalangan hadir?</summary>
+        <div class="faq-a">Kabari guru atau admin sebelum kelas dimulai. Sesi dapat dijadwalkan ulang sesuai kebijakan paket, dan jadwal di kalender akan diperbarui.</div>
+      </details>
+    </div>
+  </div>
+
   <div class="section" data-guest-only><div class="card" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
     <div style="flex:1"><b data-i18n="sec.siap">Siap mulai?</b><div class="small" data-i18n="sec.siap.desc">Daftar 1 menit, ID permanen langsung jadi.</div></div>
     <a class="btn btn-brand" href="login.html" data-i18n="sec.siap.btn">Daftar Sekarang</a>
   </div></div>
 </main>
 
+<div class="poster-lightbox" id="posterLightbox" role="dialog" aria-modal="true" aria-label="Pratinjau poster" hidden>
+  <button type="button" class="poster-lightbox-close" id="posterLightboxClose" aria-label="Tutup pratinjau">×</button>
+  <img id="posterLightboxImg" alt="">
+</div>
+
 <nav class="mobile-tabs">
   <a href="home.html" class="active">Home</a><a href="catalog.html">Katalog</a>
-  <a href="dashboard.html">Kelas</a><a href="teacher-chat.html">Chat</a><a href="profile.html">Profil</a>
+  <a href="#roadmap">Jalur Belajar</a><a href="login.html" class="is-cta">Masuk / Daftar</a>
 </nav>
-<footer><div class="wrap">KOLASE prototype • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="ownership.html">Ownership (internal)</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script><script src="js/drive-content.js?v=5"></script>
+<footer><div class="wrap">© 2026 KOLASE English Academy — In Your Voice We Trust • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="tim.html">Tim Kami</a></div></footer>
+<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=11"></script><script src="js/nav.js?v=4"></script><script src="js/app.js?v=18"></script><script src="js/drive-content.js?v=5"></script>
 <script>
 // Pengumuman terbaru dari teacher/staff.
 (function(){
+  const strip = document.getElementById("annStrip");
   try {
     const list = KolaseStore.listAnnouncements();
     if (list.length) {
@@ -143,9 +311,13 @@
       document.getElementById("annTitle").textContent = a.title;
       document.getElementById("annBody").textContent = a.body;
       document.getElementById("annDate").textContent = String(a.at || "").slice(0, 10) + " • " + (a.by || "");
-      document.getElementById("annStrip").style.display = "";
+      strip.style.display = "";
+    } else {
+      strip.style.display = "none";
     }
-  } catch(e){}
+  } catch(e){
+    if (strip) strip.style.display = "none";
+  }
 })();
 // Jalur belajar resmi §2.1: Kids Public → Kids Term → Teen Beginner → Small Group.
 (function(){
@@ -205,6 +377,43 @@
       return `<div class="card"><div style="color:var(--gold)">${stars(overall)} <b>${overall}</b></div>${aspectRows(r)}<p>"${escR(r.teks)}"</p><div class="small">— ${escR(r.nama)}</div></div>`;
     }).join("") || `<div class="card small">Belum ada ulasan.</div>`;
   } catch(e){}
+})();
+// Lightbox poster: tampilkan gambar lebih besar tanpa keluar dari home.html.
+(function(){
+  const lb = document.getElementById("posterLightbox");
+  const img = document.getElementById("posterLightboxImg");
+  const closeBtn = document.getElementById("posterLightboxClose");
+  if (!lb || !img || !closeBtn) return;
+  let lastFocus = null;
+
+  function open(link) {
+    const src = link.getAttribute("href");
+    if (!src) return;
+    const thumb = link.querySelector("img");
+    img.src = src;
+    img.alt = thumb ? thumb.alt : "Poster KOLASE";
+    lastFocus = link;
+    lb.hidden = false;
+    document.body.classList.add("lightbox-open");
+    closeBtn.focus();
+  }
+  function close() {
+    if (lb.hidden) return;
+    lb.hidden = true;
+    img.removeAttribute("src");
+    document.body.classList.remove("lightbox-open");
+    if (lastFocus) lastFocus.focus();
+  }
+
+  document.addEventListener("click", function(e){
+    const link = e.target.closest("a[data-lightbox]");
+    if (!link) return;
+    e.preventDefault();
+    open(link);
+  });
+  closeBtn.addEventListener("click", close);
+  lb.addEventListener("click", function(e){ if (e.target === lb) close(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") close(); });
 })();
 </script>
 </body>

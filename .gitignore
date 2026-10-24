@@ -36,6 +36,10 @@ uploads/
 *.tsbuildinfo
 web/next-env.d.ts
 
+# Screenshot sementara (QA lokal)
+web/.tmp-*.png
+.tmp-*.png
+
 # OS / editor
 .DS_Store
 Thumbs.db

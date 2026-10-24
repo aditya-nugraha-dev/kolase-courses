@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KOLASE — Profil</title>
-<link rel="stylesheet" href="css/style.css?v=7">
+<link rel="stylesheet" href="css/style.css?v=10">
+<link rel="stylesheet" href="css/kids.css?v=1">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
 <body data-guard="student,teacher,staff,admin,founder,academic,systems,author">
@@ -13,14 +14,29 @@
   <button class="burger" data-burger>☰</button>
 </div></header>
 <main class="wrap">
-  <div class="section"><h2>Profile & Settings</h2>
+  <div class="section"><h2>Profil & Pengaturan</h2>
     <div class="card" id="ident">...</div>
+    <div class="card kid-avatar-card" id="mascotCard" style="margin-top:10px" hidden>
+      <div class="kid-avatar-head">
+        <div class="kid-avatar-copy">
+          <span class="kid-kicker">Avatar belajar</span>
+          <b>Pilih teman belajarmu</b>
+          <p>Avatar ini tampil di dashboard. Foto profil tetap bisa dipakai kapan saja.</p>
+        </div>
+        <div class="kid-avatar-preview">
+          <span class="kid-avatar-preview-face" id="mascotPreview" aria-hidden="true">🦁</span>
+          <span class="kid-avatar-preview-name" id="mascotPreviewName">Singa Pemberani</span>
+        </div>
+      </div>
+      <div class="kid-avatar-grid" id="avatarGrid" role="group" aria-label="Pilihan avatar belajar"></div>
+      <p class="small" id="avatarMsg" role="status" style="margin:10px 0 0"></p>
+    </div>
     <div class="card" id="photoCard" style="margin-top:10px">
       <b>Foto Profil</b>
       <div style="display:flex;gap:12px;align-items:center;margin-top:8px;flex-wrap:wrap">
         <img id="avatar" alt="Foto profil" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid var(--navy);background:#F1F5F9">
         <div style="flex:1;min-width:200px">
-          <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" style="font-size:13px">
+          <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" style="font-size:13px;max-width:100%">
           <p class="small">JPG/PNG/WebP • otomatis dikompres ±512px • tersinkron HP↔PC bila cloud aktif.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-brand btn-sm" id="photoDel" type="button">Hapus Foto</button>
@@ -54,7 +70,7 @@
   </div>
 </main>
 <nav class="mobile-tabs"><a href="dashboard.html">Materi</a><a href="teacher-chat.html">Chat</a><a href="schedule.html">Jadwal</a><a href="profile.html" class="active">Profil</a></nav>
-<script src="js/store.js?v=14"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase-auth.js?v=4"></script><script src="js/i18n.js?v=8"></script><script src="js/app.js?v=12"></script>
+<script src="js/store.js?v=14"></script><script src="js/kids-avatar.js?v=1"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase-auth.js?v=4"></script><script src="js/i18n.js?v=11"></script><script src="js/nav.js?v=4"></script><script src="js/app.js?v=18"></script>
 <script>
 const db = KolaseStore.loadDB();
 // Zona Berbahaya HANYA untuk 3 ID penuh: Founder, Academic, Systems.
@@ -75,8 +91,12 @@ function currentPhoto() {
 function escH(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]); }); }
 function renderIdent() {
   var u = db.sessionUser, ph = currentPhoto();
+  var mascot = (u && u.role === "student" && window.KolaseAvatar) ? window.KolaseAvatar.get(u.id) : null;
+  var face = ph
+    ? '<img src="' + ph + '" alt="Foto profil" style="width:64px;height:64px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:10px">'
+    : (mascot ? '<span class="kid-ident-mascot" aria-hidden="true">' + escH(mascot.emoji) + '</span>' : "");
   document.getElementById("ident").innerHTML = u
-    ? (ph ? '<img src="' + ph + '" alt="Foto profil" style="width:64px;height:64px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:10px">' : "")
+    ? face
       + '<span style="display:inline-block;vertical-align:middle"><b>' + escH(u.nama) + '</b><div class="small">' + escH(u.role) + ' • <span class="id-mono">' + escH(u.id) + '</span></div></span>'
     : 'Belum login. <a href="login.html">Masuk →</a>';
   document.getElementById("avatar").src = ph || "assets/kolase-logo.png";
@@ -143,9 +163,43 @@ document.getElementById("photoDel").onclick = function() {
     document.getElementById("photoMsg").textContent = "Foto dihapus.";
   }
 };
+function renderMascotPicker() {
+  var u = db.sessionUser;
+  var card = document.getElementById("mascotCard");
+  var grid = document.getElementById("avatarGrid");
+  if (!u || u.role !== "student" || !window.KolaseAvatar) {
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
+  var current = window.KolaseAvatar.get(u.id);
+  document.getElementById("mascotPreview").textContent = current.emoji;
+  document.getElementById("mascotPreviewName").textContent = current.name;
+  grid.innerHTML = window.KolaseAvatar.list().map(function (av) {
+    var selected = av.id === current.id;
+    return '<button type="button" class="kid-avatar-choice" data-mascot="' + escH(av.id) + '" aria-pressed="' + (selected ? "true" : "false") + '" aria-label="Pilih avatar ' + escH(av.name) + '">'
+      + '<span class="kid-avatar-face" style="--face-bg:' + escH(av.bg) + ';--face-ring:' + escH(av.ring) + '" aria-hidden="true">' + escH(av.emoji) + '</span>'
+      + '<span>' + escH(av.name) + '</span>'
+      + '<span class="kid-avatar-pick">' + (selected ? "Dipilih" : "Pilih") + '</span>'
+      + '</button>';
+  }).join("");
+  grid.querySelectorAll("[data-mascot]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var saved = window.KolaseAvatar.set(u.id, btn.getAttribute("data-mascot"));
+      if (!saved) {
+        document.getElementById("avatarMsg").textContent = "Avatar tidak bisa disimpan di browser ini.";
+        return;
+      }
+      document.getElementById("avatarMsg").textContent = "Avatar " + saved.name + " tersimpan.";
+      renderMascotPicker();
+      renderIdent();
+    });
+  });
+}
+renderMascotPicker();
 renderIdent();
-document.getElementById("trx").innerHTML = db.TXN_PAYMENTS.map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="4" class="small">Kosong</td></tr>`;
-document.getElementById("ledger").innerHTML = db.TXN_ENTITLEMENT_LEDGER.map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
+document.getElementById("trx").innerHTML = (db.TXN_PAYMENTS||[]).map(t=>`<tr><td class="id-mono">${t.trx_id}</td><td class="id-mono">${t.enrollment_id}</td><td>Rp ${Number(t.nominal).toLocaleString("id-ID")}</td><td><span class="pill ${t.status==="VERIFIED"?"p-verified":"p-pending"}">${t.status}</span></td></tr>`).join("") || `<tr><td colspan="4" class="small">Kosong</td></tr>`;
+document.getElementById("ledger").innerHTML = (db.TXN_ENTITLEMENT_LEDGER||[]).map(l=>`<tr><td class="small">${l.at.slice(0,16).replace("T"," ")}</td><td class="id-mono">${l.enrollment_id}</td><td>${l.delta>0?"+":""}${l.delta}</td><td class="small">${l.reason}</td><td><b>${l.balance_after}</b></td></tr>`).join("") || `<tr><td colspan="5" class="small">Kosong</td></tr>`;
 // Tarik foto dari cloud bila perangkat ini belum punya (mis. upload dari HP).
 // Tanpa login ulang pun cukup buka halaman Profil.
 try {

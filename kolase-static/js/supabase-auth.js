@@ -70,6 +70,9 @@
           if (ex.password) s.password = lpw;
           if (ex.wa) s.wa = ex.wa;
         }
+        if (ex.panggilan) { s.panggilan = ex.panggilan; s.preferred_name = ex.panggilan; }
+        if (ex.usia) { s.usia = String(ex.usia); s.age_group = String(ex.usia); s.segment = "KIDS"; }
+        if (ex.wa) s.guardian_whatsapp = ex.wa;
       } else if (role === "teacher") {
         var t = (db.MST_TEACHERS || []).find(function (r) { return r.teacher_id === id; });
         if (!t) {
@@ -140,29 +143,35 @@
     });
   }
 
-  function register(role, nama, email, wa, password, pin) {
+  function register(role, nama, email, wa, password, pin, extra) {
     var r = String(role || "").trim().toLowerCase();
     var nm = String(nama || "").trim();
     var em = String(email || "").trim();
     var w = String(wa || "").trim();
     var pass = String(password || "").trim();
+    var ex = extra || {};
+    var panggilan = String(ex.panggilan || "").trim();
+    var usia = String(ex.usia || "").trim();
     if (!em || !w) return Promise.reject(new Error("Email dan No. WA wajib diisi."));
     if (!pass || pass.length < 4) return Promise.reject(new Error("Password min. 4 karakter."));
     return sha256hex(pass).then(function (h) {
       return client().rpc("kolase_register", {
         p_nama: nm || "Pengguna Baru", p_email: em, p_wa: w,
         p_role: r, p_password_hash: h, p_pin: String(pin || "")
+      }).then(function (res) {
+        return { res: res, hash: h };
       });
-    }).then(function (res) {
+    }).then(function (out) {
+      var res = out.res;
       if (res.error) throw new Error(rpcError(res.error));
       var id = String(res.data || "");
       var nm2 = nm || "Pengguna Baru";
       var user = { role: r, id: id, nama: nm2, email: em };
-      syncToLocal(user, { password: pass, wa: w });
+      syncToLocal(user, { password: pass, wa: w, panggilan: panggilan, usia: usia });
       // Cermin ke Sheets: baris master + login log (+ pilot untuk student).
       var tgl = new Date().toISOString().slice(0, 10);
       var row = r === "student"
-        ? { student_id: id, nama: nm2, email: em, wa: w, tgl_daftar: tgl }
+        ? { student_id: id, nama: nm2, email: em, wa: w, tgl_daftar: tgl, panggilan: panggilan, preferred_name: panggilan, usia: usia, age_group: usia, guardian_whatsapp: w, segment: usia ? "KIDS" : "" }
         : r === "teacher"
           ? { teacher_id: id, nama: nm2, email: em, wa: w }
           : { staff_id: id, nama: nm2, email: em, wa: w, role: r };
@@ -172,9 +181,20 @@
         var now = new Date().toISOString();
         sheetLog({
           action: "register_pilot",
-          registration: { "Cap waktu": now, "Full Name": nm2, Email: em, "No. WhatsApp": w },
-          student: { Student_ID: id, Full_Name: nm2, Email: em, WhatsApp: w, Current_Status: "REGISTERED", Confirmation_Status: "PENDING", Registration_Date: now.slice(0, 10), Last_Updated: now },
+          registration: { "Cap waktu": now, "Full Name": nm2, Email: em, "No. WhatsApp": w, "Preferred Name": panggilan, "Age": usia, "Guardian WhatsApp": w },
+          student: { Student_ID: id, Full_Name: nm2, Email: em, WhatsApp: w, Preferred_Name: panggilan, Age_Group: usia, Guardian_WhatsApp: w, Current_Status: "REGISTERED", Confirmation_Status: "PENDING", Registration_Date: now.slice(0, 10), Last_Updated: now },
         });
+      }
+      // Simpan nama panggilan & usia ke kolom profil cloud bila RPC tersedia.
+      // Gagal/tidak tersedia = abaikan, pendaftaran tetap berhasil.
+      if (r === "student" && (panggilan || usia)) {
+        try {
+          // Fire-and-forget: RPC opsional tidak boleh menahan kotak sukses.
+          client().rpc("kolase_update_student_profile", {
+            p_email: em, p_password_hash: out.hash,
+            p_panggilan: panggilan, p_usia: usia, p_guardian_wa: w
+          }).then(function () {}, function () {});
+        } catch (e) { /* RPC profil opsional */ }
       }
       return id;
     });

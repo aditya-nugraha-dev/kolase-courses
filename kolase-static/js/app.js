@@ -1,6 +1,5 @@
-/* Shared UI: nav, catalog render, copy buttons, sheets queue badge */
+/* Shared UI: footer, catalog render, copy buttons, sheets queue badge */
 function renderKolaseFooter() {
-  const year = new Date().getFullYear();
   const html = `<div class="wrap"><div class="kf-card"><div class="kf-grid">`
     + `<div class="kf-brand"><a class="kf-logo" href="home.html"><img src="assets/kolase-wordmark-black.png" alt="KOLASE English Academy"></a>`
     + `<p class="kf-tag">We believe in the power of play to foster creativity, problem-solving skills, and imagination.</p>`
@@ -15,7 +14,7 @@ function renderKolaseFooter() {
     + `<nav class="kf-col" aria-label="Contact Us"><h4>Contact Us</h4><ul><li><a href="mailto:kolaseenglish@gmail.com">Information</a></li><li><a href="https://maps.google.com/?q=Tangerang,Indonesia" target="_blank" rel="noopener">Map &amp; Direction</a></li></ul></nav>`
     + `</div><div class="kf-bottom"><div class="kf-legal"><a href="trust-legal.html">Terms of Service</a><span>|</span><a href="trust-legal.html">Privacy Policy</a><span>|</span><a href="trust-legal.html">Cookie Policy</a></div>`
     + `</div>`
-    + `<div class="kf-copy">Copyright © (${year}) KOLASE Academy. All rights reserved.</div>`
+    + `<div class="kf-copy">© 2026 KOLASE English Academy — In Your Voice We Trust</div>`
     + `</div></div>`;
   let bars = document.querySelectorAll("footer");
   if (!bars.length) {
@@ -37,151 +36,10 @@ function renderKolaseFooter() {
     });
   } catch (e) {}
 }
-/* Navbar: ganti link "Profil" jadi foto profil saat sudah login.
-   Foto dibaca dari sessionUser.photo (diisi halaman Profil) atau baris master. */
-function refreshNavAvatar() {
-  try {
-    const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-    const raw = localStorage.getItem("kolase_db_v1");
-    const db = raw ? JSON.parse(raw) : null;
-    const u = (db && db.sessionUser) || null;
-    const link = document.querySelector('[data-nav] a[href="profile.html"]');
-    if (!u || !link) return false;
-    let photo = u.photo || "";
-    if (!photo && db) {
-      const tbl = u.role === "student" ? db.MST_STUDENTS : u.role === "teacher" ? db.MST_TEACHERS : db.MST_STAFF;
-      const idF = u.role === "student" ? "student_id" : u.role === "teacher" ? "teacher_id" : "staff_id";
-      const row = (tbl || []).find((r) => r && r[idF] === u.id);
-      if (row && row.photo) photo = row.photo;
-    }
-    const first = String((u.nama || "?").trim().split(/\s+/)[0] || "?");
-    const face = photo
-      ? `<img src="${photo}" alt="Foto profil">`
-      : `<span class="nav-initial" aria-hidden="true">${esc(first.charAt(0).toUpperCase())}</span>`;
-    link.classList.add("nav-avatar");
-    link.innerHTML = face + `<span class="nav-uname">${esc(first)}</span>`;
-    link.title = `${u.nama} • ${u.id}`;
-    return true;
-  } catch (e) { return false; }
+function uiT(key) {
+  try { if (window.KolaseI18n) return KolaseI18n.t(key); } catch (e) {}
+  return key;
 }
-window.KolaseNavAvatar = { refresh: refreshNavAvatar };
-/* Navbar per peran — ditulis ulang tiap halaman agar konsisten:
-   tamu: Home, Katalog, Kalender, Masuk • student: Dashboard, Kalender, Chat Teacher, Profil
-   (tanpa Home; logo → dashboard) • teacher: Dashboard, Chat, Profil
-   • staff: semua link student+teacher. Berlaku juga untuk mobile-tabs. */
-var ROLE_NAVS = {
-  guest: {
-    brand: "home.html",
-    links: [["home.html", "nav.home"], ["catalog.html", "nav.katalog"], ["schedule.html", "nav.kalender"], ["login.html", "nav.masuk"]],
-    tabs: [["home.html", "nav.home"], ["catalog.html", "nav.katalog"], ["schedule.html", "nav.kalender"], ["login.html", "nav.masuk"]]
-  },
-  student: {
-    brand: "dashboard.html",
-    links: [["dashboard.html", "nav.dashboard"], ["schedule.html", "nav.kalender"], ["teacher-chat.html", "nav.chatTeacher"], ["profile.html", "nav.profil"]],
-    tabs: [["dashboard.html", "nav.materi"], ["teacher-chat.html", "nav.chat"], ["schedule.html", "nav.jadwal"], ["profile.html", "nav.profil"]]
-  },
-  teacher: {
-    brand: "teacher-portal.html",
-    links: [["teacher-portal.html", "nav.dashboard"], ["teacher-chat.html", "nav.chat"], ["profile.html", "nav.profil"]],
-    tabs: [["teacher-portal.html", "nav.kelas"], ["teacher-chat.html", "nav.chat"], ["schedule.html", "nav.jadwal"], ["profile.html", "nav.profil"]]
-  },
-  staff: {
-    brand: "home.html",
-    links: [["home.html", "nav.home"], ["catalog.html", "nav.katalog"], ["dashboard.html", "nav.dashboard"], ["schedule.html", "nav.kalender"], ["teacher-portal.html", "nav.teacher"], ["staff-portal.html", "nav.staff"], ["teacher-chat.html", "nav.chat"], ["direktori.html", "nav.direktori"], ["profile.html", "nav.profil"]],
-    tabs: [["home.html", "nav.home"], ["staff-portal.html", "nav.portal"], ["profile.html", "nav.profil"]]
-  }
-};
-var STAFF_GROUP = ["staff", "admin", "owner", "author", "founder", "academic", "systems"];
-function roleNavKey(role) {
-  if (!role) return "guest";
-  if (role === "student") return "student";
-  if (role === "teacher") return "teacher";
-  return "staff";
-}
-function navT(k) {
-  try { if (window.KolaseI18n) return KolaseI18n.t(k); } catch (e) {}
-  return k;
-}
-function navBadgeFor(role, href) {
-  // Badge angka: staff → pembayaran PENDING; murid/guru → chat belum dibaca.
-  try {
-    var raw = localStorage.getItem("kolase_db_v1");
-    if (!raw) return 0;
-    var db = JSON.parse(raw);
-    if (STAFF_GROUP.indexOf(role) !== -1 && href === "staff-portal.html") {
-      if (role === "systems") {
-        try { if (window.KolaseStore) return KolaseStore.pendingStaffRequestCount(); } catch (e) {}
-        return (db.STAFF_REQUESTS || []).filter(function (r) { return r.status === "PENDING"; }).length;
-      }
-      return (db.TXN_PAYMENTS || []).filter(function (t) { return t.status === "PENDING"; }).length;
-    }
-    if (role === "student" && href === "teacher-chat.html" && db.sessionUser) {
-      var t = (db.CHAT_THREADS || {})[db.sessionUser.id];
-      if (!t) return 0;
-      var seen = 0;
-      try { seen = Number(localStorage.getItem("kolase_chat_seen_" + db.sessionUser.id) || 0); } catch (e) {}
-      var fromStaff = t.messages.filter(function (m) { return m.from !== "student"; }).length;
-      return Math.max(0, fromStaff - seen);
-    }
-    if ((role === "teacher" || STAFF_GROUP.indexOf(role) !== -1) && href === "teacher-chat.html") {
-      var threads = Object.values(db.CHAT_THREADS || {});
-      return threads.filter(function (th) {
-        var last = th.messages[th.messages.length - 1];
-        return last && last.from === "student";
-      }).length;
-    }
-  } catch (e) {}
-  return 0;
-}
-function renderRoleNav() {
-  try {
-    var db = JSON.parse(localStorage.getItem("kolase_db_v1") || "null");
-    var u = (db && db.sessionUser) || null;
-    var rk = roleNavKey(u && u.role);
-    var nav = ROLE_NAVS[rk];
-    // Direktori hanya untuk 3 ID penuh (founder/academic/systems).
-    var FULL_ROLES = ["founder", "academic", "systems"];
-    if (!u || FULL_ROLES.indexOf(u.role) === -1) {
-      nav = {
-        brand: nav.brand,
-        links: nav.links.filter(function (l) { return l[0] !== "direktori.html"; }),
-        tabs: nav.tabs
-      };
-    }
-    // Tautan footer bertanda khusus ikut disembunyikan dari selain 3 ID penuh.
-    document.querySelectorAll("[data-fullpower-only]").forEach(function (el) {
-      el.style.display = (!u || FULL_ROLES.indexOf(u.role) === -1) ? "none" : "";
-    });
-    var brand = document.querySelector(".topbar .brand");
-    if (brand) brand.setAttribute("href", nav.brand);
-    var navEl = document.querySelector("[data-nav]");
-    if (navEl) navEl.innerHTML = nav.links.map(function (l) {
-      var n = navBadgeFor(u && u.role, l[0]);
-      return '<a href="' + l[0] + '">' + navT(l[1]) + (n > 0 ? ' <span class="nav-badge">' + (n > 99 ? "99+" : n) + "</span>" : "") + "</a>";
-    }).join("");
-    var tabs = document.querySelector(".mobile-tabs");
-    if (tabs) tabs.innerHTML = nav.tabs.map(function (l) { return '<a href="' + l[0] + '">' + navT(l[1]) + "</a>"; }).join("");
-  } catch (e) {}
-}
-/* Alih bahasa bawaan DIMATIKAN: situs selalu Indonesia, terjemahan via
-   Google Translate browser. (Tombol EN/ID lama dihapus.) */
-/* Penanda link aktif (satu-satunya hal yang boleh beda antar halaman). */
-function markActiveNav() {
-  var path = (location.pathname.split("/").pop() || "home.html").split("?")[0];
-  document.querySelectorAll("[data-nav] a").forEach(function (a) {
-    if (a.getAttribute("href") === path) a.classList.add("active");
-  });
-  document.querySelectorAll(".mobile-tabs a").forEach(function (a) {
-    var h = (a.getAttribute("href") || "").split("?")[0];
-    if (h === path) a.classList.add("active");
-  });
-}
-/* Header STAY: render sinkron saat script dibaca (akhir body, DOM sudah ada),
-   BUKAN menunggu DOMContentLoaded — jadi navbar tidak berubah-ubah/flash
-   tiap pindah page. Yang bergerak hanya penanda aktif (markActiveNav). */
-try { renderRoleNav(); } catch (e) {}
-try { refreshNavAvatar(); } catch (e) {}
-try { markActiveNav(); } catch (e) {}
 document.addEventListener("DOMContentLoaded", () => {
   try { renderKolaseFooter(); } catch (e) {}
   // Remember-me: bila login TANPA centang, sesi berakhir saat browser ditutup.
@@ -191,7 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const raw = localStorage.getItem("kolase_db_v1");
       if (raw) {
         const d = JSON.parse(raw);
-        if (d && d.sessionUser) { d.sessionUser = null; localStorage.setItem("kolase_db_v1", JSON.stringify(d)); }
+        if (d && d.sessionUser) {
+          d.sessionUser = null;
+          localStorage.setItem("kolase_db_v1", JSON.stringify(d));
+          if (window.KolaseNav) { KolaseNav.render(); KolaseNav.markActive(); }
+        }
       }
     }
     sessionStorage.setItem("kolase_alive", "1");
@@ -201,11 +63,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const need = (document.body.getAttribute("data-guard") || "").split(",").map((s) => s.trim()).filter(Boolean);
   // Peran internal bebas akses semua page/fitur. Siswa tetap dibatasi halamannya.
   const PRIVILEGED = ["staff", "admin", "owner", "author", "teacher", "founder", "academic", "systems"];
+  const FULL_POWER_ROLES = ["founder", "academic", "systems"];
   if (need.length) {
     let u = null;
     try { u = (JSON.parse(localStorage.getItem("kolase_db_v1") || "null") || {}).sessionUser || null; } catch (e) { u = null; }
-    const here = ((location.pathname.split("/").pop() || "home.html").split("?"))[0];
-    if (!u) { location.replace("login.html"); return; }
+    const page = (location.pathname.split("/").pop() || "home.html").split("?")[0].split("#")[0];
+    const here = page + location.search + location.hash;
+    if (!u) { location.replace("login.html?notice=login&next=" + encodeURIComponent(here)); return; }
+    // Direktori hanya untuk 3 ID penuh, walau peran internal lain punya akses global.
+    if (page === "direktori.html" && FULL_POWER_ROLES.indexOf(u.role) === -1) {
+      const dest = window.KolaseStore ? KolaseStore.portalFor(u.role) : "dashboard.html";
+      if (page !== dest.split("?")[0]) location.replace(dest);
+      return;
+    }
     if (PRIVILEGED.includes(u.role)) { /* akses penuh, lewati guard */ }
     else if (!need.includes(u.role)) {
       const dest = window.KolaseStore ? KolaseStore.portalFor(u.role) : "dashboard.html";
@@ -229,26 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
       location.replace("home.html");
     });
   });
-  // burger pojok kanan atas (HP): toggle dropdown nav
-  const burger = document.querySelector("[data-burger]");
-  const nav = document.querySelector("[data-nav]");
-  if (burger && nav) {
-    burger.setAttribute("aria-label", "Menu navigasi");
-    burger.setAttribute("aria-expanded", "false");
-    burger.addEventListener("click", () => {
-      const open = nav.classList.toggle("open");
-      burger.setAttribute("aria-expanded", String(open));
-      burger.textContent = open ? "✕" : "☰";
-    });
-    nav.addEventListener("click", (e) => {
-      if (e.target.tagName === "A") {
-        nav.classList.remove("open");
-        burger.setAttribute("aria-expanded", "false");
-        burger.textContent = "☰";
-      }
-    });
-  }
-
   // copy buttons
   document.querySelectorAll("[data-copy]").forEach((btn) => {
     btn.addEventListener("click", async () => {
@@ -273,10 +123,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // catalog render (catalog.html + home.html [data-catalog])
   const grid = document.querySelector("[data-catalog]");
-  if (grid) {
+  if (grid && grid.dataset.manual !== "true") {
     fetch("data/classes.json").then((r) => r.json()).then((classes) => {
       const params = new URLSearchParams(location.search);
-      const level = params.get("level") || "";
+      const level = grid.dataset.level || params.get("level") || "";
       const max = Number(params.get("max") || 0);
       const list = classes.filter((c) =>
         (!level || c.level === level) && (!max || Number(c.harga) <= max)
@@ -287,24 +137,51 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function cardHTML(c) {
-  const sesi = c.sesi_label || (c.sesi_count ?? 4);
-  const coret = Number(c.harga_coret || 0) > 0 ? `<s>Rp ${Number(c.harga_coret).toLocaleString("id-ID")}</s>` : ``;
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  const rp = (n) => "Rp " + Number(n || 0).toLocaleString("id-ID");
   const open = (c.class_status || "OPEN") === "OPEN";
   const hasPkg = Array.isArray(c.packages) && c.packages.length > 0;
-  const price = hasPkg && Number(c.harga_max || 0) > Number(c.harga || 0)
-    ? `<span class="price">Rp ${Math.round(Number(c.harga) / 1000)}rb – Rp ${(Number(c.harga_max) / 1000000).toLocaleString("id-ID", { maximumFractionDigits: 2 })}jt</span>`
-    : `<span class="price">Rp ${Number(c.harga).toLocaleString("id-ID")}</span>`;
-  const cta = open
-    ? `<a class="btn btn-ghost btn-sm" href="${hasPkg ? `class-details.html?id=${c.id}` : `checkout.html?id=${c.id}`}">${hasPkg ? navT("card.package") : navT("card.checkout")}</a>`
-    : `<span class="pill p-pending">${navT("card.soon")}</span>`;
-  return `<div class="card">
-    <div class="meta"><span class="pill p-verified">${c.level}</span><span>${c.jadwal}</span>${open ? `` : `<span class="pill p-pending">${navT("card.soon")}</span>`}</div>
-    <h3>${c.nama}</h3>
-    <div class="small">${c.guru} • ${c.kuota} kursi • ${sesi} sesi</div>
-    <div style="margin:8px 0">${price}${coret}</div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <a class="btn btn-brand btn-sm" href="class-details.html?id=${c.id}">${navT("card.detail")}</a>
-      ${cta}
+  const harga = Number(c.harga) || 0;
+  const hargaMax = Number(c.harga_max) || 0;
+  const hargaCoret = Number(c.harga_coret) || 0;
+  const isKids = c.level === "KIDS";
+  const sesiNum = c.sesi_label || String(c.sesi_count ?? 4);
+  const sesiText = hasPkg ? `Pilih ${sesiNum} sesi` : `${sesiNum} sesi`;
+  const durasi = `${Number(c.duration_minutes) || 60} menit / sesi`;
+  const kuota = Number(c.kuota) || 0;
+  const minSiswa = Number(c.min_students) || 0;
+  const kapasitas = kuota && kuota <= 10
+    ? (minSiswa ? `${minSiswa}–${kuota} anak` : `Maks. ${kuota} anak`)
+    : kuota ? `Hingga ${kuota} peserta` : "Kelas kecil";
+  const usia = c.usia_label || (isKids ? "Usia 6–12 Tahun" : "Usia 13+");
+  const cocok = c.cocok_label ? `<span class="cc-tag">${esc(c.cocok_label)}</span>` : "";
+  const trial = c.trial ? `<span class="cc-tag cc-tag-trial">Kelas Percobaan</span>` : "";
+  const outcome = c.outcome || (Array.isArray(c.learn) && c.learn[0]) || "";
+  const priceMain = hasPkg && hargaMax > harga
+    ? `${rp(harga)} – ${rp(hargaMax)}`
+    : rp(harga);
+  const priceNote = hargaCoret > 0
+    ? `<s>Normal ${rp(hargaCoret)}</s>`
+    : c.harga_alumni ? `Alumni ${rp(c.harga_alumni)}`
+      : (c.kategori === "PUBLIC" ? "per peserta" : "per paket");
+  const primaryHref = hasPkg
+    ? `class-details.html?id=${c.id}#paket`
+    : `checkout.html?id=${c.id}`;
+  const primary = open
+    ? `<a class="btn btn-brand btn-sm cc-cta" href="${primaryHref}">Pilih Kelas Ini</a>`
+    : `<span class="pill p-pending">${uiT("card.soon")}</span>`;
+  return `<article class="card class-card${isKids ? "" : " is-teen"}">
+    <div class="cc-head"><span class="cc-age">${esc(usia)}</span>${cocok}${trial}</div>
+    <h3>${esc(c.nama)}</h3>
+    <div class="cc-facts">
+      <div><b>${esc(sesiText)}</b><span>Durasi ${durasi}</span></div>
+      <div><b>${esc(kapasitas)}</b><span>${esc(c.jadwal || "")}</span></div>
     </div>
-  </div>`;
+    <div class="cc-outcome"><b>Hasil belajar</b><p>${esc(outcome)}</p></div>
+    <div class="cc-foot">
+      <div class="cc-price">${priceMain}<span>${priceNote}</span></div>
+      ${primary}
+    </div>
+    <a class="cc-more" href="class-details.html?id=${c.id}">Lihat detail &amp; silabus →</a>
+  </article>`;
 }
