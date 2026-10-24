@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KOLASE — Katalog Kelas Anak Usia 6–12 Tahun</title>
 <meta name="description" content="Pilih kelas bahasa Inggris untuk anak 6–12 tahun. Lihat usia, jumlah sesi, hasil belajar, dan harga paket dengan jelas sebelum mendaftar.">
-<link rel="stylesheet" href="css/style.css?v=10">
+<link rel="stylesheet" href="css/style.css?v=11">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
 <body>
@@ -21,7 +21,7 @@
   <section class="cat-head">
     <span class="cat-eyebrow">Kelas untuk Anak Usia 6–12 Tahun</span>
     <h1>Pilih Kelas yang Paling Nyaman untuk Anak Anda</h1>
-    <p>Setiap kartu menunjukkan usia, jumlah sesi, hasil belajar, dan harga paket. Pilih filter di bawah untuk melihat kelas yang paling sesuai.</p>
+    <p>Setiap kartu menunjukkan usia, jumlah sesi, manfaat belajar, dan harga paket. Pilih filter di bawah untuk melihat kelas yang paling sesuai.</p>
   </section>
 
   <section class="cat-filter" aria-labelledby="filterTitle">
@@ -31,10 +31,11 @@
     </div>
     <div class="cat-chips" role="group" aria-label="Filter kategori usia kelas">
       <button type="button" class="cat-chip is-active" data-age="all" aria-pressed="true">Semua Kelas</button>
-      <button type="button" class="cat-chip" data-age="6-8" aria-pressed="false">Usia 6–8 Tahun</button>
-      <button type="button" class="cat-chip" data-age="9-12" aria-pressed="false">Usia 9–12 Tahun</button>
-      <button type="button" class="cat-chip" data-age="public" aria-pressed="false">Kelas Percobaan / Public Class</button>
+      <button type="button" class="cat-chip" data-age="6-8" aria-pressed="false">Usia 6–8 Tahun (Little Explorers)</button>
+      <button type="button" class="cat-chip" data-age="9-12" aria-pressed="false">Usia 9–12 Tahun (Young Speakers)</button>
+      <button type="button" class="cat-chip" data-age="public" aria-pressed="false">Public Class</button>
     </div>
+    <p class="cat-filter-note">Little Explorers dirancang untuk usia 6–8 tahun, Young Speakers untuk usia 9–12 tahun. Pilih “Semua Kelas” untuk melihat seluruh pilihan.</p>
   </section>
 
   <div class="grid cols-3" data-catalog data-manual="true" id="catalogGrid">
@@ -60,7 +61,7 @@
 </nav>
 <footer><div class="wrap">© 2026 KOLASE English Academy — In Your Voice We Trust • <a href="trust-legal.html">Terms &amp; Privacy &amp; Refund</a> • <a href="tim.html">Tim Kami</a></div></footer>
 
-<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=11"></script><script src="js/nav.js?v=4"></script><script src="js/app.js?v=18"></script>
+<script src="js/store.js?v=14"></script><script src="js/i18n.js?v=12"></script><script src="js/nav.js?v=4"></script><script src="js/app.js?v=19"></script>
 <script>
 (function () {
   const grid = document.getElementById("catalogGrid");

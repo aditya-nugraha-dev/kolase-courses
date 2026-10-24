@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:static": "playwright test -c playwright.static.config.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

@@ -1,10 +1,41 @@
 STATUS TERAKHIR - KOLASE LMS (diupdate tiap akhir kerja)
 Repo: aditya-nugraha-dev/kolase-courses | Branch: main
-Commit terakhir: fe4d503 "LMS anak versi statis: peta 12 misi, bintang, lencana"
-Deploy: SUKSES run 39800755669. Live: /kolase-courses/lms.html (LMS anak statis).
+Commit terakhir: 4ba8bcd "selesaikan LMS statis: dashboard bintang/misi, nav LMS, tema seragam" (sudah di-push).
+Deploy: workflow deploy-static.yml berjalan otomatis setelah push 4ba8bcd; cek tab Actions.
 Aplikasi Next.js di web/ (auth, pembayaran, laporan guru) BELUM punya host.
 
-SESI INI (24 Okt 2026, belum di-commit) - PENYELESAIAN LMS STATIS:
+SESI INI (25 Okt 2026, belum di-commit) - PENYEMPURNAAN LMS ANAK:
+1. home.html: seksi Persembahan Pembelajaran menyebut Public Class, Little
+   Explorers (6–8 Tahun), hingga Young Speakers (9–12 Tahun). Tiga kontainer
+   Drive (showcase, materi, info) diberi fallback "Memuat ..." seperti Kelas
+   Populer/Jalur Belajar. Judul "Materi Akademik" dan "Info Operasional"
+   diganti "Materi & Bahan Belajar Anak" dan "Panduan untuk Orang Tua"; kartu
+   Drive ditulis ulang tanpa istilah SOP/dokumen internal.
+2. catalog.html: filter cepat "Semua Kelas", "Usia 6–8 Tahun (Little Explorers)",
+   "Usia 9–12 Tahun (Young Speakers)", dan "Public Class". Setiap kartu
+   menampilkan badge usia, jumlah sesi, "Manfaat belajar", dan harga jelas.
+3. login.html: formulir memakai bahasa Ayah/Bunda (nama anak, usia 6–12,
+   kontak orang tua). Logika ID STU-XXXXXX dan redirect ?next= tidak diubah.
+   Panel kiri login diganti visual logo Warm Cream karena poster lama
+   bertulisan dan terpotong di desktop maupun HP.
+4. dashboard.html: tombol besar "Buka Peta 12 Misi" di hero, kartu LMS Anak,
+   tombol Meet lebih besar + tips pendampingan, dan titik visual sisa sesi.
+5. Tes Playwright statis baru: web/playwright.static.config.ts,
+   web/tests/static-server.mjs, web/tests/static/kolase-static.spec.ts;
+   jalankan dengan "npm run test:static" dari folder web.
+
+VERIFIKASI SESI INI:
+- npm run test:static -> 20/20 lulus: 8 halaman (home, catalog, login,
+  dashboard, schedule, teacher-chat, profile, lms) x desktop + HP 390px;
+  link internal hidup, tanpa console error, tanpa overflow horizontal,
+  tab bawah muat; registrasi anak menghasilkan STU; filter katalog benar;
+  dashboard menampilkan pintasan LMS, Meet, dan sisa sesi.
+- npm run lint (web): 0 error (5 warning lama).
+- node --check js yang diubah + parser inline script: lolos.
+- Screenshot visual desktop/HP: katalog, login, dashboard, dan tiga seksi
+  home sudah rapi.
+
+SESI SEBELUMNYA (commit 4ba8bcd, sudah di-push) - PENYELESAIAN LMS STATIS:
 1. js/nav.js: tautan "LMS Anak" untuk guest + murid (nav desktop & tab bawah);
    lms.html kini jadi item aktif sendiri, tidak lagi dianggap dashboard.
 2. Dashboard murid: kartu "LMS Anak - Little Speakers" berisi bintang misi,

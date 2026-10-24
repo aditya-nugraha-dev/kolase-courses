@@ -177,7 +177,7 @@ function cardHTML(c) {
       <div><b>${esc(sesiText)}</b><span>Durasi ${durasi}</span></div>
       <div><b>${esc(kapasitas)}</b><span>${esc(c.jadwal || "")}</span></div>
     </div>
-    <div class="cc-outcome"><b>Hasil belajar</b><p>${esc(outcome)}</p></div>
+    <div class="cc-outcome"><b>Manfaat belajar</b><p>${esc(outcome)}</p></div>
     <div class="cc-foot">
       <div class="cc-price">${priceMain}<span>${priceNote}</span></div>
       ${primary}

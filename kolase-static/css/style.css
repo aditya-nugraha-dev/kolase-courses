@@ -478,6 +478,7 @@ hr{border:0;border-top:1px solid var(--line)}
   box-shadow:0 8px 18px -12px rgba(37,99,235,.8);
 }
 .cat-chip.is-active:hover{background:var(--royal-d);border-color:var(--royal-d);color:#FFFFFF}
+.cat-filter-note{margin:10px 0 0;font-size:13px;line-height:1.55;color:var(--muted)}
 
 .class-card{display:flex;flex-direction:column;height:100%;border-top:5px solid var(--amber);padding:20px}
 .class-card.is-teen{border-top-color:var(--royal)}

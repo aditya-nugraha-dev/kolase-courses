@@ -8,16 +8,16 @@
   ];
   // Hanya yang aman publik. Internal (keuangan, data siswa, manual perusahaan) TIDAK ditautkan.
   const MATERI = [
-    { t: "Kebijakan Akademik", d: "Master policy Kids & Adult/Teen.", href: "https://drive.google.com/drive/folders/1jcmyEXSeqxvtVR5ABrfgmrtUkEZ0wcLK" },
-    { t: "Books & Reference", d: "English for Everyone Level 1–2.", href: "https://drive.google.com/drive/folders/1CMSCIZ-DwgSYzGl0ahGLwVdSnbStBS_-" },
-    { t: "Teaching Resources", d: "Perangkat & sumber mengajar guru.", href: "https://drive.google.com/drive/folders/1Hv_1Lv8nbRBlR46JKWOqDj-ArGjXe5vh" },
-    { t: "Media Assets", d: "Aset media & visual KOLASE.", href: "https://drive.google.com/drive/folders/1mBGXZGps5loyQfllEFi_9adOoWbN2pjG" },
-    { t: "Konten Publikasi", d: "Carousel & CNT terbaru.", href: "https://drive.google.com/drive/folders/1TTGcJUAuRCXEu60q1pwCo2eBZ9pBH7df" }
+    { t: "Kurikulum & Cara Belajar", d: "Panduan kurikulum Kids & Teen yang dipakai guru.", href: "https://drive.google.com/drive/folders/1jcmyEXSeqxvtVR5ABrfgmrtUkEZ0wcLK" },
+    { t: "Buku & Referensi Belajar", d: "Buku pendamping English for Everyone Level 1–2.", href: "https://drive.google.com/drive/folders/1CMSCIZ-DwgSYzGl0ahGLwVdSnbStBS_-" },
+    { t: "Bahan Latihan di Rumah", d: "Lembar latihan dan aktivitas yang bisa dipakai di rumah.", href: "https://drive.google.com/drive/folders/1Hv_1Lv8nbRBlR46JKWOqDj-ArGjXe5vh" },
+    { t: "Galeri & Media Kelas", d: "Foto, poster, dan media belajar KOLASE.", href: "https://drive.google.com/drive/folders/1mBGXZGps5loyQfllEFi_9adOoWbN2pjG" },
+    { t: "Artikel & Konten Orang Tua", d: "Tips belajar dan kabar terbaru KOLASE.", href: "https://drive.google.com/drive/folders/1TTGcJUAuRCXEu60q1pwCo2eBZ9pBH7df" }
   ];
   const INFO = [
-    { t: "SOP Pendaftaran & Asesmen", d: "Alur daftar + placement Kids & Adults (V1.5).", href: "https://docs.google.com/document/d/1CvhgweAMjM8Icq6IdvfQPmAXnRyq9s93NHqLql9ktf4/view" },
-    { t: "SOP Kelas & Student Journey", d: "Pelaksanaan kelas (V2.6).", href: "https://docs.google.com/document/d/1MZt4omWlGgnLdBoxf5Bz6ujZJbU56pSMyhM8sk5s8lA/view" },
-    { t: "Katalog & Public Class", d: "Lihat kelas & daftar di website.", href: "catalog.html" }
+    { t: "Panduan Pendaftaran & Asesmen", d: "Alur daftar dan penempatan kelas anak — tanpa tes yang memberatkan.", href: "https://docs.google.com/document/d/1CvhgweAMjM8Icq6IdvfQPmAXnRyq9s93NHqLql9ktf4/view" },
+    { t: "Panduan Kelas & Perjalanan Anak", d: "Apa yang terjadi di kelas dan bagaimana perkembangan anak dipantau.", href: "https://docs.google.com/document/d/1MZt4omWlGgnLdBoxf5Bz6ujZJbU56pSMyhM8sk5s8lA/view" },
+    { t: "Pilih Kelas & Public Class", d: "Lihat kelas dan daftar langsung di website.", href: "catalog.html" }
   ];
 
   function ext(href) {

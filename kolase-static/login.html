@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KOLASE — Masuk / Daftar</title>
 <link rel="stylesheet" href="css/style.css?v=10">
-<link rel="stylesheet" href="css/auth.css?v=10">
+<link rel="stylesheet" href="css/auth.css?v=11">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
 <body>
@@ -63,16 +63,16 @@
         <form id="registerPane" hidden autocomplete="on">
           <div class="auth-reassure" id="registerIntro">
             <span class="ar-ico" aria-hidden="true">i</span>
-            <p id="regIntroText">Daftar dalam 1 menit untuk mendapatkan <b>ID Siswa Permanen</b> dan mulai memilih jadwal belajar anak.</p>
+            <p id="regIntroText">Ayah/Bunda cukup mengisi data anak dan kontak yang bisa dihubungi. <b>ID Siswa Permanen</b> dibuat otomatis setelah pendaftaran.</p>
           </div>
 
           <div class="auth-step">
             <span class="auth-step-num">1</span>
-            <div><b id="regStepTitle">Data Anak</b><span id="regStepSub">Isi sesuai nama yang dipakai di sekolah.</span></div>
+            <div><b id="regStepTitle">Data Anak</b><span id="regStepSub">Isi nama anak sesuai sekolah atau akta.</span></div>
           </div>
 
           <label class="auth-label" for="regNama" id="regNamaLabel">Nama Lengkap Anak</label>
-          <div class="auth-input"><input id="regNama" autocomplete="name" autocapitalize="words" placeholder="Nama lengkap anak"></div>
+          <div class="auth-input"><input id="regNama" autocomplete="off" autocapitalize="words" placeholder="Nama lengkap anak"></div>
           <p class="auth-help" id="regNamaHelp">Sesuai nama di sekolah atau akta.</p>
 
           <div id="studentFields">
@@ -93,11 +93,12 @@
                 <option value="12">12 tahun</option>
               </select>
             </div>
+            <p class="auth-help">Pilih usia 6–12 tahun agar kelasnya sesuai dengan tahap anak.</p>
           </div>
 
           <div class="auth-step">
             <span class="auth-step-num">2</span>
-            <div><b id="regStep2Title">Kontak &amp; Akun</b><span id="regStep2Sub">Untuk login dan pengingat jadwal.</span></div>
+            <div><b id="regStep2Title">Kontak Orang Tua</b><span id="regStep2Sub">Untuk login dan pengingat jadwal anak.</span></div>
           </div>
 
           <label class="auth-label" for="regWa" id="regWaLabel">Nomor WhatsApp Orang Tua / Wali</label>
@@ -160,7 +161,7 @@
   <a href="home.html#roadmap">Jalur Belajar</a><a href="login.html" class="is-cta active">Masuk / Daftar</a>
 </nav>
 <footer><div class="wrap">© 2026 KOLASE English Academy — In Your Voice We Trust • <a href="trust-legal.html">Terms & Privacy & Refund</a> • <a href="tim.html">Tim Kami</a></div></footer>
-<script src="js/sheets-config.js"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/store.js?v=16"></script><script src="js/supabase-auth.js?v=7"></script><script src="js/sheets-auth.js?v=3"></script><script src="js/i18n.js?v=11"></script><script src="js/nav.js?v=4"></script><script src="js/app.js?v=18"></script>
+<script src="js/sheets-config.js"></script><script src="js/supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/store.js?v=16"></script><script src="js/supabase-auth.js?v=7"></script><script src="js/sheets-auth.js?v=3"></script><script src="js/i18n.js?v=12"></script><script src="js/nav.js?v=4"></script><script src="js/app.js?v=18"></script>
 <script>
 // Setelah login: kembali ke halaman yang tadi dituju (bila aman), atau ke portal.
 function safeNextTarget() {
@@ -269,14 +270,15 @@ function refreshStaffUI() {
   byId("regNamaLabel").textContent = isStudent ? "Nama Lengkap Anak" : "Nama Lengkap";
   byId("regNamaHelp").textContent = isStudent ? "Sesuai nama di sekolah atau akta." : "Nama lengkap Anda.";
   byId("regStepTitle").textContent = isStudent ? "Data Anak" : "Data Pendaftar";
-  byId("regStepSub").textContent = isStudent ? "Isi sesuai nama yang dipakai di sekolah." : "Nama yang tercatat di tim KOLASE.";
-  byId("regStep2Sub").textContent = isStudent ? "Untuk login dan pengingat jadwal." : "Untuk login ke portal.";
+  byId("regStepSub").textContent = isStudent ? "Isi nama anak sesuai sekolah atau akta." : "Nama yang tercatat di tim KOLASE.";
+  byId("regStep2Title").textContent = isStudent ? "Kontak Orang Tua" : "Kontak & Akun";
+  byId("regStep2Sub").textContent = isStudent ? "Untuk login dan pengingat jadwal anak." : "Untuk login ke portal.";
   byId("regNama").placeholder = isStudent ? "Nama lengkap anak" : "Nama lengkap";
   byId("regWaLabel").textContent = isStudent ? "Nomor WhatsApp Orang Tua / Wali" : "Nomor WhatsApp";
   byId("regEmailLabel").textContent = isStudent ? "Email Orang Tua / Wali" : "Email";
   byId("regBtn").textContent = isStudent ? "Daftar & Buat ID Siswa" : "Daftar & Buat Akun";
   byId("regIntroText").innerHTML = isStudent
-    ? 'Daftar dalam 1 menit untuk mendapatkan <b>ID Siswa Permanen</b> dan mulai memilih jadwal belajar anak.'
+    ? 'Ayah/Bunda cukup mengisi data anak dan kontak yang bisa dihubungi. <b>ID Siswa Permanen</b> dibuat otomatis setelah pendaftaran.'
     : 'Buat akun guru atau tim KOLASE untuk masuk ke portal.';
   wrap.style.display = role === "staff" ? "" : "none";
   if (!suggest) { hint.style.display = "none"; hint.textContent = ""; return; }

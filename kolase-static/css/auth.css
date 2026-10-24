@@ -7,18 +7,30 @@
   max-width:980px;margin:0 auto;
 }
 .auth-media{
-  position:relative;min-height:220px;
-  background:#18181B url("../assets/poster/kids-bermain.jpeg") center/cover no-repeat;
+  position:relative;min-height:240px;overflow:hidden;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(245,158,11,.30), transparent 44%),
+    radial-gradient(circle at 84% 82%, rgba(37,99,235,.22), transparent 48%),
+    linear-gradient(150deg,#FFF8EC 0%,#FFFDF7 50%,#EFF6FF 100%);
+}
+.auth-media::before{
+  content:"";position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);
+  width:clamp(132px,42%,190px);aspect-ratio:1;border-radius:50%;
+  background:#FFFFFF url("../assets/kolase-logo.png") center/62% no-repeat;
+  border:8px solid rgba(255,255,255,.78);
+  box-shadow:0 24px 48px -26px rgba(37,99,235,.45);
 }
 .auth-media::after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(24,24,27,0) 40%,rgba(24,24,27,.78) 100%);
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 50% 68%, transparent 0 36%, rgba(255,253,247,.5) 72%);
 }
 .auth-media-caption{
-  position:absolute;left:20px;right:20px;bottom:18px;z-index:1;color:#fff;
+  position:absolute;left:18px;right:18px;bottom:16px;z-index:1;
+  padding:12px 14px;border:1px solid var(--line);border-radius:14px;
+  background:rgba(255,255,255,.94);color:var(--ink);box-shadow:var(--shadow-sm);
 }
-.auth-media-caption b{display:block;font-family:var(--serif);font-size:20px;line-height:1.3}
-.auth-media-caption span{display:block;font-size:13px;opacity:.9;margin-top:4px}
+.auth-media-caption b{display:block;font-family:var(--sans);font-size:17px;line-height:1.3}
+.auth-media-caption span{display:block;font-size:12.5px;color:var(--muted);margin-top:4px}
 .auth-body{padding:26px 22px 24px}
 .auth-body [hidden]{display:none!important}
 .auth-title{text-align:center;font-family:var(--sans);font-size:22px;font-weight:800;margin:6px 0 10px;color:var(--ink)}

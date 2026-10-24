@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KOLASE — Dashboard E-Learning</title>
 <link rel="stylesheet" href="css/style.css?v=10">
-<link rel="stylesheet" href="css/kids.css?v=1">
+<link rel="stylesheet" href="css/kids.css?v=2">
 <link rel="icon" href="assets/kolase-logo.png">
 </head>
 <body data-guard="student,staff,admin,founder,academic,systems,author,owner">
@@ -23,6 +23,13 @@
         <div class="kid-hero-meta">
           <div class="kid-idbadge"><span>ID Siswa</span><span id="kidsId">-</span></div>
           <span class="kid-parent-info" id="kidsParentInfo">Progres, badge, dan jadwal tersimpan di ID ini.</span>
+        </div>
+        <div class="kid-hero-actions">
+          <a class="kid-meet-btn" href="lms.html">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
+            <span>Buka Peta 12 Misi</span>
+          </a>
+          <a class="kid-next-calendar" href="schedule.html">Lihat jadwal kelas</a>
         </div>
       </div>
       <div class="kid-hero-mascot">
@@ -51,6 +58,7 @@
           <span id="nextMeetLabel">Buka jadwal kelas</span>
         </a>
         <a class="kid-next-calendar" href="schedule.html">Lihat kalender lengkap</a>
+        <p class="kid-next-tip">Tips: minta Ayah/Bunda menemani 5 menit pertama.</p>
       </div>
     </div>
   </section>
@@ -113,6 +121,7 @@
         <div><span>Progres</span><b id="kProg">-</b></div>
       </div>
       <div class="progress" style="margin-top:6px"><i id="kBar" style="width:0%"></i></div>
+      <div class="kid-session-pips" id="kidSessionPips" aria-hidden="true"></div>
       <p class="kid-parent-note" id="parentNote">Orang tua bisa memantau sisa sesi dan progres belajar di sini.</p>
     </div>
     <div class="kid-next-mini">
@@ -419,6 +428,15 @@ function kidRenderStars() {
   document.getElementById("kSisa").textContent = hasPackage ? `${sisa} sesi` : "0 sesi";
   document.getElementById("kProg").textContent = hasPackage ? `Sesi ${done} dari ${total}` : "Belum mulai";
   document.getElementById("kBar").style.width = (hasPackage && total ? done / total * 100 : 0) + "%";
+  const pips = document.getElementById("kidSessionPips");
+  if (pips) {
+    const pipCount = hasPackage ? Math.min(12, Math.max(1, total)) : 0;
+    const pipDone = hasPackage && total ? Math.round(done / total * pipCount) : 0;
+    pips.innerHTML = hasPackage
+      ? Array.from({ length: pipCount }, (_, i) => `<span class="kid-session-pip${i < pipDone ? " is-done" : ""}"></span>`).join("")
+      : "";
+    pips.hidden = !hasPackage;
+  }
   document.getElementById("parentNote").textContent = !hasPackage
     ? "Ambil kelas untuk melihat sisa sesi dan progres di sini."
     : kidPrimary.status === "PENDING"
